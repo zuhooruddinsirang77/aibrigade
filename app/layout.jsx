@@ -11,9 +11,9 @@ const WF_CUSTOM_CSS =
   "https://s3.amazonaws.com/assets.vvmd.team/Auxility/styles/3hhyvl-6.csb.app_style.css";
 
 export const metadata = {
-  title: "Auxility | FinTech App Development Agency",
+  title: "AI Brigade | Custom AI Systems for FinTech & HealthTech",
   description:
-    "Transform market insights into globally beloved FinTech apps. Expert mobile & web development for banks, trading platforms & insurance. 10 years experience.",
+    "AI Brigade builds production-grade AI systems — copilots, automation agents, GPT platforms, and decision intelligence workflows — for FinTech and HealthTech companies, from initial discovery through production deployment.",
   metadataBase: new URL("https://fintech.auxility.ca"),
   icons: {
     icon: "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/641832e35aac6568d9a90013_favicon32x32-fintech.png",
@@ -21,9 +21,9 @@ export const metadata = {
       "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/6418342a3c418513b24385a0_favicon256x256-fintech.png",
   },
   openGraph: {
-    title: "Auxility | FinTech App Development Agency",
+    title: "AI Brigade | Custom AI Systems for FinTech & HealthTech",
     description:
-      "Transform market insights into globally beloved FinTech apps. Expert mobile & web development for banks, trading platforms & insurance.",
+      "AI Brigade builds production-grade AI systems — copilots, automation agents, GPT platforms, and decision intelligence workflows — for FinTech and HealthTech companies.",
     type: "website",
   },
 };
