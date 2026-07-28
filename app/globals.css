@@ -1,0 +1,367 @@
+/* ================================================================
+   Auxility FinTech — global styles
+   Ported from the original Webflow page's embedded <style> blocks.
+   The bulk of the visual styling comes from the two linked Webflow
+   stylesheets (see app/layout.jsx). These blocks add the responsive
+   rules, marquee keyframes, utility classes and footer grid.
+   The Webflow IX2 "initial hide" rules are intentionally omitted so
+   content is visible without webflow.js; reveals are handled in React.
+   ================================================================ */
+
+/* Page wrapper is revealed by the Preloader component after mount. */
+.page-wrapper {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.page-wrapper.is-ready {
+  opacity: 1;
+}
+
+/* .nav-menu-white has no unconditional desktop rule in the Webflow CSS
+   (only mobile-breakpoint rules exist, defaulting to display:none). Give it
+   a normal flex row on desktop, and drive the mobile overlay open/close
+   state off a class instead of inline styles so the ≤991px default of
+   display:none is respected when the menu is closed. */
+.nav-menu-white {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+@media screen and (max-width: 991px) {
+  .nav-menu-white {
+    display: none;
+  }
+  .nav-menu-white.mobile-nav-open {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    background: #9248e4;
+    z-index: 50;
+    padding: 6rem 2rem;
+  }
+}
+
+/* The shared Webflow stylesheet's .bodywhite rule (background-color:
+   var(--violet)) loses the cascade on the live site to a plain `body`
+   rule earlier in that same file — empirically the live body background
+   is white. Match that here explicitly. */
+body.bodywhite {
+  background-color: #fff;
+}
+
+/* ---------- global-styles ---------- */
+html {
+  font-size: calc(0.3750000000000001rem + 0.6249999999999999vw);
+}
+@media screen and (max-width: 2100px) {
+  html { font-size: calc(0.8125rem + 0.20833333333333337vw); }
+}
+@media screen and (max-width: 1680px) {
+  html { font-size: calc(0.125rem + 0.8333333333333333vw); }
+}
+@media screen and (max-width: 1440px) {
+  html { font-size: calc(0.0625rem + 0.8333333333333333vw); }
+}
+@media screen and (max-width: 992px) {
+  html { font-size: 1rem; }
+}
+@media screen and (max-width: 767px) {
+  html { font-size: calc(0.5842013888888888rem + 1.3888888888888888vw); }
+}
+@media screen and (max-width: 479px) {
+  html { font-size: 16px !important; }
+}
+
+.heading-style-h1.grad,
+.heading-style-h1.grad.halyk {
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+}
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+.nav-up { top: -100%; }
+.nav-down { top: 0; }
+[tabindex]:focus-visible,
+input[type="file"]:focus-visible {
+  outline: #4d65ff solid 0.125rem;
+  outline-offset: 0.125rem;
+}
+.pointer-events-off { pointer-events: none; }
+.pointer-events-on { pointer-events: auto; }
+.container-large,
+.container-medium,
+.container-small {
+  margin-right: auto !important;
+  margin-left: auto !important;
+}
+.hide { display: none !important; }
+@media screen and (max-width: 991px) {
+  .hide, .hide-tablet { display: none !important; }
+}
+@media screen and (max-width: 479px) {
+  .hide-mobile { display: none !important; }
+}
+@media only screen and (max-width: 991px) {
+  html { scroll-behavior: auto !important; }
+}
+.button.light .button_text_wrapper { opacity: 1 !important; }
+.button:hover > .button_text_wrapper,
+.link.fill:hover .link_fill_text_wrapper { opacity: 1; }
+.button:hover .button_line { width: 145%; }
+.button:hover .button_line_arrows { transform: translate(55%, 0) rotate(45deg); }
+.button:hover .button_line_arrow { transform: translateX(6px); }
+.link_line { transform-origin: right; }
+.link:hover .button_line_arrow.arrow { transform: translateX(4px); }
+.link:hover .link_line { width: 70%; }
+.link.fill {
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+    linear-gradient(90deg, #672ca9 1.72%, #3f166e 83.38%);
+  background-position: 100% 0;
+  background-size: 200% 100%;
+  transition: background-position 0.5s ease-in-out;
+}
+.link.fill:hover { background-position: 0 0; }
+.header_image_gallery_image.shadow {
+  filter: drop-shadow(60px 60px 100px rgba(0, 0, 0, 0.4));
+}
+.GPU { transform: translate3d(0, 0, 0); }
+.cases_phone_image.shadow,
+.halyk_dec-1,
+.halyk_dec-2 {
+  filter: drop-shadow(40px 60px 80px rgba(112, 114, 130, 0.25));
+}
+.ticker_wrapper { animation: 30s linear infinite marquee-horizontal; }
+@media screen and (max-width: 767px) {
+  .hide-mobile-landscape { display: none !important; }
+  .ticker_wrapper { animation: 30s linear infinite marquee-horizontalM; }
+}
+.case-ticker-element { animation: 40s linear infinite marquee-horizontal2; }
+.services_ticker_wrapper { animation: 80s linear infinite marquee-horizontal3; }
+.p404_move { animation: 30s linear infinite marquee-horizontal2; }
+@keyframes marquee-horizontal {
+  from { transform: translateX(0); }
+  to { transform: translateX(-120rem); }
+}
+@keyframes marquee-horizontalM {
+  from { transform: translateX(0); }
+  to { transform: translateX(-75rem); }
+}
+@keyframes marquee-horizontal2 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+@keyframes marquee-horizontal3 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.whyus_grad {
+  background: conic-gradient(
+    from 270deg at 50% 50%,
+    #9248e4 0deg,
+    rgba(146, 72, 228, 0) 155.62deg,
+    rgba(0, 0, 0, 0) 360deg
+  );
+  transform: rotate(180deg);
+}
+.heading-style-h1.grad {
+  background: linear-gradient(90deg, #f87756 0, #9f48e4 111.61%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.heading-style-h1.grad.halyk {
+  background: linear-gradient(90deg, #29a75e 0, #9248e4 101.87%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.button_line { height: calc(50% + 0.09vw); }
+.side_image.big,
+.vision_phone { box-shadow: 30px 30px 60px rgba(111, 117, 122, 0.3); }
+.vision_phone.nodr { box-shadow: none; }
+.popup_input.txt { resize: none; }
+.button.submit:disabled,
+.button.submit:disabled:hover { background-color: #a9aeb2 !important; }
+.lottie.width { width: calc(100% + 3.75rem); }
+.func_slide { width: calc(100vw - 2.5rem); }
+@media only screen and (max-width: 767px) {
+  .func_slide,
+  .whyus_box { width: calc(100vw - 2.5rem) !important; }
+}
+.custom-arrow.revdisabled {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
+}
+.proud_wrapper::-webkit-scrollbar { display: none; }
+.proud_wrapper { -ms-overflow-style: none; scrollbar-width: none; }
+.track-flex { overflow-y: hidden; }
+.nav-menu.mobile { background-color: #9248e4; }
+
+/* ---------- horizontal scroll trigger ---------- */
+.horizontal-trigger { height: calc(100% - 100vh); }
+.end-slides { border-color: #c3c8cc; color: #c3c8cc; }
+
+/* ================================================================
+   Reveal overrides — because we don't run webflow.js (IX2), any
+   element the original hid with opacity:0 until scroll must be shown.
+   ================================================================ */
+[data-w-id] { opacity: 1 !important; }
+.header_component h1,
+.header_text_wrapper .d1,
+.header_image_gallery,
+.cases_bg-2,
+.services_photo,
+.button_bg-2 {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+.services_photo { transform: translate3d(0, 0, 0) !important; }
+
+/* Simple, tasteful entrance used in place of the Webflow reveals. */
+@keyframes ax-rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ax-reveal {
+  animation: ax-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Page transition overlay (nextPage) */
+.nextpage {
+  position: fixed;
+  top: 100vh;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 9999;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Keep everything from overflowing horizontally */
+body { overflow-x: hidden; }
+
+/* ---------- WhyUs horizontal scroll layout reinforcement ---------- */
+@media (min-width: 992px) {
+  .horizontal-sticky {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    overflow: visible;
+  }
+  .horizontal-list {
+    display: flex;
+    flex-wrap: nowrap;
+    will-change: transform;
+  }
+  /* Keep card text painted on its own GPU layer so it doesn't flicker/vanish
+     while the sibling list is actively being transformed during scroll. */
+  .whyus-box_item,
+  .whyus_item,
+  .whyus_bottom {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+.section_whyus.js { padding-top: 4rem !important; }
+
+@media (max-width: 991px) {
+  .horizontal-section { height: auto !important; min-height: 0 !important; }
+  .horizontal-sticky { position: static !important; height: auto !important; }
+  .horizontal-list-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .horizontal-list { display: flex; transform: none !important; gap: 10px; padding: 0 1.25rem; }
+  .horizontal-list .whyus-box_item { flex: 0 0 auto; }
+}
+
+/* ---------- Hero section ---------- */
+/* Extra room above the phone gallery and ticker for the heading/paragraph/
+   button. Both the gallery and ticker are `position:absolute` pinned to
+   the bottom of this box (ticker only becomes absolute at <=991px), so
+   growing the section's height alone drags them down with it. Each
+   `bottom` offset below is the Webflow default for that breakpoint plus
+   the same boost, so they stay exactly where they always were. */
+:root {
+  --hero-height-boost: 19rem;
+}
+#header.section_header {
+  height: calc(100vh + var(--hero-height-boost));
+  overflow: hidden;
+}
+#header .header_image_gallery {
+  bottom: var(--hero-height-boost); /* Webflow default: 0 */
+}
+@media screen and (max-width: 991px) {
+  #header .header_image_gallery {
+    bottom: calc(6rem + var(--hero-height-boost)); /* Webflow default: 6rem */
+  }
+  #header .header_ticker {
+    bottom: var(--hero-height-boost); /* Webflow default: 0 */
+  }
+}
+
+/* ---------- WhyUs manual slider ---------- */
+.whyus-slider-row {
+  display: none;
+}
+@media screen and (min-width: 992px) {
+  .whyus-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+  .whyus-slider-track {
+    position: relative;
+    flex: 1 1 auto;
+    height: 0.375rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+  }
+  .whyus-slider-thumb {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 30%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #9248e4, #6a2fc4);
+    pointer-events: none;
+  }
+  .whyus-slider-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 0.0625rem solid rgba(0, 0, 0, 0.12);
+    background: #fff;
+    color: #17161b;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .whyus-slider-arrow svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .whyus-slider-arrow:hover {
+    background: #9248e4;
+    border-color: #9248e4;
+    color: #fff;
+  }
+}
+
+/* ---------- Reviews responsive switch ---------- */
+@media (min-width: 992px) { .review-swiper-tablet { display: none !important; } }
+@media (max-width: 991px) { .reviews_component.hide-reviews-tablet { display: none !important; } }
+.review-swiper-tablet .swiper { padding-bottom: 3rem; }
+.review-swiper-tablet .review_item { height: 100%; }
