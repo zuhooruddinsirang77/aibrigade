@@ -147,22 +147,37 @@ export default function WhyUs() {
           },
         });
         tl.to(list, { x: () => -moveDistance, duration: 1, ease: "none" });
-        const st = tl.scrollTrigger;
 
-        // Slider at the bottom lets visitors scrub the row by hand, on top
-        // of the existing scroll-driven auto-slide above. Dragging the
-        // thumb (or clicking the track) moves the page's actual scroll
-        // position within the pinned range, so the ScrollTrigger tween
-        // stays the single source of truth for `x` — no desync possible.
+        // Slider + arrows below reposition the row itself (`list`'s own x)
+        // directly — they never touch page scroll. Earlier attempts called
+        // ScrollTrigger's own `.scroll()` / `window.scrollTo()` to jump the
+        // real scroll position, which fought the section's position:sticky
+        // layout and made the whole section pop out of view. This way the
+        // page never moves; only the cards do. The next real scroll simply
+        // resumes driving `x` from the scrub tween as normal.
+        let manualTween = null;
+        const setX = (x, animate) => {
+          const clamped = Math.min(0, Math.max(-moveDistance, x));
+          manualTween?.kill();
+          if (animate) {
+            manualTween = gsap.to(list, { x: clamped, duration: 0.5, ease: "power2.out" });
+          } else {
+            gsap.set(list, { x: clamped });
+          }
+          if (thumb && moveDistance > 0) {
+            thumb.style.left = (-clamped / moveDistance) * (100 - thumbPercent) + "%";
+          }
+        };
+
         let dragging = false;
 
         const seekToClientX = (clientX) => {
-          if (!track || !st || moveDistance <= 0) return;
+          if (!track || moveDistance <= 0) return;
           const rect = track.getBoundingClientRect();
           const thumbWidthPx = (thumbPercent / 100) * rect.width;
           const usable = Math.max(1, rect.width - thumbWidthPx);
           const p = Math.min(1, Math.max(0, (clientX - rect.left - thumbWidthPx / 2) / usable));
-          st.scroll(st.start + p * (st.end - st.start));
+          setX(-p * moveDistance, false);
         };
 
         const onPointerDown = (e) => {
@@ -184,19 +199,11 @@ export default function WhyUs() {
         window.addEventListener("pointerup", endDrag);
         window.addEventListener("pointercancel", endDrag);
 
-        // Prev/next arrows step one card at a time. Scrolls the real page
-        // position natively (smooth) instead of driving it frame-by-frame
-        // ourselves — that let our own tween fight the section's
-        // position:sticky scroll math and made it pop out of the pinned
-        // range. Letting the browser own the scroll means the sticky
-        // section and ScrollTrigger's scrub react exactly as they do to
-        // normal scrolling.
+        // Prev/next arrows step one card width at a time, eased.
         const step = (dir) => {
-          if (!st || moveDistance <= 0 || !itemWidth) return;
-          const current = st.start + st.progress * (st.end - st.start);
-          const perPixelScroll = (st.end - st.start) / moveDistance;
-          const target = Math.min(st.end, Math.max(st.start, current + dir * itemWidth * perPixelScroll));
-          window.scrollTo({ top: target, behavior: "smooth" });
+          if (moveDistance <= 0 || !itemWidth) return;
+          const current = gsap.getProperty(list, "x");
+          setX(current - dir * itemWidth, true);
         };
         const onPrevClick = () => step(-1);
         const onNextClick = () => step(1);
@@ -209,6 +216,7 @@ export default function WhyUs() {
         };
         window.addEventListener("resize", onResize);
         cleanup = () => {
+          manualTween?.kill();
           window.removeEventListener("resize", onResize);
           track?.removeEventListener("pointerdown", onPointerDown);
           window.removeEventListener("pointermove", onPointerMove);

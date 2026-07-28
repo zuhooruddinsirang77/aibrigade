@@ -291,16 +291,40 @@ body { overflow-x: hidden; }
   --hero-height-boost: 19rem;
 }
 #header.section_header {
-  height: calc(100vh + var(--hero-height-boost));
   overflow: hidden;
 }
-#header .header_image_gallery {
-  bottom: var(--hero-height-boost); /* Webflow default: 0 */
+/* Webflow itself sets height:auto on this section at <=767px (content-
+   sized, since the gallery/ticker are normal in-flow or self-contained
+   there). Only force the boosted 100vh+ height at >=768px, where Webflow's
+   own rule keeps height:100vh and the gallery/ticker are pinned via
+   position:absolute — otherwise mobile gets a viewport-tall box far
+   larger than its actual content, leaving a dead purple gap below it. */
+@media screen and (min-width: 768px) {
+  #header.section_header {
+    height: calc(100vh + var(--hero-height-boost));
+  }
 }
-@media screen and (max-width: 991px) {
+/* Only apply the boost while .header_image_gallery is still Webflow's
+   position:absolute (>=768px). At <=767px Webflow itself switches the
+   gallery to position:relative/static and flows it in normal document
+   order, so a leftover `bottom` offset here would just shove it (and the
+   overlapping ticker) up into the heading text instead of doing nothing. */
+@media screen and (min-width: 768px) {
+  #header .header_image_gallery {
+    bottom: var(--hero-height-boost); /* Webflow default: 0 */
+  }
+}
+@media screen and (min-width: 768px) and (max-width: 991px) {
   #header .header_image_gallery {
     bottom: calc(6rem + var(--hero-height-boost)); /* Webflow default: 6rem */
   }
+}
+/* .header_ticker stays position:absolute at every width down to the
+   smallest breakpoint (unlike the gallery), but only needs the boost
+   where the section itself is boosted (>=768px, see above) — at <=767px
+   the section is back to Webflow's own height:auto, so the ticker's
+   default bottom:0 already sits correctly against the content-sized box. */
+@media screen and (min-width: 768px) and (max-width: 991px) {
   #header .header_ticker {
     bottom: var(--hero-height-boost); /* Webflow default: 0 */
   }
