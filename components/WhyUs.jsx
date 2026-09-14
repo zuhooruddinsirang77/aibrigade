@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { whyUs } from "@/components/data";
+import Reveal from "@/components/motion/Reveal";
 
 const WHYUS_ICONS = {
   shield: (
@@ -236,14 +237,14 @@ export default function WhyUs() {
   }, []);
 
   return (
-    <div className="section_whyus js">
+    <div id="whyus" className="section_whyus js">
       <div className="horizontal-section" ref={sectionRef}>
         <div className="horizontal-trigger" />
         <div className="horizontal-sticky">
           <div className="padding-global">
             <div className="container-large">
               <div className="padding-section-whyus">
-                <div className="_3-columns-grid">
+                <Reveal variant="rise" className="_3-columns-grid">
                   <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                     What we&rsquo;re <br />
                     good at
@@ -252,7 +253,7 @@ export default function WhyUs() {
                     Building production-grade AI systems trusted by fintech and healthtech
                     organizations across the U.S.
                   </p>
-                </div>
+                </Reveal>
 
                 <div className="horizontal-list-wrapper">
                   <section id="horizontal-list-js" className="horizontal-list" ref={listRef}>
@@ -317,7 +318,7 @@ export default function WhyUs() {
           </div>
         </div>
       </div>
-      <div id="whyus" className="whyus-anchor_absolute" />
+      <div id="whyus-end" className="whyus-anchor_absolute" />
     </div>
   );
 }

@@ -208,6 +208,12 @@ input[type="file"]:focus-visible {
    Reveal overrides — because we don't run webflow.js (IX2), any
    element the original hid with opacity:0 until scroll must be shown.
    ================================================================ */
+/* DO NOT SCOPE THESE. The linked Webflow stylesheets ship IX2 initial states
+   (opacity:0) for every one of these selectors, and webflow.js is not running
+   to reveal them. These !important rules are the only reason the hero
+   headline, hero paragraph, case backgrounds, services photo and CTA
+   background are on screen at all. Weaken them and those elements vanish.
+   The motion layer is built to never need them released. */
 [data-w-id] { opacity: 1 !important; }
 .header_component h1,
 .header_text_wrapper .d1,
@@ -221,14 +227,7 @@ input[type="file"]:focus-visible {
 }
 .services_photo { transform: translate3d(0, 0, 0) !important; }
 
-/* Simple, tasteful entrance used in place of the Webflow reveals. */
-@keyframes ax-rise {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.ax-reveal {
-  animation: ax-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
+/* The old .ax-reveal stopgap is replaced by components/motion/Reveal.jsx. */
 
 /* Page transition overlay (nextPage) */
 .nextpage {

@@ -1,4 +1,5 @@
 import { proudBadges } from "@/components/data";
+import Reveal from "@/components/motion/Reveal";
 
 export default function Proud() {
   return (
@@ -11,7 +12,7 @@ export default function Proud() {
               recognized for
             </h2>
             <div className="proud_component">
-              <div className="proud_wrapper">
+              <Reveal variant="stagger" selector=".proud_image" className="proud_wrapper">
                 {proudBadges.map((b, i) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -21,7 +22,7 @@ export default function Proud() {
                     key={i}
                   />
                 ))}
-              </div>
+              </Reveal>
               <div className="proud_gradient-mob pointer-events-off" />
             </div>
             <div className="proud_item pointer-events-off" />

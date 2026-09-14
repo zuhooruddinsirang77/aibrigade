@@ -1,6 +1,8 @@
 "use client";
 
 import { usePopup } from "@/components/PopupContext";
+import Reveal from "@/components/motion/Reveal";
+import Parallax from "@/components/motion/Parallax";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -14,11 +16,11 @@ export default function Cases() {
   };
 
   return (
-    <div className="section_cases position-relative">
+    <div id="cases" className="section_cases position-relative">
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-cases padding-top-100_ipad-pro">
-            <div className="_3-columns-grid">
+            <Reveal variant="rise" className="_3-columns-grid">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                 Prominent <br />
                 Cases
@@ -27,9 +29,9 @@ export default function Cases() {
                 Production-grade AI systems we&rsquo;ve deployed for fintech and healthtech
                 organizations nationwide.
               </p>
-            </div>
+            </Reveal>
 
-            <div className="cases_component">
+            <Reveal variant="stagger" selector=".cases_grid" className="cases_component">
               {/* ICU */}
               <div className="cases_grid first">
                 <div className="cases_item">
@@ -120,12 +122,14 @@ export default function Cases() {
                 </div>
 
                 <div className="cases_item grad1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`${CDN}/642d51c99450cf1e66ed1397_pisma_glass_1.webp`}
-                    alt="Transparent purple faceted gem."
-                    className="cases_dec-5"
-                  />
+                  <Parallax speed={-22}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`${CDN}/642d51c99450cf1e66ed1397_pisma_glass_1.webp`}
+                      alt="Transparent purple faceted gem."
+                      className="cases_dec-5"
+                    />
+                  </Parallax>
                   <div className="cases_text_wrapper text-color-white">
                     <div className="cases_text_top">
                       <div className="heading-style-h1 big heading-80pt-ipad_pro">Will</div>
@@ -166,8 +170,8 @@ export default function Cases() {
                   />
                 </div>
               </div>
-            </div>
-            <div id="cases" className="anchor-cases" />
+            </Reveal>
+            <div id="cases-end" className="anchor-cases" />
           </div>
         </div>
       </div>

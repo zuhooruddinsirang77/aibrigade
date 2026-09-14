@@ -1,0 +1,515 @@
+/* ================================================================
+   AIBrigade — motion layer
+   Additive only. No existing Webflow class is restyled; every rule
+   here is namespaced `ax-` or scoped behind `html.ax-motion`, so the
+   theme (violet #9248e4, gradients, type) is untouched.
+
+   Import AFTER globals.css in app/layout.jsx.
+   ================================================================ */
+
+:root {
+  --ax-violet: #9248e4;
+  --ax-violet-deep: #3f166e;
+  --ax-violet-mid: #672ca9;
+  --ax-ink: #161d25;
+  --ax-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ----------------------------------------------------------------
+   1. Reveal gate.
+
+   The motion layer animates only elements it owns — Reveal's own wrapper
+   divs and MaskHeading's own spans. It never touches the six selectors
+   globals.css force-shows, because those are held visible against the
+   Webflow stylesheets' opacity:0 initial states.
+   ---------------------------------------------------------------- */
+
+/* Elements opted into JS motion start hidden ONLY once JS is confirmed. */
+html.ax-motion [data-ax="hide"] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* Reduced motion, and the GSAP-never-loaded fallback: everything visible,
+   immediately, no exceptions. `ax-nomotion` is set by MotionProvider only
+   when the library actually failed — see the note in that file. */
+html.ax-reduced [data-ax="hide"],
+html.ax-reduced .ax-mask__word > span,
+html.ax-nomotion [data-ax="hide"],
+html.ax-nomotion .ax-mask__word > span {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ----------------------------------------------------------------
+   2. Masked headline reveal
+   One technique, used only on h1/h2. Words rise out of their own
+   clipping box — no generic section-wide fade-up.
+   ---------------------------------------------------------------- */
+.ax-mask {
+  display: inline;
+}
+.ax-mask__word {
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: bottom;
+  /* Enough room for descenders — a clipping box tight to the baseline eats
+     the tails off g, y and p in any headline that has them. */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
+  /* Gives the child span's rotateX (MaskHeading's entrance) real depth
+     instead of reading as a flat vertical shear. */
+  perspective: 32rem;
+}
+.ax-mask__word > span {
+  display: inline-block;
+  will-change: transform;
+}
+html.ax-motion .ax-mask__word > span {
+  transform: translateY(105%);
+}
+/* Set by MaskHeading when GSAP fails to load. A headline is content, never
+   something that depends on an animation library arriving. */
+.ax-mask--released .ax-mask__word > span,
+html.ax-nomotion .ax-mask__word > span {
+  transform: none !important;
+}
+
+/* ----------------------------------------------------------------
+   3. Story rail — the narrative spine
+
+   Docked to the bottom, centred, as a self-contained pill.
+
+   It used to be a fixed column at `left: 1.75rem`. That was wrong for this
+   layout: `container-large` runs nearly edge to edge here, so there is no
+   side gutter to live in and the ticks landed on top of the first column of
+   content — reading as stray debris rather than navigation. Along the bottom
+   there is always free space, it never covers text, and it works at every
+   width instead of hiding below 1024px.
+   ---------------------------------------------------------------- */
+.ax-rail {
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: none;
+  align-items: center;
+  gap: 0.125rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.5rem 0.625rem;
+  border-radius: 999px;
+  background: rgba(18, 24, 31, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.28);
+  color: #fff;
+}
+html.ax-motion .ax-rail {
+  display: flex;
+}
+.ax-rail__item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.3rem;
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+}
+.ax-rail__tick {
+  display: block;
+  width: 0.875rem;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.3;
+  transition: width 0.4s var(--ax-ease), opacity 0.4s var(--ax-ease),
+    background-color 0.4s var(--ax-ease);
+}
+.ax-rail__item:hover .ax-rail__tick {
+  opacity: 0.65;
+}
+.ax-rail__item[aria-current="true"] .ax-rail__tick {
+  width: 1.5rem;
+  opacity: 1;
+  background: var(--ax-violet);
+}
+/* Only the chapter you're in names itself — seven labels at once would be a
+   menu, and this is meant to read as a position indicator. */
+.ax-rail__label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: max-width 0.45s var(--ax-ease), opacity 0.3s var(--ax-ease),
+    padding 0.45s var(--ax-ease);
+}
+.ax-rail__item[aria-current="true"] .ax-rail__label {
+  max-width: 11rem;
+  padding-right: 0.25rem;
+  opacity: 0.92;
+}
+.ax-rail__item:focus-visible {
+  outline: 0.125rem solid var(--ax-violet);
+  outline-offset: 0.1rem;
+}
+
+@media (max-width: 479px) {
+  .ax-rail {
+    bottom: 0.75rem;
+    padding: 0.4rem 0.5rem;
+  }
+  .ax-rail__label {
+    font-size: 0.6875rem;
+  }
+  .ax-rail__item[aria-current="true"] .ax-rail__label {
+    max-width: 8rem;
+  }
+}
+
+html.ax-reduced .ax-rail__tick,
+html.ax-reduced .ax-rail__label {
+  transition: none;
+}
+
+/* Chapter title card — flashes once each time the story rail's active
+   chapter changes (never on load, see the `firstCallRef` guard in
+   StoryRail.jsx). This is the one moment on the page that names the beat
+   you just crossed into, the way a documentary drops a title card between
+   sections instead of just cutting. Below the rail's z-index so the rail
+   pill stays visible and clickable through it, and always pointer-events:
+   none so it can never block the content underneath. */
+.ax-chapter-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.ax-chapter-flash__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.1rem 2.5rem;
+  border-radius: 1.25rem;
+  background: rgba(17, 12, 28, 0.6);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
+  text-align: center;
+  animation: ax-chapter-flash 1.75s var(--ax-ease) forwards;
+}
+.ax-chapter-flash__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ax-violet);
+  font-weight: 600;
+}
+.ax-chapter-flash__label {
+  font-size: clamp(1.5rem, 4.5vw, 2.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+@keyframes ax-chapter-flash {
+  0% { opacity: 0; transform: scale(0.92); }
+  14% { opacity: 1; transform: scale(1); }
+  78% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.03); }
+}
+html.ax-reduced .ax-chapter-flash {
+  display: none;
+}
+
+/* ----------------------------------------------------------------
+   4. Cursor
+   A single violet ring. It reacts to what's under it — that reaction
+   is the point; it isn't decoration.
+   ---------------------------------------------------------------- */
+.ax-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: -0.875rem 0 0 -0.875rem;
+  border: 0.0938rem solid var(--ax-violet);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  mix-blend-mode: normal;
+  transition: opacity 0.25s linear;
+}
+.ax-cursor__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+.ax-cursor[data-state="link"] {
+  background: rgba(146, 72, 228, 0.12);
+}
+.ax-cursor[data-state="play"] {
+  background: var(--ax-violet);
+  border-color: var(--ax-violet);
+}
+.ax-cursor[data-state="play"] .ax-cursor__label {
+  opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) and (min-width: 992px) {
+  html.ax-motion:not(.ax-reduced) .ax-cursor {
+    display: block;
+  }
+}
+
+/* ----------------------------------------------------------------
+   5. Magnetic targets — pointer-driven, so always welcome
+   ---------------------------------------------------------------- */
+.ax-magnetic {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ----------------------------------------------------------------
+   6. Scroll-linked gradient sweep on dark bands
+   Replaces the "every card fades up" default with one slow, ambient
+   move that only exists where the story goes dark.
+   ---------------------------------------------------------------- */
+.ax-sweep {
+  position: relative;
+  isolation: isolate;
+}
+.ax-sweep::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10%;
+  z-index: -1;
+  background: radial-gradient(
+    42% 55% at var(--ax-sweep-x, 50%) var(--ax-sweep-y, 20%),
+    rgba(146, 72, 228, 0.35) 0%,
+    rgba(146, 72, 228, 0) 70%
+  );
+  pointer-events: none;
+}
+html.ax-reduced .ax-sweep::before {
+  --ax-sweep-x: 50%;
+  --ax-sweep-y: 30%;
+}
+
+/* ----------------------------------------------------------------
+   7. Counters
+   ---------------------------------------------------------------- */
+.ax-counter {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The hero gallery is position:absolute in the Webflow CSS; clip-path on an
+   absolutely positioned box needs an explicit stacking context or Safari
+   paints the un-clipped frame for one tick. */
+html.ax-motion .header_image_gallery {
+  isolation: isolate;
+}
+
+/* ----------------------------------------------------------------
+   8. Cards answer the pointer
+
+   Motion that responds to an action is the kind worth having everywhere —
+   unlike entrance effects, you can't miss it by scrolling fast, and it tells
+   you what is interactive. Gated on a fine pointer so touch devices don't
+   get stuck in a hover state after a tap.
+   ---------------------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  /* .features_item / .review_item hover is owned by TiltCard.jsx now — it
+     writes rotationX/rotationY/y as inline `transform`, which a stylesheet
+     `:hover` transform can't coexist with (inline always wins). The lift
+     and tilt live there; only the shadow transition stays here, toggled by
+     the `.ax-tilt--active` class TiltCard adds on pointerenter. */
+  html.ax-motion:not(.ax-reduced) .features_item,
+  html.ax-motion:not(.ax-reduced) .review_item {
+    transition: box-shadow 0.45s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .features_item.ax-tilt--active,
+  html.ax-motion:not(.ax-reduced) .review_item.ax-tilt--active {
+    box-shadow: 0 1.5rem 3rem rgba(63, 22, 110, 0.22);
+  }
+
+  html.ax-motion:not(.ax-reduced) .cases_phone_image,
+  html.ax-motion:not(.ax-reduced) .cases_dec-5 {
+    transition: transform 0.6s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .cases_item:hover .cases_phone_image {
+    transform: scale(1.045);
+  }
+
+  html.ax-motion:not(.ax-reduced) .proud_image {
+    transition: transform 0.35s var(--ax-ease), filter 0.35s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .proud_image:hover {
+    transform: translateY(-0.25rem) scale(1.03);
+  }
+}
+
+/* ----------------------------------------------------------------
+   9. Scroll progress
+
+   Pairs with the story rail: the rail says which chapter you're in, this
+   says how far through the page you are. Three pixels, top of the viewport,
+   above the sticky navbar.
+   ---------------------------------------------------------------- */
+.ax-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.1875rem;
+  z-index: 70;
+  display: none;
+  pointer-events: none;
+  background: rgba(146, 72, 228, 0.14);
+}
+html.ax-motion .ax-progress {
+  display: block;
+}
+.ax-progress__bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, #f87756 0%, #9f48e4 100%);
+}
+
+/* ----------------------------------------------------------------
+   11. Ambient hero atmosphere — always on, never gated behind scroll or
+   pointer. Two soft blurred blobs drifting on a slow loop, so the first
+   screen reads as alive the instant it paints, before anyone has touched
+   anything. `z-index: -1` (not 0) is load-bearing: `.ax-hero-glow` is a
+   positioned child of `#header`, and a positioned descendant paints ABOVE
+   ordinary in-flow siblings even at z-index 0 or auto — only a negative
+   index drops it behind the headline and gallery instead of over them.
+   ---------------------------------------------------------------- */
+.ax-hero-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ax-hero-glow::before,
+.ax-hero-glow::after {
+  content: "";
+  position: absolute;
+  width: 42rem;
+  height: 42rem;
+  border-radius: 50%;
+  filter: blur(70px);
+}
+.ax-hero-glow::before {
+  top: -16rem;
+  right: -12rem;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+}
+.ax-hero-glow::after {
+  bottom: -20rem;
+  left: -14rem;
+  background: radial-gradient(circle, rgba(63, 22, 110, 0.75) 0%, rgba(63, 22, 110, 0) 70%);
+}
+html.ax-motion:not(.ax-reduced) .ax-hero-glow::before {
+  animation: ax-drift-a 17s ease-in-out infinite;
+}
+html.ax-motion:not(.ax-reduced) .ax-hero-glow::after {
+  animation: ax-drift-b 21s ease-in-out infinite;
+}
+@keyframes ax-drift-a {
+  0%, 100% { translate: 0 0; scale: 1; }
+  50% { translate: -3rem 2.5rem; scale: 1.1; }
+}
+@keyframes ax-drift-b {
+  0%, 100% { translate: 0 0; scale: 1; }
+  50% { translate: 3rem -2rem; scale: 1.12; }
+}
+
+/* Idle float on the hero's two 3D renders — a slow continuous bob so they
+   read as objects hanging in space, not pasted art. Uses the standalone
+   `translate` property rather than `transform`, so it composites alongside
+   (never fights) the `transform`-based scroll drift and mouse-follow GSAP
+   already applies to the same elements via `Parallax`. */
+html.ax-motion:not(.ax-reduced) .header_dec-1,
+html.ax-motion:not(.ax-reduced) .header_dec-2 {
+  animation: ax-float 6.5s ease-in-out infinite;
+}
+html.ax-motion:not(.ax-reduced) .header_dec-1 {
+  animation-duration: 8s;
+  animation-delay: -2.4s;
+}
+@keyframes ax-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -16px; }
+}
+
+/* ----------------------------------------------------------------
+   10. Marquees answer the pointer
+
+   The three tickers scroll forever on a CSS animation. Pausing them on
+   hover turns a decorative band into something you can actually read —
+   which is the whole reason the copy is in there.
+   ---------------------------------------------------------------- */
+@media (hover: hover) and (pointer: fine) {
+  html.ax-motion:not(.ax-reduced) .header_ticker:hover .ticker_wrapper,
+  html.ax-motion:not(.ax-reduced) .services_ticker:hover .services_ticker_wrapper,
+  html.ax-motion:not(.ax-reduced) .cases_ticker:hover .case-ticker-element {
+    animation-play-state: paused;
+  }
+
+  /* Capability cards in the horizontal scroller. */
+  html.ax-motion:not(.ax-reduced) .whyus_item {
+    transition: transform 0.4s var(--ax-ease), box-shadow 0.4s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .whyus-box_item:hover .whyus_item {
+    transform: translateY(-0.4rem);
+    box-shadow: 0 1.25rem 2.5rem rgba(63, 22, 110, 0.18);
+  }
+
+  /* Service panels. The photo inside is pinned by globals.css with
+     `transform: translate3d(0,0,0) !important`, so the lift has to live on
+     the panel, not the image. */
+  html.ax-motion:not(.ax-reduced) .services_item {
+    transition: transform 0.4s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .services_item:hover {
+    transform: translateY(-0.4rem);
+  }
+
+  /* Footer and nav links draw their underline on approach. */
+  html.ax-motion:not(.ax-reduced) .navbar_link,
+  html.ax-motion:not(.ax-reduced) .footer_social-new,
+  html.ax-motion:not(.ax-reduced) .is-special-text-footer.is--link {
+    transition: opacity 0.25s var(--ax-ease), transform 0.25s var(--ax-ease);
+  }
+  html.ax-motion:not(.ax-reduced) .navbar_link:hover,
+  html.ax-motion:not(.ax-reduced) .is-special-text-footer.is--link:hover {
+    opacity: 0.65;
+  }
+  html.ax-motion:not(.ax-reduced) .footer_social-new:hover {
+    transform: translateX(0.25rem);
+  }
+}

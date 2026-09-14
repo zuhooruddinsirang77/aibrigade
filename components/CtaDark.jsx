@@ -1,6 +1,8 @@
 "use client";
 
 import { usePopup } from "@/components/PopupContext";
+import MaskHeading from "@/components/motion/MaskHeading";
+import Magnetic from "@/components/motion/Magnetic";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -14,8 +16,9 @@ export default function CtaDark() {
             <div className="container-large">
               <div className="cta_dark_component">
                 <h2 className="heading-style-h4 text-color-white _4 max-width-large big heading-40pt-ipad_pro">
-                  Let us turn your concept into a production-grade AI system
+                  <MaskHeading text="Let us turn your concept into a production-grade AI system" />
                 </h2>
+                <Magnetic>
                 <a
                   href="#"
                   className="link fill width w-inline-block"
@@ -36,6 +39,7 @@ export default function CtaDark() {
                     </div>
                   </div>
                 </a>
+                </Magnetic>
               </div>
             </div>
           </div>

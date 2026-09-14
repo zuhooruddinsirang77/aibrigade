@@ -1,9 +1,15 @@
 import "./globals.css";
+import "./motion.css";
+import "./deployments.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";
 import PageTransition from "@/components/PageTransition";
 import PopupForm from "@/components/PopupForm";
+import MotionProvider from "@/components/motion/MotionProvider";
+import StoryRail from "@/components/motion/StoryRail";
+import Cursor from "@/components/motion/Cursor";
+import ScrollProgress from "@/components/motion/ScrollProgress";
 
 
 
@@ -17,7 +23,7 @@ export const metadata = {
   title: "AI Brigade | Custom AI Systems for FinTech & HealthTech",
   description:
     "AI Brigade builds production-grade AI systems — copilots, automation agents, GPT platforms, and decision intelligence workflows — for FinTech and HealthTech companies, from initial discovery through production deployment.",
-  metadataBase: new URL("https://fintech.auxility.ca"),
+  metadataBase: new URL("https://aibrigade.vercel.app"),
   icons: {
     icon: "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/641832e35aac6568d9a90013_favicon32x32-fintech.png",
     apple:
@@ -65,6 +71,11 @@ export default function RootLayout({ children }) {
             title="gtm"
           />
         </noscript>
+
+        <MotionProvider />
+        <Cursor />
+        <ScrollProgress />
+        <StoryRail />
 
         <PopupProvider>
           <Preloader />

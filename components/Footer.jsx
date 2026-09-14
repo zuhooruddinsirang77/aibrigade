@@ -1,6 +1,7 @@
 "use client";
 
 import Logo from "@/components/Logo";
+import Reveal from "@/components/motion/Reveal";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -31,7 +32,11 @@ export default function Footer() {
   return (
     <div id="footer" className="section_footer">
       <div className="padding-global">
-        <div className="footer-grid">
+        <Reveal
+          variant="stagger"
+          selector=".footer-logo-box, .footer-nav, .footer-social, .footer-copy"
+          className="footer-grid"
+        >
           <div className="footer-logo-box">
 
  <img
@@ -147,7 +152,7 @@ export default function Footer() {
               Privacy policy
             </a>
           </div>
-        </div>
+        </Reveal>
       </div>
     </div>
   );

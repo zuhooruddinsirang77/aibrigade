@@ -1,6 +1,10 @@
 "use client";
 
 import { usePopup } from "@/components/PopupContext";
+import MaskHeading from "@/components/motion/MaskHeading";
+import Magnetic from "@/components/motion/Magnetic";
+import Parallax from "@/components/motion/Parallax";
+import Reveal from "@/components/motion/Reveal";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -18,14 +22,17 @@ export default function Cta() {
                 alt="Abstract purple geometric pattern."
                 className="cta_bg"
               />
-              <h2 className="text-color-white heading-60pt-ipad_pro">Collaborate with us</h2>
-              <div className="cta_text_wrapper">
+              <h2 className="text-color-white heading-60pt-ipad_pro">
+                <MaskHeading text="Collaborate with us" />
+              </h2>
+              <Reveal variant="rise" className="cta_text_wrapper" delay={0.15}>
                 <p className="p2 _20 text-20pt-ipad_pro">
                   We are passionate builders of production-grade AI, helping fintech and healthtech
                   organizations turn ideas into deployed systems.
                 </p>
-              </div>
+              </Reveal>
               <div className="cta_button_wrapper">
+                <Magnetic>
                 <a
                   href="#"
                   className="link fill w-inline-block"
@@ -46,13 +53,16 @@ export default function Cta() {
                     </div>
                   </div>
                 </a>
+                </Magnetic>
               </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`${CDN}/642312e3952239cbf4bddb83_chain_clay_1.webp`}
-                alt="Two interlocked purple octagonal chain links."
-                className="cta_dec"
-              />
+              <Parallax speed={-18}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`${CDN}/642312e3952239cbf4bddb83_chain_clay_1.webp`}
+                  alt="Two interlocked purple octagonal chain links."
+                  className="cta_dec"
+                />
+              </Parallax>
             </div>
           </div>
         </div>

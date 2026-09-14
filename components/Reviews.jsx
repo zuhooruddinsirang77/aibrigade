@@ -5,6 +5,8 @@ import { Navigation, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import { reviews } from "@/components/data";
+import Reveal from "@/components/motion/Reveal";
+import TiltCard from "@/components/motion/TiltCard";
 
 function ReviewCard({ r }) {
   return (
@@ -54,7 +56,9 @@ export default function Reviews() {
 
             {/* Desktop: three static columns */}
             <div className="reviews_component hide-reviews-tablet" style={{ marginTop: "3rem" }}>
-              <div
+              <Reveal
+                variant="stagger"
+                selector=".review_item"
                 className="review_columns"
                 style={{
                   display: "grid",
@@ -70,11 +74,13 @@ export default function Reviews() {
                     style={{ display: "flex", flexDirection: "column", gap: "2rem" }}
                   >
                     {col.map((r, j) => (
-                      <ReviewCard r={r} key={j} />
+                      <TiltCard key={j}>
+                        <ReviewCard r={r} />
+                      </TiltCard>
                     ))}
                   </div>
                 ))}
-              </div>
+              </Reveal>
             </div>
 
             {/* Tablet / mobile: Swiper */}

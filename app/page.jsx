@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import WhyUs from "@/components/WhyUs";
 import Featured from "@/components/Featured";
 import Cases from "@/components/Cases";
+import Deployments from "@/components/Deployments";
 import Services from "@/components/Services";
 import Features from "@/components/Features";
 import Reviews from "@/components/Reviews";
@@ -20,6 +21,7 @@ export default function Home() {
         <WhyUs />
         <Featured />
         <Cases />
+        <Deployments />
         <Services />
         <Features />
         <Reviews />

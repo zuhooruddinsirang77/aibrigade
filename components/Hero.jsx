@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { usePopup } from "@/components/PopupContext";
+import MaskHeading from "@/components/motion/MaskHeading";
+import Magnetic from "@/components/motion/Magnetic";
+import Reveal from "@/components/motion/Reveal";
+import Parallax from "@/components/motion/Parallax";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -40,38 +44,47 @@ export default function Hero() {
 
   return (
     <div id="header" className="section_header">
+      <div className="ax-hero-glow" aria-hidden="true" />
       <div className="padding-global ipad">
         <div className="container-large">
           <div className="padding-section-header padding-section_header">
             <div className="header_component">
               <div className="header_top">
                 <div className="div-block-18">
-                  <h1 className="text-color-white h1 h1-72pt-tablet ax-reveal">{lines.first}</h1>
+                  <h1 className="text-color-white h1 h1-72pt-tablet">
+                    <MaskHeading text={lines.first} delay={0.15} />
+                  </h1>
                 </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`${CDN}/64186f6f7587b79ac4b1fa13_figure_1.webp`}
-                  width="150"
-                  alt="3D purple geometric shape."
-                  className="header_dec-2 hide-mobile-landscape"
-                />
+                <Parallax speed={-26} mouse={24}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${CDN}/64186f6f7587b79ac4b1fa13_figure_1.webp`}
+                    width="150"
+                    alt="3D purple geometric shape."
+                    className="header_dec-2 hide-mobile-landscape"
+                  />
+                </Parallax>
               </div>
 
               <div className="header_heading_wrapper _4 is-visible-tablet">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`${CDN}/64186f6f980d4e4bc1b82e65_object_flycube.webp`}
-                  width="180"
-                  alt="3D purple cube structure."
-                  className="header_dec-1"
-                />
-                <h1 className="text-color-white h1 h1-72pt-tablet left-padding-tabler ax-reveal">
-                  {lines.second}
+                <Parallax speed={-16} mouse={15}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`${CDN}/64186f6f980d4e4bc1b82e65_object_flycube.webp`}
+                    width="180"
+                    alt="3D purple cube structure."
+                    className="header_dec-1"
+                  />
+                </Parallax>
+                <h1 className="text-color-white h1 h1-72pt-tablet left-padding-tabler">
+                  <MaskHeading text={lines.second} delay={0.3} />
                 </h1>
               </div>
 
               <div className="header_heading_wrapper _2">
-                <h1 className="text-color-white h1 h1-72pt-tablet ax-reveal">{lines.third}</h1>
+                <h1 className="text-color-white h1 h1-72pt-tablet">
+                  <MaskHeading text={lines.third} delay={0.45} />
+                </h1>
               </div>
 
               <div className="header_text_wrapper is-special-text-wrapper">
@@ -81,7 +94,8 @@ export default function Hero() {
                 </p>
               </div>
 
-              <div className="header_image_gallery is-special-flex-gap">
+              <Reveal variant="clip" className="header_image_gallery is-special-flex-gap" delay={0.5}>
+                <Parallax speed={-9}>
                 <div className="header_image_gallery_left">
                   <div className="header_image_gallery_image box-shadow_first">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -92,7 +106,9 @@ export default function Hero() {
                     />
                   </div>
                 </div>
+                </Parallax>
 
+                <Parallax speed={-20}>
                 <div className="header_image_gallery_grid is-special-grid-gap">
                   <div className="header_image_gallery_image box-shadow_secondary">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,8 +125,10 @@ export default function Hero() {
                     className="header_image_gallery_image img-size-3"
                   />
                 </div>
-              </div>
+                </Parallax>
+              </Reveal>
 
+              <Magnetic>
               <a
                 id="OpenPop"
                 href="#"
@@ -141,6 +159,7 @@ export default function Hero() {
                   />
                 </div>
               </a>
+              </Magnetic>
             </div>
           </div>
         </div>

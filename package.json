@@ -1,8 +1,8 @@
 {
-  "name": "auxility-fintech-next",
+  "name": "aibrigade-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Faithful Next.js 16 recreation of the Auxility FinTech landing page",
+  "description": "AIBrigade marketing site",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -15,7 +15,8 @@
     "next": "^16.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "swiper": "^11.1.14"
+    "swiper": "^11.1.14",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

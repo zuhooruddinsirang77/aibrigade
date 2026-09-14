@@ -1,4 +1,5 @@
 import { services, CDN } from "@/components/data";
+import Reveal from "@/components/motion/Reveal";
 
 const dot = `${CDN}/641af270af36ff69cfe98e5c_Group%202666.svg`;
 const dot2 = `${CDN}/641af3f899336e17b7abd9e1_Group%202667%20(1).svg`;
@@ -39,7 +40,7 @@ export default function Services() {
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-services">
-            <div className="_3-columns-grid">
+            <Reveal variant="rise" className="_3-columns-grid">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                 What we can <br />
                 help you with
@@ -48,9 +49,9 @@ export default function Services() {
                 From discovery to production deployment, we build AI systems that give you a
                 real competitive edge.
               </p>
-            </div>
+            </Reveal>
 
-            <div className="services_component">
+            <Reveal variant="stagger" selector=".services_item" className="services_component">
               {services.map((s) => (
                 <div className="services_item" key={s.title}>
                   <h3 className="d1 _20">{s.title}</h3>
@@ -58,7 +59,7 @@ export default function Services() {
                   <img src={s.img} alt={s.alt} className={`services_photo ${s.cls}`} />
                 </div>
               ))}
-            </div>
+            </Reveal>
           </div>
         </div>
       </div>
