@@ -6,6 +6,7 @@ import { loadGsap, prefersReducedMotion } from "@/components/motion/gsapLoader";
 import Reveal from "@/components/motion/Reveal";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Counter from "@/components/motion/Counter";
+import TerminalFeed from "@/components/motion/TerminalFeed";
 
 /**
  * Deployments — "The work, playing".
@@ -37,6 +38,19 @@ export default function Deployments() {
 
   const item = deployments[index];
   const total = duration || item.duration || 1;
+
+  // Turns each reel's own chapter captions (real copy already in
+  // deployments.data.js, not invented for this) into terminal log lines —
+  // what a visitor sees in place of the raw "not uploaded yet" placeholder
+  // while the actual footage doesn't exist yet.
+  const terminalLines = useMemo(
+    () =>
+      item.chapters.flatMap((c) => [
+        { prompt: true, text: `aibrigade run ${c.stage.toLowerCase()}` },
+        { text: `> ${c.caption}` },
+      ]),
+    [item]
+  );
 
   const activeChapter = useMemo(() => {
     let current = item.chapters[0];
@@ -253,9 +267,22 @@ export default function Deployments() {
               >
                 {failed ? (
                   <div className="ax-reels__empty">
-                    <p>This reel hasn&rsquo;t been uploaded yet.</p>
+                    {/* Footage doesn't exist for this reel yet, but a raw
+                        "add this file" message read like an unfinished
+                        website, not an AI company. Showing this specific
+                        case's own chapter captions as a running terminal
+                        keeps the section feeling like a live system even
+                        before there's video to play — `key` forces a fresh
+                        mount (and a fresh type-out) per reel, same reason
+                        the <video> below is keyed by item.id. */}
+                    <TerminalFeed
+                      key={item.id}
+                      lines={terminalLines}
+                      title={`${item.sector.toLowerCase()} — ${item.id}`}
+                      className="ax-reels__empty-terminal"
+                    />
                     <p className="ax-reels__empty-path">
-                      Add <code>public{item.src}</code> to bring it online.
+                      Reel footage coming soon — add <code>public{item.src}</code> to bring it online.
                     </p>
                   </div>
                 ) : (

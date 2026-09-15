@@ -1,0 +1,296 @@
+/* ================================================================
+   Case study pages (/icu, /halyk, /uub)
+   Same tokens as motion.css / deployments.css — violet #9248e4, the
+   #672ca9→#3f166e CTA gradient, the #161d25 ink. No new palette.
+   ================================================================ */
+
+.ax-case {
+  overflow: hidden;
+}
+
+/* ---------- hero ---------- */
+.ax-case__hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--ax-ink, #161d25);
+  color: #fff;
+  padding-top: clamp(7.5rem, 8vw + 4rem, 11rem);
+  padding-bottom: 5rem;
+  overflow: hidden;
+}
+.ax-case__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: center;
+}
+.ax-case__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.25s ease, opacity 0.25s ease;
+}
+.ax-case__back:hover {
+  color: #fff;
+}
+.ax-case__eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ax-coral, #f87756);
+}
+.ax-case__hero-copy h1 {
+  margin-bottom: 0;
+}
+.ax-case__dek {
+  margin-top: 1.5rem;
+  max-width: 42ch;
+}
+.ax-case__dek p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+}
+.ax-case__hero-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+.ax-case__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.ax-case__metric-value {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+}
+.ax-case__metric-value em {
+  font-style: normal;
+  font-size: 0.85rem;
+  margin-left: 0.2rem;
+  opacity: 0.7;
+}
+.ax-case__metric-label {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ax-case__hero-visual {
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.45);
+}
+.ax-case__hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ax-case__hero-visual--icon {
+  aspect-ratio: 1 / 1;
+  max-width: 22rem;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(120% 120% at 30% 20%, rgba(146, 72, 228, 0.35), rgba(146, 72, 228, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+.ax-case__hero-icon {
+  width: 40%;
+  height: 40%;
+  color: #fff;
+}
+.ax-case__hero-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- process ---------- */
+.ax-case__process {
+  padding-top: 6rem;
+  padding-bottom: 3rem;
+}
+.ax-case__process-head {
+  margin-bottom: 3rem;
+}
+.ax-case__stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+.ax-case__stage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(22, 29, 37, 0.1);
+  background: rgba(146, 72, 228, 0.04);
+}
+.ax-case__stage-index {
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ax-violet, #9248e4);
+  opacity: 0.7;
+}
+.ax-case__stage-name {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--ax-ink, #161d25);
+}
+.ax-case__stage-caption {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+/* ---------- reel + outcome ---------- */
+.ax-case__reel {
+  background: var(--ax-ink, #161d25);
+  color: #fff;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+.ax-case__reel-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 3rem;
+  align-items: center;
+}
+.ax-case__screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.875rem;
+  overflow: hidden;
+  background: #0d1116;
+  box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.45);
+}
+.ax-case__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ax-case__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.ax-case__empty-terminal {
+  width: 100%;
+  max-width: 26rem;
+}
+.ax-case__outcome-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ax-coral, #f87756);
+}
+.ax-case__outcome-text {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  line-height: 1.45;
+  font-weight: 500;
+  color: #fff;
+}
+.ax-case__outcome .ax-stack__tag {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- more work ---------- */
+.ax-case__more {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+}
+.ax-case__more-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(22, 29, 37, 0.1);
+}
+.ax-case__more-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.ax-case__more-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.ax-case__more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 29, 37, 0.14);
+  color: var(--ax-ink, #161d25);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+.ax-case__more-link:hover {
+  border-color: var(--ax-violet, #9248e4);
+  background: rgba(146, 72, 228, 0.06);
+  transform: translateX(0.2rem);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 991px) {
+  .ax-case__hero-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .ax-case__hero-visual {
+    max-width: 26rem;
+  }
+  .ax-case__stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ax-case__reel-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+@media (max-width: 479px) {
+  .ax-case__hero {
+    padding-bottom: 3.5rem;
+  }
+  .ax-case__stages {
+    grid-template-columns: 1fr;
+  }
+  .ax-case__more-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

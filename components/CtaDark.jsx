@@ -3,13 +3,20 @@
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
+import HeroNetwork from "@/components/motion/HeroNetwork";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 export default function CtaDark() {
   const { openPopup } = usePopup();
   return (
-    <div id="ctadark" className="section_cta_dark">
+    <div id="ctadark" className="section_cta_dark" style={{ position: "relative", isolation: "isolate" }}>
+      {/* Same feedforward-network motif as the hero, in its light-on-dark
+          variant — the closing beat of the page echoes the opening one
+          instead of the "AI" visual only ever showing up once. Centred and
+          larger since this section has no phone gallery competing for the
+          same space. */}
+      <HeroNetwork dark position={[0, 0.4, -3]} scale={1.15} />
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-cta_dark">

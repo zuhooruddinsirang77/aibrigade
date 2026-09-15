@@ -1,6 +1,24 @@
 import { services, CDN } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
 
+// Every phrase here already appears in this site's own copy (Hero,
+// WhyUs, Features — see components/data.js and Hero.jsx) — this isn't a
+// new capability claim, just the technical specifics that were already
+// being said in prose, surfaced as a scannable strip. That distinction
+// matters: this README already flags the risk of claims a prospect's
+// procurement team can't verify, so nothing gets added here that isn't
+// already stated in full sentences elsewhere on the page.
+const STACK = [
+  "GPT platforms",
+  "Decision intelligence",
+  "Real-time fraud scoring",
+  "Autonomous underwriting",
+  "HL7 FHIR integration",
+  "HIPAA-compliant infra",
+  "MLOps & deployment",
+  "Explainable risk models",
+];
+
 const dot = `${CDN}/641af270af36ff69cfe98e5c_Group%202666.svg`;
 const dot2 = `${CDN}/641af3f899336e17b7abd9e1_Group%202667%20(1).svg`;
 
@@ -49,6 +67,14 @@ export default function Services() {
                 From discovery to production deployment, we build AI systems that give you a
                 real competitive edge.
               </p>
+            </Reveal>
+
+            <Reveal variant="stagger" selector=".ax-stack__tag" className="ax-stack" as="ul">
+              {STACK.map((tag) => (
+                <li className="ax-stack__tag" key={tag}>
+                  {tag}
+                </li>
+              ))}
             </Reveal>
 
             <Reveal variant="stagger" selector=".services_item" className="services_component">

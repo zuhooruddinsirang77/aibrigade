@@ -6,6 +6,8 @@ import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
+import ThreeHero from "@/components/motion/ThreeHero";
+import HeroNetwork from "@/components/motion/HeroNetwork";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -45,6 +47,7 @@ export default function Hero() {
   return (
     <div id="header" className="section_header">
       <div className="ax-hero-glow" aria-hidden="true" />
+      <HeroNetwork />
       <div className="padding-global ipad">
         <div className="container-large">
           <div className="padding-section-header padding-section_header">
@@ -56,12 +59,12 @@ export default function Hero() {
                   </h1>
                 </div>
                 <Parallax speed={-26} mouse={24}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`${CDN}/64186f6f7587b79ac4b1fa13_figure_1.webp`}
-                    width="150"
-                    alt="3D purple geometric shape."
+                  <ThreeHero
+                    width={150}
+                    height={150}
                     className="header_dec-2 hide-mobile-landscape"
+                    fallbackSrc={`${CDN}/64186f6f7587b79ac4b1fa13_figure_1.webp`}
+                    fallbackAlt="3D purple geometric shape."
                   />
                 </Parallax>
               </div>

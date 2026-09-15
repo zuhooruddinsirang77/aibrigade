@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 
 /**
@@ -29,6 +30,9 @@ export const CHAPTERS = [
 ];
 
 export default function StoryRail({ chapters = CHAPTERS }) {
+  const pathname = usePathname();
+  const onHomePage = pathname === "/";
+
   const [active, setActive] = useState(chapters[0].id);
   const [flash, setFlash] = useState(null); // { key, index, label } | null
   const activeRef = useRef(active);
@@ -37,6 +41,12 @@ export default function StoryRail({ chapters = CHAPTERS }) {
   activeRef.current = active;
 
   useEffect(() => {
+    // Every chapter id (header, whyus, cases…) only exists on the homepage.
+    // On any other route — the case-study pages — there is nothing to
+    // observe, and the rail would otherwise sit stuck on "The brief"
+    // forever instead of tracking real scroll position.
+    if (!onHomePage) return;
+
     const nodes = chapters
       .map((c) => document.getElementById(c.id))
       .filter(Boolean);
@@ -72,7 +82,7 @@ export default function StoryRail({ chapters = CHAPTERS }) {
 
     nodes.forEach((n) => observer.observe(n));
     return () => observer.disconnect();
-  }, [chapters]);
+  }, [chapters, onHomePage]);
 
   const go = (id) => () => {
     const el = document.getElementById(id);
@@ -82,6 +92,8 @@ export default function StoryRail({ chapters = CHAPTERS }) {
       block: "start",
     });
   };
+
+  if (!onHomePage) return null;
 
   return (
     <>

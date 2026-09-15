@@ -1,6 +1,7 @@
 import "./globals.css";
 import "./motion.css";
 import "./deployments.css";
+import "./casestudy.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";

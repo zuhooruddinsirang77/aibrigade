@@ -179,6 +179,17 @@
   font-size: 0.8125rem;
   opacity: 0.4 !important;
 }
+/* Cap the terminal's width inside the empty state — `.ax-terminal` defaults
+   to filling its container, which here is the full 16:9 stage; unconstrained
+   it would stretch edge to edge and dominate the frame instead of reading
+   as a compact panel sitting in it. */
+.ax-reels__empty-terminal {
+  width: 100%;
+  max-width: 26rem;
+}
+.ax-reels__empty-terminal .ax-terminal__body {
+  min-height: 9rem;
+}
 .ax-reels__empty code {
   color: #c79bf5;
 }

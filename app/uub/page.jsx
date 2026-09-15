@@ -1,5 +1,11 @@
-import CasePlaceholder from "@/components/CasePlaceholder";
-export const metadata = { title: "Auxility | uub case study" };
+import CaseStudy from "@/components/CaseStudy";
+
+export const metadata = {
+  title: "UUB Health | AI Brigade case study",
+  description:
+    "How AI Brigade built a HIPAA-compliant clinical documentation copilot for UUB Health, integrated with Epic via HL7 FHIR.",
+};
+
 export default function Page() {
-  return <CasePlaceholder name="uub" />;
+  return <CaseStudy slug="uub" />;
 }
