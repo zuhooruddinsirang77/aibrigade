@@ -44,13 +44,27 @@ const DEFAULT_LINES = [
 
 export default function TerminalFeed({ className, lines: linesProp, title = "agent — production" }) {
   const LOG_LINES = linesProp || DEFAULT_LINES;
-  const [lines, setLines] = useState(prefersReducedMotion() ? LOG_LINES.map((l) => l.text) : []);
+  const [lines, setLines] = useState([]);
   const [cursorOn, setCursorOn] = useState(true);
+  /* `prefersReducedMotion()` cannot be consulted during render. There is no
+     `window` on the server, so it is always false there — which meant a
+     reader with the OS setting on got a server paint of nothing and a first
+     client paint of the whole log, i.e. a hydration mismatch, on the one
+     code path that exists specifically to serve them. React responded by
+     discarding and re-rendering the tree, which is the opposite of what
+     reduced motion is asking for. The setting is read in an effect instead
+     and mirrored into state, so server and first client paint agree and the
+     static log lands one frame later. */
+  const [still, setStill] = useState(false);
   const rootRef = useRef(null);
   const runningRef = useRef(false);
 
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    if (prefersReducedMotion()) {
+      setStill(true);
+      setLines(LOG_LINES.map((l) => l.text));
+      return;
+    }
     const root = rootRef.current;
     if (!root) return;
 
@@ -123,7 +137,7 @@ export default function TerminalFeed({ className, lines: linesProp, title = "age
         <span className="ax-terminal__title">{title}</span>
       </div>
       <div className="ax-terminal__body" aria-hidden="true">
-        {(prefersReducedMotion() ? LOG_LINES.map((l) => l.text) : lines).map((text, i) => {
+        {lines.map((text, i) => {
           const meta = LOG_LINES[i];
           const isLast = i === lines.length - 1;
           return (
@@ -133,7 +147,7 @@ export default function TerminalFeed({ className, lines: linesProp, title = "age
             >
               {meta?.prompt && <span className="ax-terminal__prompt">$</span>}
               <span>{text}</span>
-              {isLast && !prefersReducedMotion() && (
+              {isLast && !still && (
                 <span className={`ax-terminal__cursor${cursorOn ? " on" : ""}`} />
               )}
             </div>

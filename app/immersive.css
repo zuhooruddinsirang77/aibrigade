@@ -624,3 +624,91 @@ html.ax-motion:not(.ax-reduced) .ax-seam__line {
   background: rgba(146, 72, 228, 0.9);
   border-color: var(--violet-500);
 }
+
+/* ================================================================
+   12. The page wipe
+
+   Every rule here is written as `.nextpage.ax-wipe` — two classes — and
+   that is load-bearing, not style. The two remote Webflow stylesheets
+   also define `.nextpage`, including its violet background and its
+   position, and they win against a single-class rule of ours regardless
+   of import order. The component this replaces papered over that with an
+   inline `style={{ top }}`, which beats any stylesheet; removing the
+   inline style to animate a transform instead is what exposed it — the
+   panel parked at `top: 0` and sat over the page it had just revealed,
+   in Webflow's violet rather than the brand ink.
+
+   So: this owns the geometry outright, and parks the panel with a
+   transform rather than an offset. `transform` is compositor-only, so
+   moving it cannot reflow the page underneath, and there is no scroll
+   height added below the fold the way a `top: 100vh` box adds one.
+   ================================================================ */
+
+.nextpage.ax-wipe {
+  position: fixed;
+  inset: 0;
+  background: var(--ink-canvas);
+  /* Parked one screen below, out of the way. */
+  transform: translateY(100%);
+  transition: transform 0.62s var(--ease);
+  pointer-events: none;
+}
+.ax-wipe__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+}
+/* Covering: the panel rises from its parked position to fill the screen. */
+.nextpage.ax-wipe[data-phase="cover"] {
+  transform: translateY(0);
+  pointer-events: auto;
+}
+/* Leaving: it continues in the same direction and passes out through the
+   top, rather than sinking back the way it came. */
+.nextpage.ax-wipe[data-phase="leave"] {
+  transform: translateY(-100%);
+}
+/* Re-parking. Transition off for the single frame it takes to return
+   below the fold, or the reader watches the panel sweep back across the
+   page they have just arrived on. */
+.nextpage.ax-wipe[data-phase="reset"] {
+  transform: translateY(100%);
+  transition: none;
+}
+
+/* The same instrument as the intro rail and the scroll progress bar. */
+.ax-wipe__rail {
+  position: relative;
+  display: block;
+  width: min(12rem, 40vw);
+  height: 1px;
+  overflow: hidden;
+  background: var(--line-invert);
+}
+.ax-wipe__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--grad-rail);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.55s var(--ease);
+}
+
+/* Reduced motion: it still covers — hiding a route swap is a correctness
+   job, not a decorative one — but it crosses in place rather than
+   travelling. */
+html.ax-reduced .nextpage.ax-wipe {
+  transform: translateY(0);
+  opacity: 0;
+  transition: opacity 0.2s linear;
+}
+html.ax-reduced .nextpage.ax-wipe[data-phase="cover"],
+html.ax-reduced .nextpage.ax-wipe[data-phase="leave"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+html.ax-reduced .ax-wipe__fill {
+  display: none;
+}
