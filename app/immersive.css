@@ -1,0 +1,626 @@
+/* ================================================================
+   AIBrigade — the immersive layer
+
+   Everything here is additive depth, material and micro-interaction for
+   surfaces that already exist. Not one rule in this file introduces a
+   colour, a typeface, a spacing value or a layout that isn't already in
+   the design system: every value below resolves to a token from
+   app/system.css (`--violet-*`, `--coral`, `--ink-*`, `--ease`, `--sp-*`,
+   `--r-*`) or to a plain alpha of one of them.
+
+   Loaded LAST, after refine.css, for one reason: refine.css exists to
+   correct problems the finished cascade produces, and these are new
+   surfaces layered on top of that finished cascade. Where a rule here
+   touches an element refine.css also styles, it is deliberate and
+   commented at the site.
+
+   The whole file is inert under `prefers-reduced-motion`: section 9
+   neutralises every transform and animation declared above it, and the
+   components that own the expensive effects (DepthField, SmoothScroll,
+   StageDepth, TiltCard) never mount their listeners at all. What is left
+   is the page exactly as it was.
+   ================================================================ */
+
+/* Registering these makes them animatable types rather than opaque
+   strings, so a CSS transition on a value TiltCard writes interpolates
+   instead of snapping at the halfway point. Browsers without @property
+   ignore the block and fall back to GSAP driving the value per frame,
+   which is what it does anyway — nothing here depends on the
+   registration. */
+@property --ax-tilt {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --ax-tx {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+@property --ax-ty {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* ================================================================
+   1. Smooth scroll
+
+   `SmoothScroll` drives `window.scrollTo` on a rAF lerp. Two things have
+   to be true for that to feel right rather than fight the browser.
+   ================================================================ */
+
+/* Native smooth scrolling and an interpolated scroll are two animations
+   racing for the same number. `scrollIntoView({behavior:"smooth"})` in
+   Navbar and Hero still works — SmoothScroll's resync adopts whatever
+   position the browser is moving to, so the anchor jump stays smooth and
+   is simply driven by the browser instead of by the lerp. */
+html.ax-smooth {
+  scroll-behavior: auto;
+}
+
+/* The lerp writes a new scroll offset every frame. Telling the compositor
+   that up front is the difference between a repaint of the whole document
+   and a layer translation on scroll-heavy sections. */
+html.ax-smooth body {
+  will-change: scroll-position;
+}
+
+/* ================================================================
+   2. The depth field
+
+   A WebGL canvas with no box of its own — it fills whatever it is placed
+   in and is never interactive.
+   ================================================================ */
+
+.ax-depth {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The canvas draws additively over the film. Without its own stacking
+     context a later sibling with a transform (the copy layer, which
+     StageDepth animates) would interleave with it unpredictably. */
+  isolation: isolate;
+}
+.ax-depth canvas {
+  /* The motes are light, not image: `screen` guarantees they can only
+     brighten the footage underneath, matching the additive blend the
+     shader already uses inside the canvas, so the canvas edge is never
+     visible as a rectangle of slightly different black. */
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+/* Above the hero's text scrim (`.ax-hero::before`, z-index 1) so the motes
+   read as light in the room rather than behind the glass, and below
+   `.ax-hero__body` (z-index 2) so they never sit over the headline. Same
+   z-index as the scrim and later in tree order, which is what puts it on
+   top without needing a higher number. */
+.ax-hero__depth {
+  z-index: 1;
+}
+
+/* The closing CTA isolates its own stacking context inline and puts its
+   film at -2 (app/film.css). -1 is the slot the network canvas used to
+   occupy: above the footage, below the sentence and the button, which is
+   where the light belongs. */
+.section_cta_dark .ax-cta__depth {
+  z-index: -1;
+}
+
+/* At phone width the hero's copy occupies nearly the whole frame and there
+   is very little bare film left for motes to be visible against — they
+   land behind text and read as noise. The canvas still mounts (the
+   component decides that, not this file); it simply steps back. */
+@media (max-width: 767px) {
+  .ax-depth canvas {
+    opacity: 0.55;
+  }
+}
+
+/* ================================================================
+   3. Tilt: material and inner depth
+
+   `TiltCard` rotates a card and publishes three custom properties on it:
+   `--ax-tx` / `--ax-ty` (pointer, -1..1) and `--ax-tilt` (0 at rest, 1
+   while engaged). Everything below is written against those, so a card
+   opts into as much or as little of the material as suits it, and nothing
+   needs a second pointer listener.
+   ================================================================ */
+
+/* The specular sweep. One soft radial highlight, positioned at the pointer
+   by TiltCard, sized large and faint so it reads as a sheen across the
+   whole face rather than a dot following the cursor. `screen` means it can
+   only add light — over a dark card it is a highlight, over a light card
+   it is almost nothing, and it never needs a per-card variant. */
+.ax-tilt__glare {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 95%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  /* Tuned against the case tiles, which are the darkest surface this lands
+     on and therefore the one where `screen` lifts the most. The first pass
+     ran at 0.16/130%/0.85 and visibly greyed the footage — a card that
+     changes exposure when you point at it is not a highlight, it is a
+     wash. These numbers are a sheen you notice at the edge of the eye and
+     cannot mistake for the image changing. */
+  opacity: calc(var(--ax-tilt, 0) * 0.6);
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.09) 0%,
+    rgba(199, 155, 245, 0.055) 28%,
+    rgba(146, 72, 228, 0) 64%
+  );
+  transition: opacity var(--dur-3) var(--ease);
+  z-index: 3;
+}
+
+/* A lifted card casts further. The shadow is the brand-tinted elevation
+   token, not a neutral black, so a card at rest and a card in the air are
+   the same material at two heights. */
+.ax-tilt--active {
+  box-shadow: var(--shadow-3);
+}
+
+/* Inner parallax. A child marked `data-lift` sits at its own apparent
+   depth inside the card: it drifts against the pointer and rises toward
+   the viewer as the card engages. This is what separates "a picture of a
+   card rotating" from "a box with things inside it".
+
+   `translateZ` needs the parent's `preserve-3d`, which TiltCard sets
+   inline — so this degrades to a flat 2D drift anywhere that is missing
+   rather than collapsing. */
+[data-lift] {
+  transform:
+    translate3d(
+      calc(var(--ax-tx, 0) * -6px),
+      calc(var(--ax-ty, 0) * -6px),
+      calc(var(--ax-tilt, 0) * 24px)
+    );
+  transition: transform 0.5s var(--ease);
+  will-change: transform;
+}
+/* The film inside a media tile is the FAR layer, so it moves with the
+   pointer and away from the viewer — the opposite sign to the caption
+   above it. Two layers drifting the same way is a slide; two drifting
+   opposite ways is depth. */
+[data-lift="far"] {
+  transform:
+    scale(1.06)
+    translate3d(
+      calc(var(--ax-tx, 0) * 10px),
+      calc(var(--ax-ty, 0) * 10px),
+      calc(var(--ax-tilt, 0) * -18px)
+    );
+}
+
+/* ================================================================
+   4. The scroll cue
+   ================================================================ */
+
+.ax-cue {
+  position: absolute;
+  left: 50%;
+  bottom: 7.5rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  transition: opacity var(--dur-3) var(--ease), color var(--dur-2) var(--ease);
+}
+.ax-cue:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+.ax-cue[data-gone="true"] {
+  opacity: 0;
+  pointer-events: none;
+}
+.ax-cue__rail {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 3rem;
+  overflow: hidden;
+  background: var(--line-invert);
+}
+/* A single travelling segment rather than a bouncing chevron: it says
+   "downward" without adding a second arrow to a screen that already has
+   two of them in the CTA row. */
+.ax-cue__dot {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, var(--violet-300));
+}
+html.ax-motion:not(.ax-reduced) .ax-cue__dot {
+  animation: ax-cue-fall 2.4s var(--ease) infinite;
+}
+@keyframes ax-cue-fall {
+  0% { transform: translateY(-100%); }
+  70%, 100% { transform: translateY(250%); }
+}
+
+/* The hero's logo ticker owns the bottom of the section; on short
+   viewports the cue would land on top of it. */
+@media (max-height: 720px), (max-width: 767px) {
+  .ax-cue {
+    display: none;
+  }
+}
+
+/* ================================================================
+   5. Section entrances
+
+   `Curtain` wraps a dark band and scrubs it open as the band arrives.
+   The band is already full-bleed ink, so the effect is a reveal of the
+   content inside it, not a coloured wipe — nothing new is painted.
+   ================================================================ */
+
+.ax-curtain {
+  position: relative;
+  /* `clip-path` is animated by the component. Declared here so the
+     un-animated state is explicitly "fully open" rather than inherited. */
+  clip-path: inset(0 0 0 0);
+  will-change: clip-path;
+}
+
+/* ================================================================
+   6. Micro-interactions
+
+   Small, and all on things a reader points at. Each one exists because
+   the element had no acknowledgement of the pointer at all, or had one
+   that ended abruptly.
+
+   Gated on a fine pointer throughout: a tap that leaves a card stuck in
+   its hover state is worse than a card that never had one.
+   ================================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+  /* ---- the primary button ----
+     `.button` already transitions transform and colour (system.css). What
+     it had no answer for is the moment of contact: a sheen that crosses
+     the face once, on enter. Masked to the button's own box, additive, and
+     it does not loop — a button that shimmers continuously is asking to be
+     clicked rather than responding to being approached. */
+  .button,
+  .ax-hero__cta,
+  .link.fill {
+    position: relative;
+    overflow: hidden;
+  }
+  .button::after,
+  .ax-hero__cta::after,
+  .link.fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      rgba(255, 255, 255, 0.28) 50%,
+      transparent 62%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.75s var(--ease);
+  }
+  .button:hover::after,
+  .ax-hero__cta:hover::after,
+  .link.fill:hover::after {
+    transform: translateX(120%);
+  }
+
+  /* ---- the capability pills ----
+     The Services chips (`.ax-stack__tag`) already fill violet on hover —
+     refine.css owns that and it is not touched here. Their counterparts
+     on the dark band, the four `.ax-env__tags li`, were the set that had
+     no response at all. They are not links, so the answer is material —
+     the chip lifts and its edge brightens — rather than anything that
+     implies a destination. */
+  .ax-env__tags li {
+    transition: transform var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease);
+  }
+  .ax-env__tags li:hover {
+    transform: translateY(-0.125rem);
+    border-color: var(--line-invert-strong);
+    background-color: rgba(255, 255, 255, 0.07);
+  }
+
+  /* ---- navigation ----
+     The nav links already change colour on the section being read. The
+     underline gives the pointer something that moves, drawn from the left
+     so it reads as being written rather than fading in. */
+  .navbar_link_p,
+  .navbar_link_p-other {
+    position: relative;
+  }
+  .navbar_link_p::after,
+  .navbar_link_p-other::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.15rem;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    opacity: 0.6;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-2) var(--ease);
+  }
+  .navbar_link_p:hover::after,
+  .navbar_link_p-other:hover::after {
+    transform: scaleX(1);
+  }
+  /* refine.css already marks the section being read with its own rule on
+     `[data-active="true"]`; this only suppresses the hover underline
+     there so the two indicators don't stack into a double rule. */
+  .navbar_link_p[data-active="true"]::after {
+    display: none;
+  }
+
+  /* ---- recognition badges ----
+     system.css declares the transition for `.proud_image` but never gave
+     it a hover to transition to. */
+  .proud_image:hover {
+    transform: translateY(-0.25rem) scale(1.04);
+    filter: none;
+  }
+}
+
+/* ---- the chapter kicker ----
+   The numeral is the page's through-line — "01 The brief" through "09".
+   Drawing its rule outward as the section arrives makes the number read
+   as a chapter opening rather than a label that was always there.
+   Scroll-driven would need a trigger per section for a 300ms detail; a
+   view timeline costs nothing where it is supported and is silently
+   skipped where it is not. */
+@supports (animation-timeline: view()) {
+  html.ax-motion:not(.ax-reduced) .ax-kicker::after {
+    /* The rule is a flex child that fills the row, so it has to grow from
+       the numeral outward — the default centre origin would open it from
+       the middle of the margin, which reads as a glitch rather than a
+       line being drawn. */
+    transform-origin: left center;
+    animation: ax-kicker-draw linear both;
+    animation-timeline: view();
+    animation-range: entry 10% entry 55%;
+  }
+  @keyframes ax-kicker-draw {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+}
+
+/* ================================================================
+   7. Media tiles
+
+   The three case tiles and the four environment panels are the page's
+   largest pieces of footage. Both already clip a film; what they lacked
+   was any sense that the film sits behind the frame rather than being
+   printed on it.
+   ================================================================ */
+
+/* The frame's own edge light. A one-pixel inner border that brightens as
+   the card engages — the same trick the console chrome in hero.css uses,
+   applied to the media tiles so the whole page shares one idea of what a
+   lit edge looks like. */
+.cases_item.bg-1,
+.ax-env__inner {
+  position: relative;
+}
+.cases_item.bg-1::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, calc(0.06 + var(--ax-tilt, 0) * 0.12));
+  transition: box-shadow var(--dur-3) var(--ease);
+}
+
+/* ================================================================
+   8. The intro
+
+   Preloader.jsx counts to 100 behind the brand mark and then lifts. The
+   ink and the logo are unchanged; what is new is that the lift is a
+   curtain rather than an opacity fade, so the hero is revealed from
+   underneath instead of appearing through a dissolve.
+   ================================================================ */
+
+.ax-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-6);
+  background: var(--ink-canvas);
+  /* Lifted by transform, not by `top`: a compositor-only property, so the
+     one frame where the whole viewport is repainting behind the curtain
+     is not also relaying out the document. */
+  transform: translateY(0);
+  transition: transform 1s var(--ease);
+}
+.ax-intro[data-done="true"] {
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.ax-intro__mark {
+  opacity: 0;
+  transform: translateY(0.75rem);
+  animation: ax-intro-mark 0.8s var(--ease) 0.06s forwards;
+}
+@keyframes ax-intro-mark {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* The progress hairline. Same violet ramp as `ScrollProgress`'s bar, so
+   the first thing the page draws and the thing that tracks it from then on
+   are visibly the same instrument. */
+.ax-intro__rail {
+  position: relative;
+  width: min(15rem, 44vw);
+  height: 1px;
+  overflow: hidden;
+  background: var(--line-invert);
+}
+.ax-intro__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: var(--grad-rail);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.25s linear;
+}
+.ax-intro__count {
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================================================================
+   9. Reduced motion
+
+   system.css already flattens durations globally under `html.ax-reduced`.
+   That is not sufficient here: a zeroed duration still ARRIVES at the
+   animated value, so a card would sit permanently rotated and an
+   inner-parallax layer permanently offset. These reset the values
+   themselves.
+   ================================================================ */
+
+html.ax-reduced .ax-tilt__glare,
+html.ax-reduced .ax-cue,
+html.ax-reduced .ax-depth {
+  display: none;
+}
+html.ax-reduced [data-lift],
+html.ax-reduced [data-lift="far"] {
+  transform: none;
+}
+html.ax-reduced .ax-intro {
+  transition: opacity 0.2s linear;
+}
+html.ax-reduced .ax-intro[data-done="true"] {
+  transform: none;
+  opacity: 0;
+}
+html.ax-reduced .button::after,
+html.ax-reduced .ax-hero__cta::after,
+html.ax-reduced .link.fill::after {
+  display: none;
+}
+
+/* ================================================================
+   10. The seam
+
+   Sits on the white body between two full-bleed ink bands. It is a beat,
+   not a section — so it has no background of its own and nothing here
+   paints a colour; the line is `--grad-rail`, the same instrument as the
+   intro's fill and the scroll progress bar.
+   ================================================================ */
+
+.ax-seam {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-block: var(--sp-9);
+}
+.ax-seam__label {
+  font-size: 0.625rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-seam__line {
+  display: block;
+  width: min(34rem, 62vw);
+  height: 1px;
+  background: var(--grad-rail);
+  /* Grows from the middle out in both directions — the seam belongs to
+     the two sections equally, so it should not appear to be drawn by
+     either one of them. */
+  transform-origin: center;
+  transform: scaleX(1);
+}
+html.ax-motion:not(.ax-reduced) .ax-seam__line {
+  transform: scaleX(0);
+}
+
+@media (max-width: 767px) {
+  .ax-seam {
+    padding-block: var(--sp-7);
+  }
+}
+
+/* ================================================================
+   11. The cursor's second element
+
+   `.ax-cursor` (the trailing ring) is declared in app/motion.css and is
+   unchanged. This is the dot that rides with the pointer, plus the two
+   labelled states the ring can now take.
+   ================================================================ */
+
+.ax-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999; /* above the ring, which is 9998 */
+  width: 0.3125rem;
+  height: 0.3125rem;
+  margin: -0.15625rem 0 0 -0.15625rem;
+  border-radius: 50%;
+  background: var(--violet-500);
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  transition: opacity 0.25s linear;
+}
+/* Exactly the gate app/motion.css puts on the ring — the two halves of one
+   cursor must never appear independently of each other. */
+@media (hover: hover) and (pointer: fine) and (min-width: 992px) {
+  html.ax-motion:not(.ax-reduced) .ax-cursor-dot {
+    display: block;
+  }
+}
+
+/* Only one label is ever legible at a time, and each belongs to its own
+   state — declaring them as siblings rather than swapping text content
+   means the ring never re-flows mid-transition. */
+.ax-cursor__label--play,
+.ax-cursor__label--view {
+  opacity: 0;
+}
+.ax-cursor[data-state="play"] .ax-cursor__label--play,
+.ax-cursor[data-state="view"] .ax-cursor__label--view {
+  opacity: 1;
+}
+.ax-cursor[data-state="view"] {
+  background: rgba(146, 72, 228, 0.9);
+  border-color: var(--violet-500);
+}

@@ -162,6 +162,141 @@ full keyboard control with roving tabindex, and no motion at all under
 
 ---
 
+## The film layer
+
+Eight clips in `/public/video` are now used across the page, through one
+primitive.
+
+### Read this before using these clips anywhere new
+
+Every file in `/public/video` is text-to-video output — each `.mp4` has a
+`.json` sidecar recording the model and the prompt that made it. They are
+**atmosphere, not evidence**, and the distinction decides where they may go:
+
+- Fine: backgrounds, environments, texture behind a diagram, anything the
+  page does not present as a record of work performed.
+- Not fine: `Deployments` ("The work, playing"). That section presents its
+  reels as systems shipped for named clients, so generated footage there
+  would be a claim it cannot back. It keeps its own empty state until real
+  capture exists. It has a graded backdrop and nothing in the console.
+
+The same line applies to copy. `Environments` describes categories of system
+and names no client and no metric, which is the only reason it can sit next
+to generated footage. Put a real number in it and you need real capture in
+it at the same time.
+
+### The pieces
+
+```
+components/video.data.js          the manifest, the grades, and `filmFor`
+components/motion/AmbientVideo    the primitive — lazy, polite, graded
+components/motion/HoverFilm       film inside a card, on hover only
+components/motion/ScrubFilm       playhead driven by the scrollbar
+components/Environments           "Where it runs" — four environments
+components/Infrastructure         "The part that runs at 3am" — scrubbed
+app/film.css                      all of it, `ax-film` / `ax-env` / `ax-infra`
+```
+
+### Bandwidth is the whole design
+
+`/public/video` is ~28MB and there are ~23 film surfaces on the page.
+Nothing about this works without the three rules that keep those numbers
+apart:
+
+1. **`src` is never in the server-rendered markup.** A browser starts
+   fetching `<video src>` before hydration, so an effect cannot intervene.
+   `AmbientVideo` attaches `src` only once the element is within a screen of
+   the viewport.
+2. **Cards arm on hover, not on visibility** (`HoverFilm`). Scrolling past a
+   six-card row costs nothing.
+3. **Assignments are centralised in `filmFor` so the same files get reused.**
+   Twenty-three surfaces resolve to eight files; a clip already fetched for
+   the hero is instant in a card. Adding a ninth clip is a real cost — make
+   that decision in `video.data.js`, where the whole table is visible, not
+   in the component.
+
+Measured on a full scroll-through at 1440px: 23 surfaces, 7 distinct files.
+
+### The grade
+
+The first version of this graded far too hard — a violet wash at
+`mix-blend-mode: color` and 0.82 over footage already desaturated to 0.34,
+then laid in at 30–55% opacity. Every clip came out the same flat lilac
+smear. **If you change one thing in `film.css`, do not put that back.**
+
+The premise was wrong. This footage was generated cyan-and-amber on
+near-black, and cyan-and-amber on near-black *is* the premium AI-hardware
+look — it is the reason the footage is worth using. Brand cohesion does not
+come from recolouring the image; it comes from what sits on top of it, and
+this site already has violet rules, labels, glows and chrome to do that.
+
+So `.ax-film` now barely recolours. It deepens and adds contrast, lifts a
+little violet into the shadows (`mix-blend-mode: color` at **0.26**, a
+seating rather than a duotone), and adds a violet bloom at `screen` in one
+corner — light entering the frame, not paint over the lens. Saturation stays
+at ~0.88 so the accent lighting survives.
+
+Nothing is faded to achieve subtlety. **A dimmed clip is not a subtle clip,
+it is a grey one** — every film runs at `opacity: 1` and contrast is bought
+with `brightness()` and scrims instead.
+
+| grade  | for | notes |
+|--------|-----|-------|
+| `full` | full-bleed behind copy | deepened, strong edge falloff; the section adds its own scrim |
+| `soft` | a framed panel — Pipeline screen, services panel, case tile | brightest; nothing written over it, so it may look like a product shot |
+| `wash` | a **white card with black text** | the only inverting grade: lifted and veiled white |
+
+Exposure varies wildly between clips (night data centre vs. white-walled
+factory), so a fixed overlay cannot carry legibility on its own. Sections
+with copy over footage get a scrim anchored to the *layout* rather than the
+image — `.ax-env__stage::after`, `.ax-infra__inner::before`, and the hero's
+own replacement for the primitive's vignette — so the copy column is dark
+whichever clip is playing and wherever its bright areas fall. Those ramp
+left-to-right on desktop and go flat below 992px, where the layout stacks.
+
+`backdrop-filter` is treated as decoration everywhere it appears: every
+frosted panel is opaque enough to read without it, because it is reported as
+supported and then silently not painted often enough to matter.
+
+### Two traps when adding a film to an existing section
+
+Both of these cost real debugging time; neither is obvious from the markup.
+
+**A Webflow card will paint over a negative-z-index child.**
+`.featured_component` is a rounded violet card with `position: relative`,
+`z-index: 0` and `overflow: hidden`. A negative-index child of a stacking
+context is supposed to paint above that context's own background — here it
+did not. The clip was confirmed mounted, `readyState: 4`, playing,
+`opacity: 1` and sized exactly to the card, and the section still rendered
+as a flat purple slab. The fix is to stop relying on it: put the film at
+`z-index: 0` so it covers the card, and lift the real content above it with
+`position: relative; z-index: 1`. It also degrades correctly — if the clip
+never loads, the violet card is what remains.
+
+**Check what is already painting a background there.** Before adding a film,
+find the element that currently owns that section's colour. Two background
+treatments stacked is one too many, and the one you did not know about is
+usually on top.
+
+### Declining to play
+
+`AmbientVideo` mounts no `<video>` at all under `prefers-reduced-motion`,
+Save-Data, or a 2g connection, and `HoverFilm` mounts none on a coarse
+pointer. In each case `.ax-film`'s placeholder — a brand gradient, not a
+black rectangle — is what stays, so the layout is unchanged and nothing
+reads as a missing asset. Verified: reduced motion leaves 22 film surfaces
+and 0 video elements.
+
+### Scroll-driven, not pinned
+
+`ScrubFilm` maps the clip's playhead onto the section's own pass through the
+viewport. `WhyUs` already owns the page's one pin, and the note in
+`Deployments.jsx` about a second one holds — this gets the same
+reader-driven scrub with no height rewriting. It falls back to a plain loop
+on coarse pointers, under reduced motion, and if GSAP never arrives. Seeks
+are paced against the element's `seeked` event rather than a timer, so the
+last write always lands.
+
 ## Open items — none of these are animation problems
 
 **1. The stylesheets aren't yours.** `app/layout.jsx` still links
@@ -276,10 +411,12 @@ app/
   globals.css       ported Webflow embedded styles
   motion.css        motion layer
   deployments.css   reels section
+  film.css          the video layer
   icu|halyk|uub/    placeholder case routes
 components/
-  Navbar Hero WhyUs Featured Cases Deployments Services Features
-  Reviews Cta Proud CtaDark Footer PopupForm PopupContext
-  Preloader PageTransition data.js deployments.data.js
+  Navbar Hero WhyUs Featured Cases Deployments Environments Services
+  Features Infrastructure Reviews Cta Proud CtaDark Footer PopupForm
+  PopupContext Preloader PageTransition
+  data.js deployments.data.js video.data.js
   motion/
 ```

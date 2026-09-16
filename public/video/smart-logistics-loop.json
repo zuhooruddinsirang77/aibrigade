@@ -1,0 +1,9 @@
+{
+  "model": "kling-3.0/video (Kie AI)",
+  "prompt": "Cinematic aerial shot of a modern logistics hub at dusk, autonomous delivery vehicles and cargo moving in smooth continuous flow, subtle glowing cyan route lines overlaying the roads representing AI-optimized dispatch, slow deliberate camera drift, volumetric lighting, shallow depth of field, seamless loop, no text, no logos.",
+  "refs": [],
+  "params": { "duration_seconds": 5, "aspect": "16:9", "resolution": "std (720p)", "mode": "std" },
+  "cost_credits": 70,
+  "cost_usd_estimate": 0.70,
+  "created": "2026-07-31T12:05:00Z"
+}

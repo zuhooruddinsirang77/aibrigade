@@ -1,79 +1,73 @@
 /* ================================================================
    Deployments / "The work, playing"
-   Palette is taken straight from the existing theme — #9248e4 violet,
-   the #672ca9→#3f166e CTA gradient, the #161d25 preloader ink. No new
-   brand colour, no new typeface: it inherits the Webflow font stack.
+
+   Shares the dark band, spacing rhythm, radii and type scale defined in
+   app/system.css — this section used to carry its own palette and its own
+   rem-based spacing, which is part of why the page read as several sites
+   stitched together. The section wrapper, container and heading now come
+   from the system; only the console itself is local.
    ================================================================ */
 
 .ax-reels {
   position: relative;
-  background: var(--ax-ink, #161d25);
-  color: #fff;
-  padding-top: 7.5rem;
-  padding-bottom: 7.5rem;
   overflow: hidden;
 }
 
-/* ---------- heading ---------- */
-.ax-reels__head {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 2.5rem;
-  align-items: end;
-  margin-bottom: 3.5rem;
-}
-.ax-reels__title {
-  margin: 0;
-  font-size: clamp(2.5rem, 5.2vw, 4.5rem);
-  line-height: 1.02;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: #fff;
-}
-/* The section's colour comes from the violet sweep behind it and the stage
-   chips, not from another gradient headline — the page already has three. */
-.ax-reels__intro p {
-  margin: 0;
-  max-width: 34ch;
-  font-size: 1rem;
-  line-height: 1.6;
-  opacity: 0.62;
-}
-
-/* ---------- console ---------- */
+/* ---------- console ----------
+   One enclosed instrument rather than two columns floating on the section
+   background — a border, a soft interior gradient and a deep shadow give
+   the whole device a single frame to sit inside. */
 .ax-reels__console {
   display: grid;
-  grid-template-columns: minmax(17rem, 26%) minmax(0, 1fr);
-  gap: 2rem;
+  grid-template-columns: minmax(16rem, 25%) minmax(0, 1fr);
+  gap: var(--sp-7);
   align-items: start;
+  padding: 1.75rem;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line-invert);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.008) 55%);
+  box-shadow: 0 3rem 6rem rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 /* ---------- index ---------- */
 .ax-reels__index {
   display: flex;
   flex-direction: column;
+  gap: 0.35rem;
+  padding-right: 1.5rem;
+  border-right: 1px solid var(--line-invert);
 }
 .ax-reels__entry {
   position: relative;
   display: grid;
-  grid-template-columns: 0.125rem minmax(0, 1fr) auto;
+  grid-template-columns: 0.1875rem minmax(0, 1fr) auto;
   gap: 1rem;
   align-items: center;
   width: 100%;
-  padding: 1.15rem 0.25rem 1.15rem 0;
+  padding: 1rem 0.9rem;
+  margin: 0 -0.9rem;
   background: none;
   border: 0;
-  border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-md);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
 }
-.ax-reels__entry:first-child {
-  border-top: 0.0625rem solid rgba(255, 255, 255, 0.1);
+@media (hover: hover) and (pointer: fine) {
+  .ax-reels__entry:hover {
+    background-color: rgba(255, 255, 255, 0.045);
+    transform: translateX(0.15rem);
+  }
+}
+.ax-reels__entry[aria-selected="true"] {
+  background: linear-gradient(120deg, rgba(146, 72, 228, 0.16) 0%, rgba(146, 72, 228, 0.03) 100%);
+  box-shadow: inset 0 0 0 1px rgba(146, 72, 228, 0.35);
 }
 .ax-reels__entry:focus-visible {
-  outline: 0.125rem solid var(--ax-violet, #9248e4);
+  outline: 2px solid var(--violet-500);
   outline-offset: 0.25rem;
 }
 
@@ -81,7 +75,7 @@
    playlist and the progress readout at the same time. */
 .ax-reels__entry-bar {
   align-self: stretch;
-  width: 0.125rem;
+  width: 0.1875rem;
   background: rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   overflow: hidden;
@@ -90,7 +84,8 @@
   display: block;
   width: 100%;
   height: 0;
-  background: var(--ax-violet, #9248e4);
+  background: linear-gradient(180deg, var(--violet-400), var(--violet-600));
+  transition: height 0.2s linear;
 }
 .ax-reels__entry[aria-selected="true"] .ax-reels__entry-bar {
   background: rgba(146, 72, 228, 0.3);
@@ -103,31 +98,32 @@
 }
 .ax-reels__entry-sector {
   font-size: 0.6875rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   opacity: 0.45;
 }
 .ax-reels__entry-headline {
   font-size: 1.0625rem;
   line-height: 1.25;
-  opacity: 0.55;
+  opacity: 0.6;
   transition: opacity 0.3s ease;
 }
 .ax-reels__entry-client {
   font-size: 0.8125rem;
-  opacity: 0.35;
+  opacity: 0.4;
 }
 .ax-reels__entry[aria-selected="true"] .ax-reels__entry-headline {
   opacity: 1;
 }
 .ax-reels__entry:hover .ax-reels__entry-headline {
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .ax-reels__entry-metric {
   font-size: 1.375rem;
   line-height: 1;
-  opacity: 0.5;
+  opacity: 0.55;
   white-space: nowrap;
-  transition: opacity 0.3s ease, color 0.3s ease;
+  transition: opacity 0.3s ease, color 0.3s ease, text-shadow 0.3s ease;
 }
 .ax-reels__entry-metric em {
   font-style: normal;
@@ -137,7 +133,8 @@
 }
 .ax-reels__entry[aria-selected="true"] .ax-reels__entry-metric {
   opacity: 1;
-  color: #c79bf5;
+  color: var(--violet-300);
+  text-shadow: 0 0 1.2rem rgba(146, 72, 228, 0.45);
 }
 
 /* ---------- stage ---------- */
@@ -151,44 +148,270 @@
   aspect-ratio: 16 / 9;
   border-radius: 0.75rem;
   overflow: hidden;
-  background: #0d1116;
-  box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.45);
+  /* Not opaque. `.ax-reels__film` (the section's own backdrop clip, see
+     app/film.css) sits behind this box at a lower z-index within the same
+     stacking context — an opaque background here blocked it completely,
+     so the screen was a flat black rectangle with no relationship to the
+     footage visible everywhere else in the section, around its edges. A
+     translucent tint over dark lets that same footage read faintly through
+     the glass instead, so the "device" looks like it is standing in the
+     room the section is already showing rather than floating in a void
+     the video doesn't reach. */
+  background: linear-gradient(160deg, rgba(9, 12, 17, 0.62) 0%, rgba(6, 8, 12, 0.74) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(146, 72, 228, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: box-shadow var(--dur-3) var(--ease);
 }
+@media (hover: hover) and (pointer: fine) {
+  .ax-reels__screen:hover {
+    box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(146, 72, 228, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+}
+.ax-reels__screen:has(.ax-reels__empty) {
+  aspect-ratio: auto;
+  min-height: 0;
+  cursor: default;
+}
+
+/* The console's own readout — sector and case id, plus a live dot that
+   shares the same pulse as the empty-state status line below. Sits above
+   both the video and the empty state so the frame reads as one running
+   instrument, not a video player that occasionally shows a fallback. */
+.ax-reels__hud {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.95rem 1.1rem;
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, rgba(6, 8, 11, 0.6) 0%, rgba(6, 8, 11, 0) 100%);
+  pointer-events: none;
+}
+.ax-reels__hud-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+  color: var(--coral);
+  font-weight: 600;
+}
+.ax-reels__hud-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--coral);
+  box-shadow: 0 0 0 0 rgba(248, 119, 86, 0.55);
+}
+html.ax-motion:not(.ax-reduced) .ax-reels__hud-dot {
+  animation: ax-reels-pulse 2.4s ease-out infinite;
+}
+.ax-reels__hud-sector {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ax-reels__hud-id {
+  flex: none;
+  color: rgba(255, 255, 255, 0.3);
+}
+
 .ax-reels__video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-.ax-reels__empty {
+
+/* Center play affordance over the paused video — the small transport
+   button below is easy to miss on a first visit; this is the target every
+   video player has already trained people to look for. */
+.ax-reels__bigplay {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(10, 12, 16, 0.55);
+  color: #fff;
+  fill: currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.ax-reels__bigplay svg {
+  width: 1.625rem;
+  height: 1.625rem;
+  margin-left: 0.15rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-reels__bigplay:hover {
+    background: var(--violet-500);
+    border-color: var(--violet-500);
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow: 0 0 2.5rem rgba(146, 72, 228, 0.55);
+  }
+}
+.ax-reels__bigplay:focus-visible {
+  outline: 2px solid var(--violet-500);
+  outline-offset: 0.3rem;
+}
+
+.ax-reels__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 1.1rem;
   text-align: center;
-  padding: 2rem;
+  padding: 4rem 2rem 2.25rem;
 }
 .ax-reels__empty p {
   margin: 0;
   opacity: 0.6;
 }
-.ax-reels__empty-path {
-  font-size: 0.8125rem;
-  opacity: 0.4 !important;
+
+/* The empty state's own clip — see the note in Deployments.jsx for why
+   this exists instead of relying on the section's backdrop to show
+   through. Full strength like every other film on the page (`app/film.css`
+   §"ONE TREATMENT" — nothing here breaks that rule), dimmed only by a
+   scrim, exactly the same pattern every other film-behind-copy surface on
+   the site already uses. */
+.ax-reels__empty-film {
+  z-index: 0;
 }
-/* Cap the terminal's width inside the empty state — `.ax-terminal` defaults
-   to filling its container, which here is the full 16:9 stage; unconstrained
-   it would stretch edge to edge and dominate the frame instead of reading
-   as a compact panel sitting in it. */
-.ax-reels__empty-terminal {
+.ax-reels__empty-film::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    78% 78% at 50% 46%,
+    rgba(6, 8, 12, 0.55) 0%,
+    rgba(6, 8, 12, 0.86) 100%
+  );
+}
+.ax-reels__empty > *:not(.ax-reels__empty-film) {
+  position: relative;
+  z-index: 1;
+}
+
+/* The reel stage is a 16:9 box, and with no footage in it the terminal sat
+   as a small panel in a large black void. A faint engineering grid behind
+   it makes the empty state read as an instrument the section owns rather
+   than a gap where a video failed to load. */
+.ax-reels__empty::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 45%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(70% 70% at 50% 45%, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Terminal + the case's one headline metric, side by side — the frame
+   that used to be a compact card adrift in a lot of black now reads as a
+   small results panel: a running log next to the number it's about to
+   produce. */
+.ax-reels__empty-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 26rem;
+  max-width: 46rem;
+}
+.ax-reels__empty-terminal {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 .ax-reels__empty-terminal .ax-terminal__body {
-  min-height: 9rem;
+  min-height: 11.5rem;
+  padding: 1.35rem 1.5rem 1.6rem;
+  font-size: 0.875rem;
+}
+.ax-reels__empty-terminal .ax-terminal__bar {
+  padding: 0.85rem 1.1rem;
+}
+.ax-reels__empty-metric {
+  flex: 0 0 10.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.25rem 1.4rem;
+  border-radius: var(--r-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(160deg, rgba(146, 72, 228, 0.18) 0%, rgba(146, 72, 228, 0.03) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  text-align: left;
+}
+.ax-reels__empty-metric-value {
+  font-size: 2.25rem;
+  line-height: 1;
+  font-weight: 600;
+  color: #fff;
+}
+.ax-reels__empty-metric-value em {
+  font-style: normal;
+  font-size: 1rem;
+  margin-left: 0.2rem;
+  opacity: 0.6;
+}
+.ax-reels__empty-metric-label {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  opacity: 0.6;
+}
+
+/* Status line under the terminal. Reads as a production note from the
+   studio, not as a build instruction — see the comment in Deployments.jsx. */
+.ax-reels__empty-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem !important;
+  padding: 0.35rem 0.85rem 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  opacity: 0.72 !important;
+}
+.ax-reels__empty-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  flex: none;
+  background: var(--coral);
+  box-shadow: 0 0 0 0 rgba(248, 119, 86, 0.55);
+}
+html.ax-motion:not(.ax-reduced) .ax-reels__empty-dot {
+  animation: ax-reels-pulse 2.4s ease-out infinite;
+}
+@keyframes ax-reels-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(248, 119, 86, 0.5); }
+  70% { box-shadow: 0 0 0 0.45rem rgba(248, 119, 86, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(248, 119, 86, 0); }
 }
 .ax-reels__empty code {
   color: #c79bf5;
@@ -201,6 +424,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 2;
   display: flex;
   align-items: baseline;
   gap: 0.75rem;
@@ -229,34 +453,38 @@
 }
 .ax-reels__control {
   flex: none;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   margin-top: -0.5rem;
   border-radius: 50%;
-  border: 0.0625rem solid rgba(255, 255, 255, 0.18);
-  background: none;
+  border: 0.0625rem solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0.35rem 0.9rem rgba(0, 0, 0, 0.35);
   color: #fff;
   fill: currentColor;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.25s ease, border-color 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 .ax-reels__control svg {
   width: 1.125rem;
   height: 1.125rem;
 }
 .ax-reels__control:hover:not(:disabled) {
-  background: var(--ax-violet, #9248e4);
-  border-color: var(--ax-violet, #9248e4);
+  background: var(--violet-500);
+  border-color: var(--violet-500);
+  box-shadow: 0 0.5rem 1.5rem rgba(146, 72, 228, 0.4);
+  transform: translateY(-0.0625rem);
 }
 .ax-reels__control:disabled {
   opacity: 0.3;
   cursor: default;
 }
 .ax-reels__control:focus-visible {
-  outline: 0.125rem solid var(--ax-violet, #9248e4);
+  outline: 2px solid var(--violet-500);
   outline-offset: 0.2rem;
 }
 
@@ -268,20 +496,21 @@
 }
 .ax-reels__track {
   position: relative;
-  height: 0.25rem;
+  height: 0.3125rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.14);
   cursor: pointer;
 }
 .ax-reels__track:focus-visible {
-  outline: 0.125rem solid var(--ax-violet, #9248e4);
+  outline: 2px solid var(--violet-500);
   outline-offset: 0.35rem;
 }
 .ax-reels__track-fill {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: 999px;
-  background: linear-gradient(90deg, #9248e4, #c79bf5);
+  background: linear-gradient(90deg, var(--violet-500), var(--violet-400));
+  box-shadow: 0 0 0.85rem rgba(146, 72, 228, 0.5);
 }
 .ax-reels__marker {
   position: absolute;
@@ -290,6 +519,29 @@
   height: 0.625rem;
   margin-top: -0.3125rem;
   background: rgba(255, 255, 255, 0.5);
+}
+/* Draggable-looking handle at the current position — hidden until the
+   track is actually interactive, so the bar stays quiet the rest of the
+   time. */
+.ax-reels__thumb {
+  position: absolute;
+  top: 50%;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: -0.4275rem;
+  margin-left: -0.4275rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0.1875rem rgba(146, 72, 228, 0.4), 0 0.25rem 0.6rem rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: scale(0.6);
+  pointer-events: none;
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-reels__track:hover .ax-reels__thumb,
+.ax-reels__track:focus-visible .ax-reels__thumb {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* The five stages, laid under the scrub bar. This is a real sequence, so
@@ -300,31 +552,35 @@
   flex-wrap: wrap;
 }
 .ax-reels__stage-btn {
-  padding: 0.3rem 0.7rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 999px;
   border: 0.0625rem solid rgba(255, 255, 255, 0.16);
-  background: none;
+  background: rgba(255, 255, 255, 0.03);
   color: #fff;
   font: inherit;
   font-size: 0.75rem;
-  opacity: 0.5;
+  font-weight: 500;
+  opacity: 0.55;
   cursor: pointer;
-  transition: opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+  transition: opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .ax-reels__stage-btn:hover:not(:disabled) {
-  opacity: 0.9;
+  opacity: 0.95;
+  border-color: rgba(255, 255, 255, 0.3);
 }
 .ax-reels__stage-btn[data-on="true"] {
   opacity: 1;
-  background: rgba(146, 72, 228, 0.22);
-  border-color: var(--ax-violet, #9248e4);
+  background: linear-gradient(90deg, var(--violet-600), var(--violet-500));
+  border-color: var(--violet-400);
+  box-shadow: 0 0.4rem 1rem rgba(146, 72, 228, 0.35);
 }
 .ax-reels__stage-btn:disabled {
   opacity: 0.22;
   cursor: default;
 }
 .ax-reels__stage-btn:focus-visible {
-  outline: 0.125rem solid var(--ax-violet, #9248e4);
+  outline: 2px solid var(--violet-500);
   outline-offset: 0.2rem;
 }
 
@@ -350,23 +606,43 @@
   .ax-reels__console {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: 1.25rem;
   }
   /* Index becomes a swipeable strip above the stage, so the video stays
      the first thing you see on a phone. */
   .ax-reels__index {
     order: 2;
+    padding-right: 0;
+    border-right: 0;
+    border-top: 1px solid var(--line-invert);
+    padding-top: 1.25rem;
   }
   .ax-reels__stage {
     order: 1;
   }
   .ax-reels__entry {
-    grid-template-columns: 0.125rem minmax(0, 1fr) auto;
+    grid-template-columns: 0.1875rem minmax(0, 1fr) auto;
   }
   .ax-reels__caption {
     padding: 2.5rem 1rem 0.9rem;
   }
   .ax-reels__caption-text {
     font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .ax-reels__empty {
+    padding: 3.75rem 1.25rem 2rem;
+  }
+  .ax-reels__empty-grid {
+    flex-direction: column;
+  }
+  .ax-reels__empty-metric {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 }
 
@@ -382,12 +658,26 @@
   .ax-reels__entry-metric {
     font-size: 1.125rem;
   }
+  .ax-reels__bigplay {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .ax-reels__bigplay svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
 }
 
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .ax-reels__entry-fill,
-  .ax-reels__track-fill {
+  .ax-reels__track-fill,
+  .ax-reels__thumb,
+  .ax-reels__entry,
+  .ax-reels__screen,
+  .ax-reels__control,
+  .ax-reels__bigplay,
+  .ax-reels__stage-btn {
     transition: none !important;
   }
 }

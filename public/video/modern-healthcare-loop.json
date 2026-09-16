@@ -1,0 +1,8 @@
+{
+  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
+  "prompt": "Cinematic shot of a modern hospital corridor at dusk, a clinician walking calmly past a subtle holographic cyan interface overlay quietly assisting clinical work, soft ambient lighting, slow deliberate camera drift, shallow depth of field, seamless loop, no text, no logos, no faces in sharp focus.",
+  "refs": [],
+  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
+  "cost_usd": 0.448,
+  "created": "2026-07-31T11:46:30Z"
+}

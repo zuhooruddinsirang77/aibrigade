@@ -200,8 +200,7 @@ input[type="file"]:focus-visible {
 .track-flex { overflow-y: hidden; }
 .nav-menu.mobile { background-color: #9248e4; }
 
-/* ---------- horizontal scroll trigger ---------- */
-.horizontal-trigger { height: calc(100% - 100vh); }
+/* ---------- horizontal scroll ---------- */
 .end-slides { border-color: #c3c8cc; color: #c3c8cc; }
 
 /* ================================================================
@@ -211,16 +210,16 @@ input[type="file"]:focus-visible {
 /* DO NOT SCOPE THESE. The linked Webflow stylesheets ship IX2 initial states
    (opacity:0) for every one of these selectors, and webflow.js is not running
    to reveal them. These !important rules are the only reason the hero
-   headline, hero paragraph, case backgrounds, services photo and CTA
-   background are on screen at all. Weaken them and those elements vanish.
+   headline, hero paragraph, case backgrounds and services photo are on
+   screen at all. (`.button_bg-2` used to be in this list too — it is the
+   hero CTA hover wash, and showing it at rest looked broken; app/hero.css
+   gives it back its hover behaviour instead.) Weaken them and those elements vanish.
    The motion layer is built to never need them released. */
 [data-w-id] { opacity: 1 !important; }
 .header_component h1,
 .header_text_wrapper .d1,
-.header_image_gallery,
 .cases_bg-2,
-.services_photo,
-.button_bg-2 {
+.services_photo {
   opacity: 1 !important;
   transform: none !important;
   filter: none !important;
@@ -247,18 +246,66 @@ body { overflow-x: hidden; }
 
 /* ---------- WhyUs horizontal scroll layout reinforcement ---------- */
 @media (min-width: 992px) {
+  /* No `position: sticky` here any more: ScrollTrigger pins this element
+     (see WhyUs.jsx) and a CSS sticky underneath it would fight the pin's
+     own transform. It only needs to fill the viewport it is pinned in. */
   .horizontal-sticky {
-    position: sticky;
-    top: 0;
+    box-sizing: border-box;
     min-height: 100vh;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     overflow: visible;
+    /* The navbar is `position: fixed` and 78px tall, so the top 78px of
+       this pinned viewport is spoken for. Centring the content in the full
+       100vh without accounting for that slid the "What we're good at"
+       heading underneath it and sheared the top off the letters for the
+       whole length of the pin. */
+    padding-top: 5.5rem;
   }
   .horizontal-list {
     display: flex;
     flex-wrap: nowrap;
     will-change: transform;
+  }
+  /* `.padding-global` is a flex item of `.horizontal-sticky` with
+     `flex: 1 1 0%` but the initial `min-width: auto`, which in flexbox
+     means "never shrink below your content". The 2340px-wide card row
+     inside it therefore blew the whole column out to 2340px in a 1425px
+     container — so the row had nothing to overflow, `scrollWidth -
+     clientWidth` measured 0, and the surplus was simply chopped off by
+     `body { overflow-x: hidden }` instead: a hard vertical edge through
+     whatever word a card happened to be showing. `min-width: 0` is what
+     lets a flex item actually be narrower than its contents. */
+  .horizontal-sticky > .padding-global {
+    min-width: 0;
+    width: 100%;
+  }
+  /* Now that the wrapper really is narrower than the row, fade the cut
+     edge instead of guillotining it — the fade says "there is more this
+     way" on purpose. `overflow` has to be `hidden` on BOTH axes: CSS
+     computes a `visible` on one axis to `auto` when the other is
+     `hidden`, which would have added a scrollbar here. The padding and
+     matching negative margin give the cards' drop shadows room inside
+     that clip instead. */
+  .horizontal-list-wrapper {
+    max-width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 2.5rem,
+      #000 calc(100% - 6rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 2.5rem,
+      #000 calc(100% - 6rem),
+      transparent 100%
+    );
+    padding: 1.5rem 0;
+    margin: -1.5rem 0;
   }
   /* Keep card text painted on its own GPU layer so it doesn't flicker/vanish
      while the sibling list is actively being transformed during scroll. */
@@ -274,60 +321,27 @@ body { overflow-x: hidden; }
 @media (max-width: 991px) {
   .horizontal-section { height: auto !important; min-height: 0 !important; }
   .horizontal-sticky { position: static !important; height: auto !important; }
-  .horizontal-list-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .horizontal-list-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .horizontal-list-wrapper::-webkit-scrollbar { display: none; }
   .horizontal-list { display: flex; transform: none !important; gap: 10px; padding: 0 1.25rem; }
-  .horizontal-list .whyus-box_item { flex: 0 0 auto; }
+  .horizontal-list .whyus-box_item { flex: 0 0 auto; scroll-snap-align: center; }
 }
 
-/* ---------- Hero section ---------- */
-/* Extra room above the phone gallery and ticker for the heading/paragraph/
-   button. Both the gallery and ticker are `position:absolute` pinned to
-   the bottom of this box (ticker only becomes absolute at <=991px), so
-   growing the section's height alone drags them down with it. Each
-   `bottom` offset below is the Webflow default for that breakpoint plus
-   the same boost, so they stay exactly where they always were. */
-:root {
-  --hero-height-boost: 19rem;
-}
-#header.section_header {
-  overflow: hidden;
-}
-/* Webflow itself sets height:auto on this section at <=767px (content-
-   sized, since the gallery/ticker are normal in-flow or self-contained
-   there). Only force the boosted 100vh+ height at >=768px, where Webflow's
-   own rule keeps height:100vh and the gallery/ticker are pinned via
-   position:absolute — otherwise mobile gets a viewport-tall box far
-   larger than its actual content, leaving a dead purple gap below it. */
-@media screen and (min-width: 768px) {
-  #header.section_header {
-    height: calc(100vh + var(--hero-height-boost));
-  }
-}
-/* Only apply the boost while .header_image_gallery is still Webflow's
-   position:absolute (>=768px). At <=767px Webflow itself switches the
-   gallery to position:relative/static and flows it in normal document
-   order, so a leftover `bottom` offset here would just shove it (and the
-   overlapping ticker) up into the heading text instead of doing nothing. */
-@media screen and (min-width: 768px) {
-  #header .header_image_gallery {
-    bottom: var(--hero-height-boost); /* Webflow default: 0 */
-  }
-}
-@media screen and (min-width: 768px) and (max-width: 991px) {
-  #header .header_image_gallery {
-    bottom: calc(6rem + var(--hero-height-boost)); /* Webflow default: 6rem */
-  }
-}
-/* .header_ticker stays position:absolute at every width down to the
-   smallest breakpoint (unlike the gallery), but only needs the boost
-   where the section itself is boosted (>=768px, see above) — at <=767px
-   the section is back to Webflow's own height:auto, so the ticker's
-   default bottom:0 already sits correctly against the content-sized box. */
-@media screen and (min-width: 768px) and (max-width: 991px) {
-  #header .header_ticker {
-    bottom: var(--hero-height-boost); /* Webflow default: 0 */
-  }
-}
+/* ---------- Hero section ----------
+   The hero's layout now lives in app/hero.css. What used to be here was a
+   `--hero-height-boost: 19rem` and a stack of breakpoint-matched `bottom`
+   offsets keeping `.header_image_gallery` and `.header_ticker` pinned to
+   the bottom of a section grown to fit three absolutely-positioned phone
+   screenshots. Those screenshots are gone (see components/Hero.jsx), and
+   with them the only reason the section was 19rem taller than its own
+   content — which is what produced the band of empty violet under the
+   fold. `.header_ticker` sits against a content-sized section now, so its
+   own `bottom: 0` is already correct at every breakpoint. */
 
 /* ---------- WhyUs manual slider ---------- */
 .whyus-slider-row {

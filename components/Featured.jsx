@@ -1,5 +1,6 @@
 import Reveal from "@/components/motion/Reveal";
 import TerminalFeed from "@/components/motion/TerminalFeed";
+import AmbientVideo from "@/components/motion/AmbientVideo";
 
 export default function Featured() {
   return (
@@ -12,6 +13,25 @@ export default function Featured() {
               selector="h3, .featured_gradient, p, .ax-featured-terminal"
               className="_12-col-grid featured_component tow-columns-grid-gradient i_pro-grid-padding-home"
             >
+              {/* Inside `.featured_component`, not behind it. That class is
+                  a rounded violet card — `background-color: var(--violet)`,
+                  `position: relative`, `z-index: 0`, `overflow: hidden` —
+                  so a film mounted at section level is covered by it
+                  completely, which is exactly what happened: the clip was
+                  invisible except for two strips above and below the card,
+                  and the band read as a flat purple block.
+
+                  Mounted here it paints over that violet (the z-index makes
+                  the card a stacking context, so the background goes down
+                  first and negative children on top of it) and is clipped
+                  to the card's own corner radius — the section becomes a
+                  framed film rather than a slab. */}
+              {/* "consultancy" — a consultant presenting a holographic AI
+                  assistant to a client — was shot for this exact line:
+                  "a focused, fast-moving AI consultancy". The particle-
+                  stream clip this replaced was atmosphere; this is the
+                  claim, illustrated. */}
+              <AmbientVideo film="consultancy" className="ax-featured__film" />
               <h3
                 id="w-node-a1a784d5-ab7c-b5d9-ae82-a7f9802fc0c1-3317ee6c"
                 className="heading-style-h5 text-color-white _30 first-columns heading-h5-36pt-ipad_pro"
@@ -36,10 +56,12 @@ export default function Featured() {
                 insights into copilots, automation agents, and decision intelligence systems that
                 move the needle.
               </p>
-              <div
-                className="ax-featured-terminal"
-                style={{ gridColumn: "1 / -1", marginTop: "2.5rem", maxWidth: "28rem" }}
-              >
+              {/* `gridColumn: 1 / -1` makes this span the row, but the
+                  Webflow grid's own tracks are narrow, so the panel still
+                  rendered ~212px wide — a sliver with a large empty black
+                  area under two lines of log. The width is set in CSS
+                  alongside the rest of the terminal styling instead. */}
+              <div className="ax-featured-terminal">
                 <TerminalFeed />
               </div>
             </Reveal>

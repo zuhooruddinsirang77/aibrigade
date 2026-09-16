@@ -1,5 +1,6 @@
-import { services, CDN } from "@/components/data";
+import { CDN } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
+import ServiceExplorer from "@/components/motion/ServiceExplorer";
 
 // Every phrase here already appears in this site's own copy (Hero,
 // WhyUs, Features — see components/data.js and Hero.jsx) — this isn't a
@@ -25,7 +26,7 @@ const dot2 = `${CDN}/641af3f899336e17b7abd9e1_Group%202667%20(1).svg`;
 function TickerItem({ start }) {
   const stats = [
     "Discovery to deployment in months",
-    "Fintech &amp; HealthTech clients nationwide",
+    "Fintech & HealthTech clients nationwide",
     "HIPAA-compliant AI systems",
   ];
   const icons = start ? [dot, dot2, dot] : [dot2, dot, dot2];
@@ -77,14 +78,11 @@ export default function Services() {
               ))}
             </Reveal>
 
-            <Reveal variant="stagger" selector=".services_item" className="services_component">
-              {services.map((s) => (
-                <div className="services_item" key={s.title}>
-                  <h3 className="d1 _20">{s.title}</h3>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={s.img} alt={s.alt} className={`services_photo ${s.cls}`} />
-                </div>
-              ))}
+            {/* Was a four-card grid of one-line offers over 3D renders.
+                See ServiceExplorer.jsx: the four offers are not
+                interchangeable, so the section lets you open one. */}
+            <Reveal variant="rise">
+              <ServiceExplorer />
             </Reveal>
           </div>
         </div>

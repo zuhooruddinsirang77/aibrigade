@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { prefersReducedMotion } from "@/components/motion/gsapLoader";
+import { CHAPTERS } from "@/components/motion/chapters";
+
+export { CHAPTERS };
 
 /**
  * The site's problem isn't only that nothing moves — it's that eleven
@@ -17,27 +20,26 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
  * It sits in its own dark pill at the bottom of the viewport, so it never has
  * to match the section behind it and never covers page content.
  * IntersectionObserver only — no scroll handler, no GSAP, negligible cost.
+ *
+ * Crossing into a chapter used to also drop a full-screen "Chapter 4 / 7"
+ * title card in the middle of the viewport. On a page this dense it landed
+ * squarely on top of whatever you were reading — a grey slab over the case
+ * copy, the testimonials, the footer — and fired again every time the
+ * observer flipped, which on a slow scroll is constantly. The transition is
+ * announced here instead: the rail's own pill lifts and its counter ticks
+ * over. Same information, in the element already dedicated to carrying it,
+ * and it never covers a word.
  */
 
-export const CHAPTERS = [
-  { id: "header", label: "The brief" },
-  { id: "whyus", label: "What we build" },
-  { id: "cases", label: "Evidence" },
-  { id: "reels", label: "The work, playing" },
-  { id: "features", label: "How we run it" },
-  { id: "reviews", label: "Who vouches" },
-  { id: "ctadark", label: "Start something" },
-];
 
 export default function StoryRail({ chapters = CHAPTERS }) {
   const pathname = usePathname();
   const onHomePage = pathname === "/";
 
   const [active, setActive] = useState(chapters[0].id);
-  const [flash, setFlash] = useState(null); // { key, index, label } | null
+  const [pulse, setPulse] = useState(0);
   const activeRef = useRef(active);
   const firstCallRef = useRef(true);
-  const flashKeyRef = useRef(0);
   activeRef.current = active;
 
   useEffect(() => {
@@ -62,17 +64,10 @@ export default function StoryRail({ chapters = CHAPTERS }) {
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
         if (visible && visible.target.id !== activeRef.current) {
           setActive(visible.target.id);
-
-          // Skip the observer's first call — it just reports where you
-          // loaded in, not a chapter you crossed into. Every call after
-          // that is a real transition, worth announcing like a chapter
-          // card: this is the one piece of motion on the page that says
-          // "you are moving through something," not just "this element
-          // arrived."
+          // Skip the observer's first call — it reports where you loaded
+          // in, not a chapter you crossed into.
           if (!firstCallRef.current && !prefersReducedMotion()) {
-            const idx = chapters.findIndex((c) => c.id === visible.target.id);
-            flashKeyRef.current += 1;
-            setFlash({ key: flashKeyRef.current, index: idx + 1, label: chapters[idx].label });
+            setPulse((n) => n + 1);
           }
         }
         firstCallRef.current = false;
@@ -95,38 +90,29 @@ export default function StoryRail({ chapters = CHAPTERS }) {
 
   if (!onHomePage) return null;
 
-  return (
-    <>
-      <nav className="ax-rail" aria-label="Page chapters">
-        {chapters.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            className="ax-rail__item"
-            aria-current={active === c.id}
-            onClick={go(c.id)}
-          >
-            <span className="ax-rail__tick" aria-hidden="true" />
-            <span className="ax-rail__label">{c.label}</span>
-          </button>
-        ))}
-      </nav>
+  const activeIndex = chapters.findIndex((c) => c.id === active);
 
-      {flash && (
-        <div
-          key={flash.key}
-          className="ax-chapter-flash"
-          aria-hidden="true"
-          onAnimationEnd={() => setFlash(null)}
+  return (
+    <nav className="ax-rail" aria-label="Page chapters">
+      {/* `key` remounts the counter on every chapter change so its CSS
+          entrance animation replays — a transition you can feel without a
+          second element appearing anywhere on screen. */}
+      <span key={pulse} className="ax-rail__count" aria-hidden="true">
+        {String(activeIndex + 1).padStart(2, "0")}
+        <i>/{String(chapters.length).padStart(2, "0")}</i>
+      </span>
+      {chapters.map((c) => (
+        <button
+          key={c.id}
+          type="button"
+          className="ax-rail__item"
+          aria-current={active === c.id}
+          onClick={go(c.id)}
         >
-          <div className="ax-chapter-flash__inner">
-            <span className="ax-chapter-flash__eyebrow">
-              Chapter {flash.index} / {chapters.length}
-            </span>
-            <span className="ax-chapter-flash__label">{flash.label}</span>
-          </div>
-        </div>
-      )}
-    </>
+          <span className="ax-rail__tick" aria-hidden="true" />
+          <span className="ax-rail__label">{c.label}</span>
+        </button>
+      ))}
+    </nav>
   );
 }

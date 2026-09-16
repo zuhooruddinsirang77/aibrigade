@@ -1,0 +1,461 @@
+/* ================================================================
+   AIBrigade — hero stage
+
+   The hero is the only section on this site whose Webflow layout was
+   built around content that no longer exists. `.header_image_gallery`
+   held three absolutely-positioned screenshots of a trading app, pinned
+   to the bottom of a section that had been grown by `--hero-height-boost`
+   (19rem) to make room for them. Both the gallery and that boost are gone
+   (see components/Hero.jsx), so the offsets that chased them go too.
+
+   What replaces them is a two-column hero: the claim on the left, a
+   system making a decision on the right. Everything here is scoped to
+   `#header` so no other section inherits it.
+   ================================================================ */
+
+/* ---------------------------------------------------------------
+   1. Layout
+   --------------------------------------------------------------- */
+
+#header.section_header {
+  overflow: hidden;
+  /* Webflow's own rule is height:100vh from 768px up. Content-sized with a
+     floor is safer now that the right column's height is driven by a live
+     component rather than by fixed-size images. */
+  height: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#header .padding-section-header {
+  padding-top: 7rem;
+  padding-bottom: 3rem;
+}
+
+@media (min-width: 992px) {
+  #header .ax-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+    gap: 3.5rem;
+    align-items: center;
+  }
+  #header .ax-hero__copy {
+    min-width: 0;
+  }
+  /* The headline set its own line breaks for a full-bleed column. In half
+     the width it needs to wrap on its own terms instead. */
+  #header .ax-hero__copy h1 {
+    max-width: 18ch;
+  }
+}
+
+@media (max-width: 991px) {
+  #header .ax-hero__stage {
+    margin-top: 2.75rem;
+  }
+  #header .padding-section-header {
+    padding-top: 6rem;
+  }
+}
+
+/* The two 3D renders used to be dropped on top of the headline — the
+   crystal landed squarely through the word "Systems". They sit in the
+   gutter beside the copy now, behind the text in any overlap. */
+#header .header_dec-1,
+#header .header_dec-2 {
+  z-index: 0;
+  pointer-events: none;
+}
+#header .ax-hero__copy {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------
+   2. Console
+   --------------------------------------------------------------- */
+
+.ax-console {
+  --c-line: rgba(255, 255, 255, 0.09);
+  position: relative;
+  border-radius: 1.125rem;
+  overflow: hidden;
+  background: linear-gradient(180deg, #171d26 0%, #11151c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2.5rem 5rem rgba(28, 10, 56, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  color: #fff;
+  max-width: 34rem;
+  margin-left: auto;
+}
+
+.ax-console__chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.95rem;
+  border-bottom: 1px solid var(--c-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+.ax-console__dots {
+  display: flex;
+  gap: 0.3rem;
+}
+.ax-console__dots i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+.ax-console__path {
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.42);
+}
+.ax-console__live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-console__live-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: #4ade80;
+}
+html.ax-motion:not(.ax-reduced) .ax-console__live-dot {
+  animation: ax-console-blink 2.2s ease-in-out infinite;
+}
+@keyframes ax-console-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.ax-console__tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.6rem 0.7rem 0;
+  flex-wrap: wrap;
+}
+.ax-console__tab {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.42);
+  font: inherit;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  /* Short on purpose: at 0.25s the outgoing tab's violet pill was still
+     visible while the incoming one filled, so a still frame showed two
+     tabs selected at once. */
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+.ax-console__tab:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+.ax-console__tab[aria-selected="true"] {
+  color: #fff;
+  background: rgba(146, 72, 228, 0.32);
+}
+.ax-console__tab:focus-visible {
+  outline: 2px solid var(--ax-violet, #9248e4);
+  outline-offset: 1px;
+}
+
+.ax-console__body {
+  padding: 0.85rem 1.1rem 1.15rem;
+}
+.ax-console__request {
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.ax-console__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  /* Four rows, always. Reserving the height stops the panel — and with it
+     the whole right column of the hero — from resizing as rows land. */
+  min-height: 8.5rem;
+}
+.ax-console__step {
+  display: grid;
+  grid-template-columns: 0.9rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.42rem 0.3rem;
+  border-radius: 0.4rem;
+  font-size: 0.75rem;
+  opacity: 0;
+  transform: translateY(0.35rem);
+  transition: opacity 0.45s ease, transform 0.45s ease, background-color 0.45s ease;
+}
+.ax-console__step[data-state="running"],
+.ax-console__step[data-state="done"] {
+  opacity: 1;
+  transform: none;
+}
+.ax-console__step[data-state="running"] {
+  background: rgba(146, 72, 228, 0.14);
+}
+html.ax-reduced .ax-console__step {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.ax-console__step-mark {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  justify-self: center;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background-color 0.4s ease, box-shadow 0.4s ease;
+}
+.ax-console__step[data-state="done"] .ax-console__step-mark {
+  background: #9f7aea;
+}
+.ax-console__step[data-state="running"] .ax-console__step-mark {
+  background: var(--ax-coral, #f87756);
+  box-shadow: 0 0 0 0.2rem rgba(248, 119, 86, 0.18);
+}
+.ax-console__step-label {
+  color: rgba(255, 255, 255, 0.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ax-console__step-detail {
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+}
+.ax-console__step-ms {
+  color: rgba(255, 255, 255, 0.3);
+  font-variant-numeric: tabular-nums;
+  min-width: 2.75rem;
+  text-align: right;
+}
+
+.ax-console__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+.ax-console__meter {
+  flex: 1 1 auto;
+  height: 0.1875rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.ax-console__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--ax-coral, #f87756), #9f48e4);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ax-console__elapsed {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.72);
+}
+.ax-console__elapsed em {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.ax-console__verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+  margin: 0.9rem 0 0;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--c-line);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.75rem;
+  opacity: 0;
+  transform: translateY(0.35rem);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.ax-console__verdict[data-on="true"] {
+  opacity: 1;
+  transform: none;
+}
+html.ax-reduced .ax-console__verdict {
+  opacity: 1;
+  transform: none;
+}
+.ax-console__verdict-text {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.ax-console__verdict[data-state="pass"] .ax-console__verdict-text { color: #6ee7a8; }
+.ax-console__verdict[data-state="refer"] .ax-console__verdict-text { color: var(--ax-coral, #f87756); }
+.ax-console__verdict[data-state="hold"] .ax-console__verdict-text { color: #fbbf5a; }
+.ax-console__verdict[data-state="alert"] .ax-console__verdict-text { color: #c79bf5; }
+.ax-console__verdict-note {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+@media (max-width: 991px) {
+  .ax-console {
+    margin-left: 0;
+    max-width: none;
+  }
+}
+@media (max-width: 479px) {
+  .ax-console__step-detail {
+    display: none;
+  }
+  .ax-console__step {
+    grid-template-columns: 0.9rem minmax(0, 1fr) auto;
+  }
+}
+
+/* ---------------------------------------------------------------
+   3. Decorations
+
+   `.header_dec-1` / `.header_dec-2` are Webflow classes whose absolute
+   offsets were written against `.section_header` when the hero was a
+   single full-bleed column — `.header_dec-2` resolved to `top: -70px;
+   bottom: 0`, which in a 100vh section made the gem 97 x 970px: a purple
+   spike straight down the middle of the headline. They belong to the
+   right-hand stage now, sized and placed against it.
+   --------------------------------------------------------------- */
+
+#header .ax-hero__stage {
+  position: relative;
+}
+
+@media (min-width: 992px) {
+  #header .ax-hero__stage .header_dec-2 {
+    position: absolute;
+    inset: auto;
+    top: -4.75rem;
+    right: -1.25rem;
+    width: 7.5rem;
+    height: 7.5rem;
+    z-index: 2;
+  }
+  #header .ax-hero__stage .header_dec-1 {
+    position: absolute;
+    inset: auto;
+    left: -1.5rem;
+    bottom: -3rem;
+    width: 9rem;
+    height: auto;
+    z-index: 0;
+  }
+}
+@media (max-width: 991px) {
+  /* On one column there is no gutter for them to live in, and the console
+     is the thing worth the space. */
+  #header .ax-hero__stage .header_dec-1,
+  #header .ax-hero__stage .header_dec-2 {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   4. Primary CTA
+
+   `.button_bg-2` is Webflow's hover wash — a 689px-square image that IX2
+   fades in when you point at the button. webflow.js isn't running here, so
+   globals.css force-showed it along with the other IX2-hidden elements,
+   which left it sitting at full opacity at rest: a dark diagonal slab
+   cutting across the button, clipped by the button's own `overflow:
+   hidden`. It reads as a rendering fault. Restoring the hover behaviour in
+   plain CSS is what that force-show was standing in for.
+   --------------------------------------------------------------- */
+
+#header #OpenPop {
+  width: fit-content;
+  max-width: 100%;
+}
+.button .button_bg-2 {
+  opacity: 0;
+  transition: opacity 0.45s var(--ax-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.button:hover .button_bg-2,
+.button:focus-visible .button_bg-2 {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  /* `width-mob-100` is the Webflow class that makes this button full-bleed
+     on phones; `fit-content` above would quietly cancel it. */
+  #header #OpenPop.width-mob-100 {
+    width: 100%;
+  }
+}
+
+/* `.button_bg_back` — the fill Webflow gives this button — is the brand
+   violet, and the hero it sits on is the same violet, so the primary call to
+   action was a rectangle of near-invisible outline on its own background.
+   White on violet is the contrast the rest of the page already uses for
+   emphasis (the nav pills, the ticker logos). Scoped to the hero CTA: the
+   same `.button` class on a white section is already fine as it is. */
+#header #OpenPop .button_bg_back {
+  background-color: #fff;
+}
+#header #OpenPop .button_text_wrapper {
+  color: #17161b;
+  position: relative;
+  z-index: 1;
+  transition: color 0.35s var(--ax-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+#header #OpenPop .button_line_arrow {
+  filter: invert(1);
+  transition: filter 0.35s var(--ax-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+/* The hover wash is dark, so the label has to flip back to white with it. */
+#header #OpenPop:hover .button_text_wrapper,
+#header #OpenPop:focus-visible .button_text_wrapper {
+  color: #fff;
+}
+#header #OpenPop:hover .button_line_arrow,
+#header #OpenPop:focus-visible .button_line_arrow {
+  filter: none;
+}
+
+/* ---------------------------------------------------------------
+   5. Mobile hero copy
+
+   The Webflow template hides `.header_text_wrapper` outright below the
+   tablet breakpoint, which left the phone hero as a headline and a button
+   and nothing explaining what the company does — the one screen where
+   that sentence matters most, because there is no second column of
+   evidence beside it. It was laid out for a hero whose bottom half was
+   three phone screenshots; it isn't any more.
+   --------------------------------------------------------------- */
+
+@media (max-width: 991px) {
+  #header .header_text_wrapper {
+    display: block;
+    margin-bottom: 2rem;
+  }
+  #header .header_text_wrapper .d1 {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    opacity: 0.88;
+    max-width: 34ch;
+  }
+}

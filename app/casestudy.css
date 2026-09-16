@@ -25,7 +25,13 @@
   align-items: center;
 }
 .ax-case__back {
-  display: inline-flex;
+  /* `inline-flex` put this on the same line as the eyebrow that follows it,
+     so the hero read "All case studiesFINTECH CASE STUDY" with no
+     separator — the `margin-bottom` below only separates block boxes.
+     A flex box with `fit-content` keeps the arrow-and-label row but takes
+     its own line. */
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1.75rem;

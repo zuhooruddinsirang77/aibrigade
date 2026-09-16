@@ -1,0 +1,8 @@
+{
+  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
+  "prompt": "Cinematic shot of premium industrial robotic arms collaborating with AI systems on a clean modern manufacturing line, subtle cyan status lighting on machinery, robotic arms in smooth continuous motion, slow deliberate camera drift, shallow depth of field, seamless loop, no clutter, no text, no logos.",
+  "refs": [],
+  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
+  "cost_usd": 0.448,
+  "created": "2026-07-31T11:42:52Z"
+}

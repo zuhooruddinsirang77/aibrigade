@@ -3,6 +3,11 @@
 import { useEffect, useRef } from "react";
 import { whyUs } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
+import Kicker from "@/components/motion/Kicker";
+import { loadGsap } from "@/components/motion/gsapLoader";
+import AmbientVideo from "@/components/motion/AmbientVideo";
+import TiltCard from "@/components/motion/TiltCard";
+import { filmFor } from "@/components/video.data";
 
 const WHYUS_ICONS = {
   shield: (
@@ -51,6 +56,7 @@ function WhyUsIcon({ name, dark }) {
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div
+        className="whyus-icon-disc"
         style={{
           width: "5.5rem",
           height: "5.5rem",
@@ -74,6 +80,7 @@ function WhyUsIcon({ name, dark }) {
 export default function WhyUs() {
   const sectionRef = useRef(null);
   const listRef = useRef(null);
+  const wrapRef = useRef(null);
   const trackRef = useRef(null);
   const thumbRef = useRef(null);
   const prevBtnRef = useRef(null);
@@ -84,78 +91,86 @@ export default function WhyUs() {
     let cleanup = () => {};
     let cancelled = false;
 
-    (async () => {
-      const gsapMod = await import("gsap");
-      const stMod = await import("gsap/ScrollTrigger");
-      if (cancelled) return;
-      const gsap = gsapMod.default || gsapMod.gsap;
-      const ScrollTrigger = stMod.ScrollTrigger || stMod.default;
-      gsap.registerPlugin(ScrollTrigger);
+    loadGsap().then((mod) => {
+      if (cancelled || !mod) return;
+      const { gsap, ScrollTrigger } = mod;
 
       const section = sectionRef.current;
       const list = listRef.current;
+      const wrap = wrapRef.current;
       const track = trackRef.current;
       const thumb = thumbRef.current;
       const prevBtn = prevBtnRef.current;
       const nextBtn = nextBtnRef.current;
-      if (!section || !list) return;
+      if (!section || !list || !wrap) return;
 
       const isDesktop = () => window.matchMedia("(min-width: 992px)").matches;
 
       ctx = gsap.context(() => {
-        const items = list.querySelectorAll(".whyus-box_item");
+        const items = Array.from(list.querySelectorAll(".whyus-box_item"));
         let moveDistance = 0;
         let thumbPercent = 100;
         let itemWidth = 0;
 
-        const calc = () => {
+        /* The distance the row has to travel is a measurement, not a guess.
+           The previous version derived it from a table of hand-tuned
+           "items in view" ratios per breakpoint (3.2 at 1920, 3.5125 at
+           1024, ...) multiplied by one card's width. Those numbers had
+           drifted from the real layout: at 1440 it asked for 1092px of
+           travel when the row only overflows its wrapper by 915px, so the
+           last card was dragged ~177px past the left edge and the closing
+           frame of the section showed a row already half gone.
+           scrollWidth minus clientWidth is the actual overflow, at every
+           breakpoint, with no table to maintain. */
+        const measure = () => {
+          itemWidth = items[0]?.offsetWidth || 0;
           if (!isDesktop()) {
-            list.style.transform = "none";
-            section.style.minHeight = "";
-            section.style.height = "";
+            moveDistance = 0;
+            gsap.set(list, { x: 0 });
             return;
           }
-          let itemsInView = 3.2;
-          const w = window.innerWidth;
-          if (w <= 1024) itemsInView = 3.5125;
-          else if (w <= 1440) itemsInView = 3.625;
-          else if (w <= 1512) itemsInView = 3.385;
-          else if (w <= 1600) itemsInView = 3.4125;
-          else if (w <= 1920) itemsInView = 3.2;
-
-          itemWidth = items[0]?.offsetWidth || 0;
-          const moveAmount = Math.max(items.length - itemsInView, 0);
-          moveDistance = itemWidth * moveAmount;
-          const minHeight = 1.2 * itemWidth * items.length;
-          section.style.height = "200vh";
-          section.style.minHeight = minHeight + "px";
-          thumbPercent = Math.min(100, Math.max(12, (itemsInView / items.length) * 100));
+          moveDistance = Math.max(0, list.scrollWidth - wrap.clientWidth);
+          thumbPercent = moveDistance
+            ? Math.min(100, Math.max(14, (wrap.clientWidth / list.scrollWidth) * 100))
+            : 100;
           if (thumb) thumb.style.width = thumbPercent + "%";
         };
 
-        calc();
+        measure();
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section.querySelector(".horizontal-trigger"),
-            start: "top top",
-            end: "bottom top",
-            scrub: 1,
-            invalidateOnRefresh: true,
-            onUpdate: (self) => {
-              if (thumb) thumb.style.left = self.progress * (100 - thumbPercent) + "%";
-            },
+        /* A real pin, not `position: sticky` plus a spacer element.
+
+           The sticky version needed `.horizontal-section` given an explicit
+           height (200vh, floored at 1.2 x cardWidth x cardCount) for the
+           sticky child to travel inside. That height had no relationship to
+           how far the row actually moves, and the surplus showed: the pin
+           released ~950px before the section ended, so the finished row
+           slid up off the top of the screen -- card headings sheared off
+           mid-letter under the navbar -- and left a viewport-tall band of
+           empty white before the next section. An end of `+= moveDistance`
+           is exactly as long as the animation it drives, and ScrollTrigger
+           sizes the spacer itself. */
+        const st = ScrollTrigger.create({
+          trigger: section,
+          start: "top top",
+          end: () => "+=" + (moveDistance || 1),
+          pin: isDesktop(),
+          pinSpacing: isDesktop(),
+          scrub: 1,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onRefreshInit: measure,
+          onUpdate: (self) => {
+            if (!isDesktop()) return;
+            gsap.set(list, { x: -moveDistance * self.progress });
+            if (thumb) thumb.style.left = self.progress * (100 - thumbPercent) + "%";
           },
         });
-        tl.to(list, { x: () => -moveDistance, duration: 1, ease: "none" });
 
-        // Slider + arrows below reposition the row itself (`list`'s own x)
-        // directly — they never touch page scroll. Earlier attempts called
-        // ScrollTrigger's own `.scroll()` / `window.scrollTo()` to jump the
-        // real scroll position, which fought the section's position:sticky
-        // layout and made the whole section pop out of view. This way the
-        // page never moves; only the cards do. The next real scroll simply
-        // resumes driving `x` from the scrub tween as normal.
+        /* Slider + arrows reposition the row directly and never touch page
+           scroll -- calling ScrollTrigger's own `.scroll()` here used to
+           fight the pin and pop the section out of view. The next real
+           scroll resumes driving `x` from `onUpdate` as normal. */
         let manualTween = null;
         const setX = (x, animate) => {
           const clamped = Math.min(0, Math.max(-moveDistance, x));
@@ -200,7 +215,6 @@ export default function WhyUs() {
         window.addEventListener("pointerup", endDrag);
         window.addEventListener("pointercancel", endDrag);
 
-        // Prev/next arrows step one card width at a time, eased.
         const step = (dir) => {
           if (moveDistance <= 0 || !itemWidth) return;
           const current = gsap.getProperty(list, "x");
@@ -211,13 +225,12 @@ export default function WhyUs() {
         prevBtn?.addEventListener("click", onPrevClick);
         nextBtn?.addEventListener("click", onNextClick);
 
-        const onResize = () => {
-          calc();
-          ScrollTrigger.refresh();
-        };
+        const onResize = () => ScrollTrigger.refresh();
         window.addEventListener("resize", onResize);
+
         cleanup = () => {
           manualTween?.kill();
+          st.kill();
           window.removeEventListener("resize", onResize);
           track?.removeEventListener("pointerdown", onPointerDown);
           window.removeEventListener("pointermove", onPointerMove);
@@ -227,7 +240,7 @@ export default function WhyUs() {
           nextBtn?.removeEventListener("click", onNextClick);
         };
       }, section);
-    })();
+    });
 
     return () => {
       cancelled = true;
@@ -239,11 +252,11 @@ export default function WhyUs() {
   return (
     <div id="whyus" className="section_whyus js">
       <div className="horizontal-section" ref={sectionRef}>
-        <div className="horizontal-trigger" />
         <div className="horizontal-sticky">
           <div className="padding-global">
             <div className="container-large">
               <div className="padding-section-whyus">
+                <Kicker id="whyus" label="What we build" />
                 <Reveal variant="rise" className="_3-columns-grid">
                   <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                     What we&rsquo;re <br />
@@ -255,11 +268,27 @@ export default function WhyUs() {
                   </p>
                 </Reveal>
 
-                <div className="horizontal-list-wrapper">
+                <div className="horizontal-list-wrapper" ref={wrapRef}>
                   <section id="horizontal-list-js" className="horizontal-list" ref={listRef}>
-                    {whyUs.map((c, i) => (
+                    {whyUs.map((c) => (
                       <div className="whyus-box_item" key={c.title}>
+                        {/* The six cards are the one place on this page a
+                            reader drives the pace themselves — the rail is
+                            pinned, so they are looked at one at a time and
+                            for as long as they like. `max` is kept low: a
+                            card in a horizontally-scrolling row that leans
+                            hard starts to fight the row's own motion. */}
+                        <TiltCard max={4} lift={6} depth={20} perspective={1000}>
                         <div className={`whyus_item ${c.bg || ""}`}>
+                          {/* Always running, never gated on hover. These
+                              cards are dark now (see app/film.css) so the
+                              clip is the card's surface rather than a
+                              reveal — there is nothing to uncover. */}
+                          <AmbientVideo
+                            film={filmFor.whyUs[c.title]}
+                            className="ax-whyus__film"
+                            data-lift="far"
+                          />
                           <h3 className="heading-style-h5 _30">
                             &lt;<span className="text-color-black">{c.title}</span>&gt;
                           </h3>
@@ -268,7 +297,12 @@ export default function WhyUs() {
                               <p className="body20 text-color-black height">{c.text}</p>
                               <div className="whyus_bg_1">
                                 <div className="whyus_grad" style={{ color: "#fff" }}>
-                                  <WhyUsIcon name={c.icon} dark />
+                                  {/* Not `dark`. That variant drew a white
+                                      translucent disc to read against the
+                                      violet panel this card used to have —
+                                      with the panel gone, it was the one
+                                      icon in the row that didn't match. */}
+                                  <WhyUsIcon name={c.icon} />
                                 </div>
                               </div>
                             </>
@@ -283,6 +317,7 @@ export default function WhyUs() {
                             </div>
                           )}
                         </div>
+                        </TiltCard>
                       </div>
                     ))}
                   </section>

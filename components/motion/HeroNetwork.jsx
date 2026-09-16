@@ -209,13 +209,20 @@ export default function HeroNetwork({
       };
       window.addEventListener("resize", onResize);
 
-      const clock = new THREE.Clock();
+      // `THREE.Clock` is deprecated as of three r18x (it logs a console
+      // warning on every instantiation, once per mounted canvas). It was
+      // only ever used here for a frame delta, which `performance.now()`
+      // gives directly without pulling in `THREE.Timer` from the addons
+      // entry point.
+      let last = performance.now();
       let elapsed = 0;
       const tmp = new THREE.Vector3();
       const tick = () => {
         raf = requestAnimationFrame(tick);
         if (!visible || document.hidden) return;
-        const dt = Math.min(clock.getDelta(), 0.05);
+        const now = performance.now();
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
         elapsed += dt;
 
         // A diagram reads as a diagram only while it holds still enough to

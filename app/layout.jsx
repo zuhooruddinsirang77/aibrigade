@@ -1,14 +1,33 @@
+/* system.css first — it defines the design tokens (`--violet-500`,
+   `--coral`, `--ease`, `--ink-canvas`, `--line-invert`, `--sp-*`) that
+   every stylesheet below references. */
+import "./system.css";
 import "./globals.css";
 import "./motion.css";
+import "./hero.css";
 import "./deployments.css";
 import "./casestudy.css";
+import "./path.css";
+import "./sysv.css";
+import "./svc.css";
+/* film.css after the sections it layers into — it positions backdrops
+   against rules in hero.css and deployments.css. */
+import "./film.css";
+/* refine.css corrects layout and interaction problems that only the
+   finished cascade produces. */
+import "./refine.css";
+/* immersive.css after it: the depth, material and micro-interaction layer
+   is built on top of that finished cascade rather than being part of it.
+   Nothing in it introduces a colour, a typeface or a layout — see its own
+   header. */
+import "./immersive.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";
 import PageTransition from "@/components/PageTransition";
 import PopupForm from "@/components/PopupForm";
 import MotionProvider from "@/components/motion/MotionProvider";
-import StoryRail from "@/components/motion/StoryRail";
+import SmoothScroll from "@/components/motion/SmoothScroll";
 import Cursor from "@/components/motion/Cursor";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 
@@ -74,9 +93,27 @@ export default function RootLayout({ children }) {
         </noscript>
 
         <MotionProvider />
+        {/* Interpolated scrolling, mounted above everything that scrubs
+            against scroll position. Every scrubbed effect on this page —
+            the WhyUs pin, Parallax, ScrubFilm, Pipeline's rail, the hero's
+            StageDepth — inherits the easing without changing, because they
+            all read the same document offset this smooths. Desktop and
+            fine-pointer only; see the component. */}
+        <SmoothScroll />
         <Cursor />
         <ScrollProgress />
-        <StoryRail />
+        {/* StoryRail removed: the fixed-bottom "XX/09 — chapter" pill it
+            drew is bottom-anchored to the viewport rather than to any one
+            section, so on a page this long it lands over whatever content
+            happens to be at the bottom of the screen at that scroll
+            position — card copy in WhyUs, the stage list in Deployments,
+            the item list in Infrastructure. It was also a second readout
+            of information `Kicker` already prints at the top of every
+            section ("02 What we build", "03 Inside the system", …), so
+            removing it drops a redundant, occasionally content-covering
+            element rather than losing any information the page no longer
+            states elsewhere. `ScrollProgress`'s hairline bar above stays
+            as the one page-position indicator. */}
 
         <PopupProvider>
           <Preloader />

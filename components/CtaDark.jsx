@@ -3,20 +3,37 @@
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
-import HeroNetwork from "@/components/motion/HeroNetwork";
+import AmbientVideo from "@/components/motion/AmbientVideo";
+import DepthField from "@/components/motion/DepthField";
+import Curtain from "@/components/motion/Curtain";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 export default function CtaDark() {
   const { openPopup } = usePopup();
   return (
-    <div id="ctadark" className="section_cta_dark" style={{ position: "relative", isolation: "isolate" }}>
+    /* The closing frame widens, the same way the two dark scenes before
+       it opened. See Curtain. */
+    <Curtain id="ctadark" className="section_cta_dark" style={{ position: "relative", isolation: "isolate" }}>
       {/* Same feedforward-network motif as the hero, in its light-on-dark
           variant — the closing beat of the page echoes the opening one
           instead of the "AI" visual only ever showing up once. Centred and
           larger since this section has no phone gallery competing for the
           same space. */}
-      <HeroNetwork dark position={[0, 0.4, -3]} scale={1.15} />
+      {/* The page opened on real footage of a person working with an AI
+          agent; it closes the same way — a person at a laptop, a small
+          holographic assistant beside them — rather than on an abstract
+          circuit clip. "Let us turn your concept into a production-grade
+          AI system" lands better next to a picture of that collaboration
+          than next to a trace of light with no one in the frame. */}
+      <AmbientVideo film="aiPartner" className="ax-cta__film" />
+      {/* The page opens on a film with a volume of light suspended in
+          front of it and closes the same way, at half strength — the
+          closing beat is a single sentence and a button, so the
+          atmosphere here is a rhyme with the hero rather than a second
+          performance of it. Additive only: it cannot darken or tint the
+          footage. */}
+      <DepthField className="ax-cta__depth" intensity={0.55} dolly={4} sway={0.7} density={170} />
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-cta_dark">
@@ -52,6 +69,6 @@ export default function CtaDark() {
           </div>
         </div>
       </div>
-    </div>
+    </Curtain>
   );
 }

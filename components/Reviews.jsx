@@ -7,6 +7,7 @@ import "swiper/css/effect-coverflow";
 import { reviews } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
 import TiltCard from "@/components/motion/TiltCard";
+import Kicker from "@/components/motion/Kicker";
 
 function ReviewCard({ r }) {
   return (
@@ -47,6 +48,7 @@ export default function Reviews() {
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-reviews">
+            <Kicker id="reviews" label="Who vouches" />
             <div className="_3-columns-grid">
               <h2 className="gradient-background say">What our clients say about us</h2>
               <p className="p2 max-width-medium text-16pt-ipad_pro">

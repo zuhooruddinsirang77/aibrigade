@@ -1,0 +1,408 @@
+/* ================================================================
+   AIBrigade — design system
+
+   This file is the foundation the rest of the stylesheets were written
+   against and which had gone missing: app/motion.css aliases its whole
+   palette off `--violet-500` / `--coral` / `--ease` / `--ink-canvas`, and
+   app/deployments.css lays out the entire Deployments band with
+   `--sp-7`, `--line-invert` and the violet ramp. With none of those
+   defined, every `var()` referencing them was invalid at computed-value
+   time, which meant:
+
+     - `transition: … var(--ax-ease)` resolved to `none`, so essentially
+       nothing on the page responded to hover or focus;
+     - `.ax-terminal { background: var(--ax-ink) }` painted transparent;
+     - `.ax-reels` never got its dark band, so a section written entirely
+       in white text sat on the white body — invisible;
+     - the footer grid had no layout at all.
+
+   Nothing here introduces a new colour. The ramp is sampled from the
+   theme that already exists: the brand violet (#9248e4) used throughout
+   the Webflow stylesheets, the two stops of the `.link.fill` gradient
+   (#672ca9 → #3f166e), the coral (#f87756) that opens the `h1` gradient,
+   and the ink (#161d25) the preloader already paints.
+
+   Import FIRST, before globals.css.
+   ================================================================ */
+
+:root {
+  /* ---------- violet ramp ----------
+     500 is the brand. 600/700 are the `.link.fill` gradient stops, 400 is
+     the right-hand stop of the headline gradient, 300 the tint already
+     hard-coded in the Deployments index. */
+  --violet-100: #f4ecfd;
+  --violet-200: #e2cbf8;
+  --violet-300: #c79bf5;
+  --violet-400: #9f48e4;
+  --violet-500: #9248e4;
+  --violet-600: #672ca9;
+  --violet-700: #3f166e;
+  --violet-800: #2a0f4a;
+  --violet: var(--violet-500);
+
+  /* ---------- accent ----------
+     The one established non-violet accent on this site. */
+  --coral: #f87756;
+  --coral-soft: rgba(248, 119, 86, 0.16);
+
+  /* ---------- ink ---------- */
+  --ink: #17161b;          /* body copy, matches the Webflow text colour */
+  --ink-canvas: #161d25;   /* dark bands and the preloader */
+  --ink-deep: #0d1116;     /* insets inside a dark band */
+  --ink-60: rgba(22, 29, 37, 0.66);
+  --ink-45: rgba(22, 29, 37, 0.48);
+
+  /* ---------- lines ---------- */
+  --line: rgba(22, 29, 37, 0.1);
+  --line-strong: rgba(22, 29, 37, 0.16);
+  --line-invert: rgba(255, 255, 255, 0.12);
+  --line-invert-strong: rgba(255, 255, 255, 0.22);
+
+  /* ---------- surfaces ---------- */
+  --surface: #ffffff;
+  --surface-sunken: #f7f5fb;
+  --surface-violet: rgba(146, 72, 228, 0.06);
+
+  /* ---------- spacing scale ----------
+     Referenced by name in app/deployments.css (`--sp-7`). */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+  --sp-9: 6rem;
+  --sp-10: 8rem;
+
+  /* ---------- radii ---------- */
+  --r-sm: 0.5rem;
+  --r-md: 0.875rem;
+  --r-lg: 1.25rem;
+  --r-xl: 1.75rem;
+  --r-pill: 999px;
+
+  /* ---------- elevation ----------
+     Tinted toward the brand violet rather than neutral black, so a lifted
+     card reads as part of this palette instead of a generic drop shadow. */
+  --shadow-1: 0 0.25rem 0.75rem rgba(63, 22, 110, 0.06);
+  --shadow-2: 0 0.75rem 2rem rgba(63, 22, 110, 0.1);
+  --shadow-3: 0 1.5rem 3rem rgba(63, 22, 110, 0.16);
+  --shadow-4: 0 2.5rem 5rem rgba(28, 10, 56, 0.28);
+  --shadow-invert: 0 2rem 4rem rgba(0, 0, 0, 0.45);
+
+  /* ---------- motion ----------
+     One ease for the whole site. `--ease-out` is for things leaving.  */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.33, 0, 0.67, 1);
+  --dur-1: 0.18s;
+  --dur-2: 0.32s;
+  --dur-3: 0.5s;
+
+  /* ---------- signature gradients ----------
+     Both already exist in the theme; naming them stops each new component
+     from re-typing the stops slightly differently. */
+  --grad-brand: linear-gradient(90deg, var(--coral) 0%, var(--violet-400) 111.61%);
+  --grad-violet: linear-gradient(90deg, var(--violet-600) 1.72%, var(--violet-700) 83.38%);
+  --grad-rail: linear-gradient(90deg, var(--coral), var(--violet-500));
+}
+
+/* ================================================================
+   1. Base polish
+
+   Small, global, and entirely additive — none of it restyles a Webflow
+   class, it only fills in the defaults that stylesheet never set.
+   ================================================================ */
+
+/* One focus ring for the whole site. The existing `[tabindex]` rule in
+   globals.css only covered two selectors; anything else fell back to the
+   browser default, which on a violet band is invisible. */
+:where(a, button, input, textarea, select, summary, [role="tab"], [role="slider"]):focus-visible {
+  outline: 0.125rem solid var(--violet-500);
+  outline-offset: 0.1875rem;
+  border-radius: var(--r-sm);
+}
+/* On a dark band the violet ring has too little contrast against the
+   background — white reads at a glance and still says "brand" via the
+   offset glow. */
+.ax-reels :where(a, button, [role="tab"], [role="slider"]):focus-visible,
+.section_cta_dark :where(a, button):focus-visible,
+.section_header :where(a, button):focus-visible {
+  outline-color: #fff;
+}
+
+::selection {
+  background: rgba(146, 72, 228, 0.22);
+  color: inherit;
+}
+
+/* The one place a scrollbar is visible on a dark band. */
+.ax-reels ::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+.ax-reels ::-webkit-scrollbar-thumb {
+  background: var(--line-invert-strong);
+  border-radius: var(--r-pill);
+}
+
+/* Images inside custom (non-Webflow) components should never blow out a
+   narrow column. Scoped to the `ax-` layer so no Webflow layout that
+   depends on an intrinsic width is affected. */
+[class*="ax-"] img {
+  max-width: 100%;
+}
+
+/* ================================================================
+   2. Section primitives
+
+   The dark bands and their headings. `.ax-reels` is the Deployments
+   section (app/deployments.css styles its internals and assumes all of
+   this); `.ax-band` is the reusable form of the same idea.
+   ================================================================ */
+
+.ax-band,
+.ax-reels {
+  position: relative;
+  background: var(--ink-canvas);
+  color: #fff;
+  padding-top: var(--sp-9);
+  padding-bottom: var(--sp-9);
+  isolation: isolate;
+}
+
+/* A faint engineering grid across the dark band, masked to a soft oval so
+   it never reaches the edges and reads as texture rather than a table.
+   This is the same motif the Deployments empty state already draws behind
+   its terminal — pulling it up to the band ties the section together. */
+.ax-band::before,
+.ax-reels::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 4.5rem 4.5rem;
+  -webkit-mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(80% 60% at 50% 40%, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Heading block at the top of a dark band: claim on the left, one
+   paragraph of context on the right, baselines aligned. */
+.ax-reels__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: var(--sp-7);
+  align-items: end;
+  margin-bottom: var(--sp-8);
+  padding-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--line-invert);
+}
+
+.ax-reels__title {
+  margin: 0;
+  font-size: clamp(2.5rem, 4.6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  color: #fff;
+}
+
+.ax-reels__intro p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+@media (max-width: 991px) {
+  .ax-reels__head {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+    align-items: start;
+    margin-bottom: var(--sp-6);
+  }
+}
+
+/* ================================================================
+   3. Footer layout
+
+   The markup in components/Footer.jsx is a four-part grid — brand, two
+   navigation columns, socials, and a legal strip — and none of those
+   class names existed in any stylesheet, so it was rendering as a plain
+   stack of divs. The Webflow section keeps its own background and type;
+   only the arrangement is set here.
+   ================================================================ */
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 0.9fr);
+  gap: var(--sp-7) var(--sp-6);
+  align-items: start;
+  padding-top: var(--sp-8);
+  padding-bottom: var(--sp-6);
+}
+
+.footer-logo-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+.footer-logo-box .footer-logo {
+  max-width: 100%;
+  object-fit: contain;
+}
+.footer-logo-line {
+  margin: 0;
+  max-width: 28ch;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-45);
+}
+
+.footer-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-6);
+}
+.footer_navigation_item .div-block-7 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+}
+
+.footer-social .footer-social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1.25rem;
+  margin-top: 0.9rem;
+}
+.footer_social-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.footer_social_icon {
+  width: 0.75rem;
+  height: auto;
+  opacity: 0.55;
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.footer_social-new:hover .footer_social_icon {
+  opacity: 1;
+  transform: translate(0.15rem, -0.15rem);
+}
+
+/* Legal strip spans the full width under the three columns. */
+.footer-copy {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--sp-4) var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line-invert);
+}
+.footer-copy .footer-text {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4) var(--sp-6);
+  flex: 1 1 22rem;
+}
+
+@media (max-width: 991px) {
+  .footer-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding-top: var(--sp-7);
+  }
+  .footer-logo-box {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 599px) {
+  .footer-grid,
+  .footer-nav {
+    grid-template-columns: 1fr;
+  }
+  .footer-logo-line {
+    max-width: none;
+  }
+}
+
+/* ================================================================
+   4. Interaction layer
+
+   The site's own components already carry hover states; what was missing
+   is that most of them were written as `transition: … var(--ax-ease)`,
+   which was invalid, so they snapped instead of moving. With the token
+   defined those all come alive on their own. What follows is the smaller
+   set of elements that had no hover state written at all.
+
+   Everything is gated on a fine pointer so a tap on a touch device
+   doesn't leave an element stuck in its hover state.
+   ================================================================ */
+
+@media (hover: hover) and (pointer: fine) {
+  /* Case-study panels — the largest click targets on the page and, until
+     now, the only large ones that didn't acknowledge the pointer. */
+  .cases_item.bg-1,
+  a.cases_item {
+    transition: transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+  }
+  a.cases_item:hover {
+    transform: translateY(-0.375rem);
+    box-shadow: var(--shadow-3);
+  }
+
+  /* "learn more" — the arrow now leads the eye out of the card. */
+  .link.click .link_arrow_wrapper {
+    transition: transform var(--dur-2) var(--ease);
+  }
+  .link.click:hover .link_arrow_wrapper {
+    transform: translateX(0.25rem);
+  }
+
+  /* Recognition badges. */
+  .proud_image {
+    transition: transform var(--dur-2) var(--ease), filter var(--dur-2) var(--ease);
+  }
+
+  /* Ticker logos are greyscale placeholders until you point at one. */
+  .ticker_image {
+    transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+  }
+  .ticker_image:hover {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* Anything that opens the enquiry form should feel like a button under the
+   pointer, wherever it appears. */
+.button,
+.link.fill,
+.navbar_btn-page {
+  transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+}
+.button:active,
+.link.fill:active {
+  transform: translateY(0.0625rem);
+}
+
+html.ax-reduced *,
+html.ax-reduced *::before,
+html.ax-reduced *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}

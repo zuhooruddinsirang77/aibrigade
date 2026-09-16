@@ -148,11 +148,18 @@ export default function ThreeHero({ width = 150, height = 150, className, fallba
       };
       canvas.addEventListener("pointerdown", onActivate);
 
-      const clock = new THREE.Clock();
+      // `THREE.Clock` is deprecated as of three r18x (it logs a console
+      // warning on every instantiation, once per mounted canvas). It was
+      // only ever used here for a frame delta, which `performance.now()`
+      // gives directly without pulling in `THREE.Timer` from the addons
+      // entry point.
+      let last = performance.now();
       const tick = () => {
         raf = requestAnimationFrame(tick);
         if (!visible || document.hidden) return;
-        const dt = Math.min(clock.getDelta(), 0.05);
+        const now = performance.now();
+        const dt = Math.min((now - last) / 1000, 0.05);
+        last = now;
 
         mesh.rotation.y += dt * 0.35;
         mesh.rotation.x += (pointerY * 0.45 - mesh.rotation.x) * 0.05;

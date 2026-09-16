@@ -1,0 +1,378 @@
+/* ================================================================
+   AIBrigade — case-study system panels
+
+   See components/motion/SystemVisual.jsx for why these exist: the three
+   Evidence cards were illustrated with screenshots of a bond-trading app
+   from the Webflow template, none of which showed the system its card
+   described.
+
+   The panels are the same dark console the hero and the Deployments
+   section already use, so a reader who saw the first screen recognises
+   the shape. Nothing here introduces a colour outside the theme: violet
+   for the system, coral for the one thing that needs a human.
+   ================================================================ */
+
+.ax-sysv {
+  width: 100%;
+  max-width: 26rem;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: linear-gradient(180deg, #171d26 0%, #11151c 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1.75rem 3.5rem rgba(28, 10, 56, 0.32);
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  color: #fff;
+  /* The Webflow `.cases_item` these sit inside is centre-aligned, which
+     centred every log row, note line and FHIR label in the panels. A
+     console is left-aligned or it is not a console. */
+  text-align: left;
+}
+
+/* ---------- chrome ---------- */
+.ax-sysv__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+.ax-sysv__dots {
+  display: flex;
+  gap: 0.28rem;
+}
+.ax-sysv__dots i {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+.ax-sysv__chrome {
+  font-size: 0.625rem;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.4);
+}
+.ax-sysv__live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-sysv__live i {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: #4ade80;
+}
+html.ax-motion:not(.ax-reduced) .ax-sysv__live i {
+  animation: ax-sysv-blink 2.4s ease-in-out infinite;
+}
+@keyframes ax-sysv-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.ax-sysv__body {
+  padding: 0.9rem 1rem 1.1rem;
+  /* Reserved so a row entering, or a note re-typing, never resizes the
+     card it sits in — and with it the whole Evidence grid row. */
+  min-height: 15rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.ax-sysv__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ax-sysv__head-label {
+  color: rgba(255, 255, 255, 0.4);
+}
+.ax-sysv__head-stat {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.72);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ax-sysv__head-stat i {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ================================================================
+   stream — transactions being scored
+   ================================================================ */
+
+.ax-sysv__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.ax-sysv__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 3.25rem auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.35rem;
+  border-radius: 0.4rem;
+  font-size: 0.6875rem;
+}
+html.ax-motion:not(.ax-reduced) .ax-sysv__row {
+  animation: ax-sysv-in 0.45s var(--ease) both;
+}
+@keyframes ax-sysv-in {
+  from { opacity: 0; transform: translateY(-0.4rem); }
+  to { opacity: 1; transform: none; }
+}
+.ax-sysv__row[data-verdict="refer"] {
+  background: rgba(248, 119, 86, 0.1);
+}
+.ax-sysv__row-id {
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-sysv__row-amt {
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.ax-sysv__bar {
+  height: 0.1875rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+.ax-sysv__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--violet-400);
+}
+.ax-sysv__row[data-verdict="refer"] .ax-sysv__bar-fill {
+  background: var(--coral);
+}
+.ax-sysv__chip {
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.55);
+}
+.ax-sysv__row[data-verdict="refer"] .ax-sysv__chip {
+  background: rgba(248, 119, 86, 0.18);
+  color: #ffb69e;
+}
+
+/* ================================================================
+   split — the underwriting queue
+   ================================================================ */
+
+.ax-sysv__case {
+  /* Flex, not grid: the four parts are rule, description, arrow and
+     destination, and they should run as one sentence that wraps — a
+     two-column grid stacked the arrow underneath the rule badge. */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 0.6875rem;
+  margin-bottom: 0.9rem;
+  transition: border-color var(--dur-3) var(--ease), background-color var(--dur-3) var(--ease);
+}
+.ax-sysv__case[data-to="auto"] {
+  border-color: rgba(159, 122, 234, 0.4);
+}
+.ax-sysv__case[data-to="refer"] {
+  border-color: rgba(248, 119, 86, 0.4);
+  background: rgba(248, 119, 86, 0.07);
+}
+.ax-sysv__case-rule {
+  padding: 0.15rem 0.4rem;
+  border-radius: var(--r-pill);
+  background: rgba(146, 72, 228, 0.24);
+  color: #d7bcfa;
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+}
+.ax-sysv__case-label {
+  color: rgba(255, 255, 255, 0.85);
+  flex: 1 1 9rem;
+  min-width: 0;
+}
+.ax-sysv__case-arrow {
+  display: flex;
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.35);
+}
+.ax-sysv__case-arrow svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+.ax-sysv__case-dest {
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.ax-sysv__case[data-to="refer"] .ax-sysv__case-dest {
+  color: #ffb69e;
+}
+
+.ax-sysv__split {
+  margin-top: auto;
+}
+.ax-sysv__split-bar {
+  display: block;
+  height: 0.375rem;
+  border-radius: var(--r-pill);
+  background: rgba(248, 119, 86, 0.5);
+  overflow: hidden;
+}
+.ax-sysv__split-auto {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--violet-400);
+  transition: width var(--dur-3) var(--ease);
+}
+.ax-sysv__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.7rem;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+.ax-sysv__legend span {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.ax-sysv__legend span::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  flex: none;
+}
+.ax-sysv__legend span[data-k="auto"]::before {
+  background: var(--violet-400);
+}
+.ax-sysv__legend span[data-k="refer"]::before {
+  background: var(--coral);
+}
+.ax-sysv__legend b {
+  color: #fff;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ================================================================
+   draft — the clinical note
+   ================================================================ */
+
+.ax-sysv__note {
+  margin: 0 0 0.9rem;
+  font-size: 0.6875rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
+  /* Room for the whole note, always, so the FHIR block underneath does
+     not walk up and down the card while the text types in. */
+  min-height: 7.5rem;
+}
+.ax-sysv__caret {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.85em;
+  margin-left: 0.15rem;
+  vertical-align: -0.15em;
+  background: var(--coral);
+}
+html.ax-motion:not(.ax-reduced) .ax-sysv__caret {
+  animation: ax-sysv-caret 1s steps(1) infinite;
+}
+@keyframes ax-sysv-caret {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.ax-sysv__fhir {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ax-sysv__fhir-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+}
+.ax-sysv__fhir ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ax-sysv__fhir li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.625rem;
+  opacity: 0.25;
+  transition: opacity var(--dur-3) var(--ease);
+}
+.ax-sysv__fhir li[data-on="true"] {
+  opacity: 1;
+}
+.ax-sysv__fhir code {
+  flex: none;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  background: rgba(146, 72, 228, 0.2);
+  color: #d7bcfa;
+}
+.ax-sysv__fhir span {
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 0;
+}
+
+/* ================================================================
+   placement inside the Evidence cards
+   ================================================================ */
+
+#cases .ax-sysv {
+  margin: 0 auto;
+  transition: box-shadow var(--dur-3) var(--ease), transform var(--dur-3) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  #cases a.cases_item:hover .ax-sysv {
+    box-shadow: 0 2.25rem 4.5rem rgba(28, 10, 56, 0.42);
+    transform: translateY(-0.25rem);
+  }
+}
+@media (max-width: 991px) {
+  .ax-sysv {
+    max-width: none;
+  }
+}

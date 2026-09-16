@@ -7,6 +7,9 @@ import Reveal from "@/components/motion/Reveal";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Counter from "@/components/motion/Counter";
 import TerminalFeed from "@/components/motion/TerminalFeed";
+import Kicker from "@/components/motion/Kicker";
+import AmbientVideo from "@/components/motion/AmbientVideo";
+import Curtain from "@/components/motion/Curtain";
 
 /**
  * Deployments — "The work, playing".
@@ -147,6 +150,20 @@ export default function Deployments() {
     setMuted(true);
   }, [index]);
 
+  // The hero's evidence row prints three of these reels' metrics; clicking
+  // one is meant to land on that reel, not merely somewhere near this
+  // section. A window event rather than lifted state or context because
+  // these two components share nothing else, and the hero must not have to
+  // know how this console tracks its selection.
+  useEffect(() => {
+    const onSelect = (e) => {
+      const i = deployments.findIndex((d) => d.id === e.detail?.id);
+      if (i >= 0) select(i);
+    };
+    window.addEventListener("ax:select-reel", onSelect);
+    return () => window.removeEventListener("ax:select-reel", onSelect);
+  }, [select]);
+
   // Safety net for the very first reel. `<video src>` is present in the
   // server-rendered markup, so a browser can start (and, for a placeholder
   // path, fail) that fetch before hydration attaches `onError` below — and
@@ -197,10 +214,22 @@ export default function Deployments() {
   const pct = Math.min(100, (time / total) * 100);
 
   return (
-    <section id="reels" className="ax-reels ax-sweep">
+    /* Opens from an inset card to full bleed as it arrives — the same
+       entrance Environments and the closing CTA use, so the three dark
+       scenes on this page begin the same way. `closest(".ax-reels")` above
+       still finds this element: Curtain renders the section itself, not a
+       wrapper around it. */
+    <Curtain as="section" id="reels" className="ax-reels ax-sweep">
+      {/* Texture behind the band, and nothing more — see the provenance
+          note in components/video.data.js for why generated footage is
+          kept out of the console itself. The clip is data moving through
+          fibre, which is the one thing this section can honestly claim is
+          happening while a reel plays. */}
+      <AmbientVideo film="stream" className="ax-reels__film" />
       <div className="padding-global">
         <div className="container-large">
           <div className="ax-reels__head">
+            <Kicker id="reels" label="Deployments" tone="invert" />
             <h2 className="ax-reels__title">
               <MaskHeading text={"The work,\nplaying"} />
             </h2>
@@ -265,51 +294,132 @@ export default function Deployments() {
                 data-cursor={failed ? undefined : "play"}
                 onClick={togglePlay}
               >
+                {/* The console's own readout — sector and case id, plus a
+                    live dot that borrows the same pulse already used below
+                    for the empty-state status line. Present in both states
+                    so the frame reads as one instrument, not a video player
+                    that occasionally shows a fallback. */}
+                <div className="ax-reels__hud" aria-hidden="true">
+                  <span className="ax-reels__hud-rec">
+                    <span className="ax-reels__hud-dot" />
+                    REC
+                  </span>
+                  <span className="ax-reels__hud-sector">{item.sector}</span>
+                  <span className="ax-reels__hud-id">{item.id}</span>
+                </div>
+
                 {failed ? (
                   <div className="ax-reels__empty">
-                    {/* Footage doesn't exist for this reel yet, but a raw
-                        "add this file" message read like an unfinished
-                        website, not an AI company. Showing this specific
-                        case's own chapter captions as a running terminal
-                        keeps the section feeling like a live system even
-                        before there's video to play — `key` forces a fresh
-                        mount (and a fresh type-out) per reel, same reason
-                        the <video> below is keyed by item.id. */}
-                    <TerminalFeed
-                      key={item.id}
-                      lines={terminalLines}
-                      title={`${item.sector.toLowerCase()} — ${item.id}`}
-                      className="ax-reels__empty-terminal"
+                    {/* No client footage exists for this reel yet, and this
+                        section never fakes that — see the provenance note
+                        in components/video.data.js. What's shown instead is
+                        the section's own atmosphere clip, mounted directly
+                        in this box rather than relied on to bleed through
+                        from the section-level backdrop behind it: that
+                        backdrop sits several DOM layers up, behind a
+                        `Reveal`-wrapped ancestor that (harmlessly, but
+                        conclusively) turned out to isolate its own stacking
+                        context, so no amount of transparency on the screen
+                        itself actually reached it. A dedicated instance
+                        here has no such ambiguity — same file, same
+                        `AmbientVideo`, browser cache makes the second
+                        request nearly free. */}
+                    <AmbientVideo
+                      film="stream"
+                      className="ax-reels__empty-film"
+                      rootMargin="0px"
                     />
-                    <p className="ax-reels__empty-path">
-                      Reel footage coming soon — add <code>public{item.src}</code> to bring it online.
+                    <div className="ax-reels__empty-grid">
+                      {/* Footage doesn't exist for this reel yet. Showing this
+                          specific case's own chapter captions as a running
+                          terminal keeps the section feeling like a live system
+                          even before there's video to play — `key` forces a
+                          fresh mount (and a fresh type-out) per reel, same
+                          reason the <video> below is keyed by item.id.
+
+                          What used to sit under it was "add public/reels/x.mp4
+                          to bring it online" — an instruction to the developer,
+                          printed on the live marketing site for prospects to
+                          read. The status line below says the same thing to the
+                          only audience that's actually here. */}
+                      <TerminalFeed
+                        key={item.id}
+                        lines={terminalLines}
+                        title={`${item.sector.toLowerCase()} — ${item.id}`}
+                        className="ax-reels__empty-terminal"
+                      />
+                      {/* The one number this case is already known for
+                          (same value as the sidebar row), blown up here so
+                          the frame that would otherwise be dead space reads
+                          as a result card instead of a gap. */}
+                      <div className="ax-reels__empty-metric">
+                        <span className="ax-reels__empty-metric-value">
+                          <Counter to={Number(item.metric.value)} />
+                          <em>{item.metric.unit}</em>
+                        </span>
+                        <span className="ax-reels__empty-metric-label">
+                          {item.metric.label}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="ax-reels__empty-note">
+                      <span className="ax-reels__empty-dot" aria-hidden="true" />
+                      Walkthrough in post &mdash; the build log runs live in the
+                      meantime.
                     </p>
                   </div>
                 ) : (
-                  /* key forces a fresh element per reel so the browser drops
-                     the previous buffer instead of stacking four downloads */
-                  <video
-                    key={item.id}
-                    ref={videoRef}
-                    className="ax-reels__video"
-                    src={item.src}
-                    poster={item.poster}
-                    muted={muted}
-                    playsInline
-                    preload="metadata"
-                    onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
-                    onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-                    onPlay={() => setPlaying(true)}
-                    onPause={() => setPlaying(false)}
-                    onEnded={() => select((index + 1) % deployments.length)}
-                    onError={() => setFailed(true)}
-                  />
-                )}
+                  <>
+                    {/* key forces a fresh element per reel so the browser drops
+                       the previous buffer instead of stacking four downloads */}
+                    <video
+                      key={item.id}
+                      ref={videoRef}
+                      className="ax-reels__video"
+                      src={item.src}
+                      poster={item.poster}
+                      muted={muted}
+                      playsInline
+                      preload="metadata"
+                      onLoadedMetadata={(e) => setDuration(e.currentTarget.duration || 0)}
+                      onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+                      onPlay={() => setPlaying(true)}
+                      onPause={() => setPlaying(false)}
+                      onEnded={() => select((index + 1) % deployments.length)}
+                      onError={() => setFailed(true)}
+                    />
 
-                <div className="ax-reels__caption" aria-live="polite">
-                  <span className="ax-reels__caption-stage">{activeChapter.stage}</span>
-                  <span className="ax-reels__caption-text">{activeChapter.caption}</span>
-                </div>
+                    {/* Center affordance for the paused state — the small
+                        transport button below is easy to miss on a first
+                        visit; this is the same target every video player
+                        trains people to look for. Stops the click from
+                        also reaching the screen's own onClick, which would
+                        otherwise toggle play twice. */}
+                    {!playing && (
+                      <button
+                        type="button"
+                        className="ax-reels__bigplay"
+                        aria-label="Play reel"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          togglePlay();
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M8 5.2l11 6.8-11 6.8z" />
+                        </svg>
+                      </button>
+                    )}
+
+                    {/* Overlays the footage only — with no video there is no
+                        "now playing" moment to caption, and the terminal
+                        feed already narrates the current chapter on its own. */}
+                    <div className="ax-reels__caption" aria-live="polite">
+                      <span className="ax-reels__caption-stage">{activeChapter.stage}</span>
+                      <span className="ax-reels__caption-text">{activeChapter.caption}</span>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* ---------------- chapter track ---------------- */}
@@ -350,6 +460,7 @@ export default function Deployments() {
                     }}
                   >
                     <span className="ax-reels__track-fill" style={{ width: `${pct}%` }} />
+                    <span className="ax-reels__thumb" style={{ left: `${pct}%` }} aria-hidden="true" />
                     {item.chapters.map((c) => (
                       <span
                         key={c.stage}
@@ -412,6 +523,6 @@ export default function Deployments() {
           </Reveal>
         </div>
       </div>
-    </section>
+    </Curtain>
   );
 }

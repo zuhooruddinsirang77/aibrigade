@@ -1,0 +1,241 @@
+/* ================================================================
+   AIBrigade — capability explorer
+
+   Replaces the four-card services grid. See
+   components/motion/ServiceExplorer.jsx for why. Light section, so this
+   is the theme's violet on white rather than the console treatment the
+   dark bands use.
+   ================================================================ */
+
+.ax-svc {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: var(--sp-7);
+  align-items: start;
+  margin-top: var(--sp-7);
+}
+
+/* ---------- the four offers ---------- */
+.ax-svc__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ax-svc__tab {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  /* Sized so four offers stand about as tall as the panel beside them —
+     a short list against a tall panel left a hole under the fourth. */
+  padding: 1.85rem 0.25rem;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition: padding-left var(--dur-2) var(--ease);
+}
+.ax-svc__tab:first-child {
+  border-top: 1px solid var(--line);
+}
+
+/* The selected offer draws its own rule along the left edge — the same
+   "you are here" mark the decision path and the nav links use. */
+.ax-svc__tab::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 0.125rem;
+  border-radius: var(--r-pill);
+  background: var(--violet-500);
+  transform: scaleY(0);
+  transform-origin: 50% 0;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-svc__tab[aria-selected="true"] {
+  padding-left: 1rem;
+}
+.ax-svc__tab[aria-selected="true"]::before {
+  transform: scaleY(1);
+}
+
+.ax-svc__tab-index {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-45);
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-svc__tab[aria-selected="true"] .ax-svc__tab-index {
+  color: var(--violet-500);
+}
+
+.ax-svc__tab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.ax-svc__tab-short {
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+/* The full offer line only opens on the selected row: four of them at
+   once is a wall of small grey type, and the short name is what you
+   scan by. */
+.ax-svc__tab-full {
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ink-45);
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height var(--dur-3) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-svc__tab[aria-selected="true"] .ax-svc__tab-full {
+  max-height: 4.5rem;
+  opacity: 1;
+}
+
+.ax-svc__tab-mark {
+  display: flex;
+  color: var(--ink-45);
+  opacity: 0;
+  transform: translateX(-0.35rem);
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease);
+}
+.ax-svc__tab-mark svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+.ax-svc__tab[aria-selected="true"] .ax-svc__tab-mark {
+  opacity: 1;
+  transform: none;
+  color: var(--violet-500);
+}
+
+/* ---------- the panel ---------- */
+.ax-svc__panel {
+  position: sticky;
+  top: 7.5rem;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--grad-violet);
+  box-shadow: var(--shadow-3);
+  color: #fff;
+  /* Four offers of differing length; a fixed floor stops the panel
+     resizing under the pointer as you move down the list. */
+  min-height: 26rem;
+  display: flex;
+}
+
+.ax-svc__panel-inner {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 2rem;
+}
+html.ax-motion:not(.ax-reduced) .ax-svc__panel-inner {
+  animation: ax-svc-in 0.5s var(--ease) both;
+}
+@keyframes ax-svc-in {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: none; }
+}
+
+.ax-svc__render {
+  width: 9.5rem;
+  height: 9.5rem;
+  object-fit: contain;
+  align-self: flex-end;
+  margin: -0.5rem -0.5rem 0.5rem 0;
+}
+html.ax-motion:not(.ax-reduced) .ax-svc__render {
+  animation: ax-svc-float 7s ease-in-out infinite;
+}
+@keyframes ax-svc-float {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -0.75rem; }
+}
+
+.ax-svc__panel-copy {
+  margin-top: auto;
+}
+.ax-svc__panel-title {
+  margin: 0 0 1.1rem;
+  font-size: 1.75rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: #fff;
+}
+
+.ax-svc__builds {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ax-svc__builds li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+.ax-svc__builds li::before {
+  content: "";
+  flex: none;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.ax-svc__note {
+  margin: 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 991px) {
+  .ax-svc {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+  }
+  .ax-svc__panel {
+    position: static;
+    min-height: 0;
+    order: 2;
+  }
+  .ax-svc__list {
+    order: 1;
+  }
+  .ax-svc__panel-inner {
+    padding: 1.5rem;
+  }
+  .ax-svc__render {
+    width: 7rem;
+    height: 7rem;
+  }
+  .ax-svc__tab-short {
+    font-size: 1.125rem;
+  }
+}

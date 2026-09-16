@@ -1,0 +1,8 @@
+{
+  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
+  "prompt": "Cinematic macro shot of glowing fiber optic channels in deep darkness, billions of tiny cyan and amber particles of light flowing steadily through dark pathways, representing digital intelligence in motion, slow and deliberate camera drift, volumetric lighting, shallow depth of field, seamless loop, no text, no logos.",
+  "refs": [],
+  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
+  "cost_usd": 0.448,
+  "created": "2026-07-31T11:34:00Z"
+}

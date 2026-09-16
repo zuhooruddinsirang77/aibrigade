@@ -1,0 +1,427 @@
+/* ================================================================
+   AIBrigade — "Inside the system" + the chapter spine
+
+   Two things live here:
+
+   1. `.ax-kicker` — the numbered label that now opens every section.
+      StoryRail has always known this page is seven chapters (see
+      components/motion/StoryRail.jsx), but only the floating pill at the
+      bottom of the window ever said so. The sections themselves read as
+      an unordered stack of panels. Numbering them in the page is what
+      turns that stack into a sequence you can feel moving.
+
+   2. `.ax-path` — the decision walkthrough. Dark band, one sticky
+      diagram, six beats scrolling past it.
+
+   Palette, type and gradients are the theme's own. Tokens come from
+   app/system.css.
+   ================================================================ */
+
+/* ================================================================
+   1. Chapter kicker
+   ================================================================ */
+
+.ax-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-kicker > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--r-pill);
+  background: var(--surface-violet);
+  border: 1px solid rgba(146, 72, 228, 0.2);
+  color: var(--violet-500);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+}
+/* A hairline running off toward the margin — it reads as a rule in a
+   contents list rather than as a floating tag. */
+.ax-kicker::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.ax-kicker--invert {
+  color: rgba(255, 255, 255, 0.55);
+}
+.ax-kicker--invert > span {
+  background: rgba(146, 72, 228, 0.22);
+  border-color: rgba(199, 155, 245, 0.35);
+  color: #d7bcfa;
+}
+.ax-kicker--invert::after {
+  background: linear-gradient(90deg, var(--line-invert), transparent);
+}
+
+/* On the violet hero the same element has to sit on a saturated fill. */
+.ax-kicker--hero {
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: 1.5rem;
+}
+.ax-kicker--hero > span {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #fff;
+}
+.ax-kicker--hero::after {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.34), transparent);
+  max-width: 7rem;
+}
+
+/* ================================================================
+   2. Inside the system
+   ================================================================ */
+
+.ax-path {
+  overflow: clip;
+}
+
+.ax-path__head {
+  max-width: 44rem;
+  margin-bottom: var(--sp-8);
+}
+.ax-path__title {
+  margin: 0 0 1rem;
+  font-size: clamp(2.25rem, 4vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+  color: #fff;
+}
+.ax-path__lede {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ax-path__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* ---------- the sticky diagram ----------
+   `sticky` rather than a ScrollTrigger pin: WhyUs already pins a
+   horizontal scroller on this page and two pins fight over refresh.
+   Sticky needs no measurement and cannot fall out of sync. */
+.ax-path__stage {
+  position: sticky;
+  /* Clear of the 78px navbar, then centred against the band. */
+  top: 7.5rem;
+}
+
+.ax-path__panel {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line-invert);
+  background: linear-gradient(180deg, rgba(23, 29, 38, 0.92) 0%, rgba(13, 17, 22, 0.92) 100%);
+  box-shadow: var(--shadow-4);
+  overflow: hidden;
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+}
+
+.ax-path__panel-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line-invert);
+  background: rgba(255, 255, 255, 0.03);
+}
+.ax-path__panel-path {
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.42);
+}
+.ax-path__panel-live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-path__panel-live i {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--coral);
+}
+html.ax-motion:not(.ax-reduced) .ax-path__panel-live i {
+  animation: ax-path-blink 2.2s ease-in-out infinite;
+}
+@keyframes ax-path-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.ax-path__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 1rem 0.75rem 0.25rem;
+}
+
+/* ---------- route ---------- */
+.ax-path__route,
+.ax-path__route-lit {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ax-path__route {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+.ax-path__route-lit {
+  stroke: url(#ax-path-grad);
+}
+
+/* ---------- nodes ---------- */
+/* Opaque, not translucent: the route is drawn between node centres, so
+   it passes underneath every box. A see-through fill let that line show
+   through the labels and the diagram read as wired-up scribble rather
+   than boxes joined by a route. */
+.ax-path__node-box {
+  fill: #1b222c;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 1;
+  transition: fill var(--dur-3) var(--ease), stroke var(--dur-3) var(--ease);
+}
+.ax-path__node-index {
+  fill: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  transition: fill var(--dur-3) var(--ease);
+}
+.ax-path__node-label {
+  fill: rgba(255, 255, 255, 0.62);
+  font-size: 13px;
+  transition: fill var(--dur-3) var(--ease);
+}
+
+.ax-path__node[data-state="past"] .ax-path__node-box {
+  fill: #241a38;
+  stroke: rgba(159, 122, 234, 0.45);
+}
+.ax-path__node[data-state="past"] .ax-path__node-label {
+  fill: rgba(255, 255, 255, 0.78);
+}
+.ax-path__node[data-state="now"] .ax-path__node-box {
+  fill: #35225f;
+  stroke: var(--violet-300);
+}
+.ax-path__node[data-state="now"] .ax-path__node-label {
+  fill: #fff;
+}
+.ax-path__node[data-state="now"] .ax-path__node-index {
+  fill: var(--coral);
+}
+
+/* ---------- the request ---------- */
+.ax-path__dot {
+  fill: var(--coral);
+  stroke: rgba(248, 119, 86, 0.28);
+  stroke-width: 6;
+  paint-order: stroke;
+}
+html.ax-motion:not(.ax-reduced) .ax-path__dot {
+  animation: ax-path-pulse 1.8s ease-in-out infinite;
+}
+@keyframes ax-path-pulse {
+  0%, 100% { stroke-width: 6; }
+  50% { stroke-width: 11; }
+}
+
+/* ---------- readout ---------- */
+.ax-path__readout {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.1rem 1.1rem;
+  border-top: 1px solid var(--line-invert);
+}
+.ax-path__readout-payload {
+  font-size: 0.75rem;
+  color: var(--violet-300);
+  white-space: nowrap;
+}
+.ax-path__meter {
+  flex: 1 1 auto;
+  height: 0.1875rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+.ax-path__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad-rail);
+  transition: width var(--dur-3) var(--ease);
+}
+.ax-path__readout-ms {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.72);
+  white-space: nowrap;
+}
+.ax-path__readout-ms i {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---------- the six beats ---------- */
+.ax-path__steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ax-path__step {
+  padding: 3.5rem 0 3.5rem 2.25rem;
+  border-left: 1px solid var(--line-invert);
+  position: relative;
+  transition: opacity var(--dur-3) var(--ease), border-color var(--dur-3) var(--ease);
+  opacity: 0.4;
+}
+.ax-path__step:first-child {
+  padding-top: 0;
+}
+.ax-path__step:last-child {
+  padding-bottom: 0;
+}
+.ax-path__step[data-state="past"] {
+  opacity: 0.6;
+  border-left-color: rgba(159, 122, 234, 0.3);
+}
+.ax-path__step[data-state="now"] {
+  opacity: 1;
+  border-left-color: var(--violet-400);
+}
+html.ax-reduced .ax-path__step {
+  opacity: 1;
+}
+
+.ax-path__step-index {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  top: 3.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ink-canvas);
+  border: 1px solid var(--line-invert);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.55);
+  transition: border-color var(--dur-3) var(--ease), color var(--dur-3) var(--ease),
+    box-shadow var(--dur-3) var(--ease);
+}
+.ax-path__step:first-child .ax-path__step-index {
+  top: 0;
+}
+.ax-path__step[data-state="now"] .ax-path__step-index {
+  border-color: var(--violet-400);
+  color: #fff;
+  box-shadow: 0 0 0 0.3rem rgba(146, 72, 228, 0.18);
+}
+
+.ax-path__step-title {
+  margin: 0 0 0.6rem;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+  color: #fff;
+}
+.ax-path__step-text {
+  margin: 0 0 1rem;
+  max-width: 42ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.62);
+}
+.ax-path__step-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  font-size: 0.6875rem;
+}
+.ax-path__step-meta code {
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+}
+.ax-path__step-meta em {
+  font-style: normal;
+  color: var(--coral);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- responsive ----------
+   Below the two-column breakpoint the diagram stops being a companion to
+   the text and becomes a header for it: it sticks to the top of the
+   viewport instead of the middle, and the beats run underneath. */
+@media (max-width: 991px) {
+  .ax-path__body {
+    grid-template-columns: 1fr;
+    gap: var(--sp-6);
+  }
+  .ax-path__stage {
+    position: sticky;
+    top: 5rem;
+    z-index: 2;
+  }
+  .ax-path__panel {
+    box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.55);
+  }
+  .ax-path__step {
+    padding: 2.5rem 0 2.5rem 1.75rem;
+  }
+  .ax-path__step-index {
+    top: 2.5rem;
+  }
+  .ax-path__step-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 599px) {
+  .ax-path__node-label {
+    font-size: 15px;
+  }
+  .ax-path__node-index {
+    font-size: 11px;
+  }
+  .ax-path__readout-payload {
+    font-size: 0.6875rem;
+  }
+}
+
+/* The Deployments head is a two-column grid (claim | context); the kicker
+   is a third child and has to span the row rather than take a column. */
+.ax-reels__head .ax-kicker {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}

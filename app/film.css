@@ -1,0 +1,1246 @@
+/* ================================================================
+   AIBrigade — the film layer
+
+   Everything video on this site: the primitive, the scroll-scrubbed
+   variant, the hero, and every section that reuses the shared library.
+
+   Import AFTER app/system.css (the palette below is its tokens) and after
+   the section stylesheets it layers into — hero.css, deployments.css — but
+   BEFORE refine.css, which stays last.
+
+   ---------------------------------------------------------------
+   ONE TREATMENT. Read this before adding a per-section override.
+
+   Every film on the page renders identically — same brightness, same
+   contrast, same saturation, same tint — and plays at `opacity: 1` with no
+   hover gate. There is exactly one exception to "no hover": none. A clip
+   that only appears when a pointer happens to land on a card is a clip most
+   visitors never see; every film here is visible on load, once it has
+   scrolled into range.
+
+   That rule survived two rewrites that violated it. The first tuned every
+   surface separately — a faded backdrop here, a near-invisible wash there —
+   and the page read as eight different sites, because every band had its
+   own idea of how present a video should be. A dimmed clip is not a subtle
+   clip, it is a grey one. The second mistake was colour: painting the
+   footage hard toward violet with `mix-blend-mode: color` erased the actual
+   picture. Brand cohesion is not a filter over the lens — it comes from
+   what sits on top of the footage (the violet rules, labels, counters and
+   chrome this site already has), not from recolouring the footage itself.
+
+   When copy has to sit on a clip, contrast is bought with a scrim anchored
+   to the LAYOUT of that section — `.ax-hero::before`, `.ax-env__stage::after`,
+   `.ax-infra__inner::before` — never by touching the film. That is the only
+   lever. Reaching into `.ax-film` to turn one instance down is the first
+   mistake starting again.
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   1. The primitive
+   ---------------------------------------------------------------- */
+
+.ax-film {
+  /* The single grade. Nothing overrides these four numbers anywhere on the
+     page — every clip, licensed stock or generated loop, dark source or
+     light source, renders through exactly this filter stack. */
+  --ax-film-sat: 0.92;
+  --ax-film-contrast: 1.14;
+  --ax-film-lum: 0.86;
+  --ax-film-tint: 0.2;
+  --ax-film-vig: 0.42;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+
+  /* What the reader sees before a byte of video has arrived, and
+     permanently under reduced motion or Save-Data, where `.ax-film__el` is
+     never mounted at all. A flat black box would announce a missing asset;
+     this is a still frame of the palette the clip settles into. */
+  background:
+    radial-gradient(90% 70% at 22% 12%, rgba(103, 44, 169, 0.42) 0%, rgba(103, 44, 169, 0) 60%),
+    radial-gradient(70% 60% at 82% 88%, rgba(248, 119, 86, 0.14) 0%, rgba(248, 119, 86, 0) 65%),
+    #0a0c11;
+}
+
+.ax-film__el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  filter:
+    saturate(var(--ax-film-sat))
+    contrast(var(--ax-film-contrast))
+    brightness(var(--ax-film-lum));
+  transition: opacity 1s var(--ease);
+}
+
+/* The first frame arriving is the one moment a cut is visible, so the clip
+   fades up out of the placeholder rather than replacing it. Always plays —
+   there is no hover, no click, no gate: once mounted, it runs. */
+.ax-film.is-ready .ax-film__el {
+  opacity: 1;
+}
+
+/* Seating, not recolouring. At this strength `color` nudges every clip's
+   hue a little toward the palette without hiding what the footage is a
+   picture of. */
+.ax-film__grade {
+  position: absolute;
+  inset: 0;
+  opacity: var(--ax-film-tint);
+  mix-blend-mode: color;
+  background: linear-gradient(
+    142deg,
+    var(--violet-500) 0%,
+    var(--violet-700) 62%,
+    var(--coral) 132%
+  );
+}
+
+/* Where the brand actually enters the image: a violet bloom added as light
+   in one corner. `screen` can only brighten, so it reads as a lamp just out
+   of frame rather than a filter over the lens. */
+.ax-film__grade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.4;
+  background: radial-gradient(
+    68% 90% at 84% 6%,
+    rgba(146, 72, 228, 0.4) 0%,
+    rgba(103, 44, 169, 0.12) 45%,
+    rgba(0, 0, 0, 0) 72%
+  );
+}
+
+/* Cinematic edge falloff only — not a text scrim, and it must not become
+   one. Sections that carry copy add their own, anchored to the layout. */
+.ax-film__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    130% 110% at 50% 45%,
+    rgba(4, 6, 9, 0) 46%,
+    rgba(4, 6, 9, calc(var(--ax-film-vig) * 0.55)) 80%,
+    rgba(4, 6, 9, var(--ax-film-vig)) 100%
+  );
+}
+
+/* `mix-blend-mode` is the whole grade, and in forced-colors it is either
+   ignored or actively harmful. Drop the film to a flat token surface. */
+@media (forced-colors: active) {
+  .ax-film__el,
+  .ax-film__grade,
+  .ax-film__vignette {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------------
+   2. Scrubbed film — a positioning context for the clip plus whatever the
+   caller puts over it.
+   ---------------------------------------------------------------- */
+
+.ax-scrub {
+  position: relative;
+  isolation: isolate;
+}
+.ax-scrub__film {
+  z-index: -1;
+}
+
+/* ----------------------------------------------------------------
+   3. "Where it runs" — the environment switcher
+   ---------------------------------------------------------------- */
+
+.ax-env {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  background: #0a0c11;
+  padding-block: var(--sp-10);
+}
+
+.ax-env__stage {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* Four clips stacked; the active one is the only one visible or playing.
+   This opacity is a crossfade between two clips, not a grade — the visible
+   one is always at 1, exactly like every other film on the page. */
+.ax-env__film {
+  opacity: 0;
+  transition: opacity 0.9s var(--ease);
+}
+.ax-env__film[data-on="true"] {
+  opacity: 1;
+}
+
+/* The copy column is fixed on the left; the footage under it is not. A
+   scrim anchored to the layout keeps the left third dark whichever clip is
+   playing, without ever touching the film itself. */
+.ax-env__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(6, 8, 12, 0.88) 0%,
+      rgba(6, 8, 12, 0.66) 30%,
+      rgba(6, 8, 12, 0.1) 62%,
+      rgba(6, 8, 12, 0.32) 100%
+    ),
+    linear-gradient(180deg, rgba(6, 8, 12, 0.42) 0%, rgba(6, 8, 12, 0) 24%);
+}
+
+.ax-env__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-9);
+}
+
+.ax-env__head {
+  max-width: 44rem;
+}
+.ax-env__title {
+  margin: 0.75rem 0 0;
+  font-size: clamp(2.25rem, 5.4vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: #fff;
+}
+.ax-env__intro p {
+  margin: 1.25rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 34rem;
+}
+
+.ax-env__body {
+  display: grid;
+  grid-template-columns: minmax(15rem, 22rem) minmax(0, 1fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.ax-env__list {
+  display: flex;
+  flex-direction: column;
+}
+.ax-env__tab {
+  display: grid;
+  grid-template-columns: 0.125rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+  padding: 1.15rem 0.25rem 1.15rem 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ax-env__tab:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+.ax-env__tab:focus-visible {
+  outline: 2px solid var(--violet-300);
+  outline-offset: 0.25rem;
+}
+
+.ax-env__tab-rail {
+  width: 0.125rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+.ax-env__tab-fill {
+  display: block;
+  width: 100%;
+  height: 0;
+  background: var(--violet-300);
+  transition: height 60ms linear;
+}
+.ax-env__tab[aria-selected="true"] .ax-env__tab-rail {
+  background: rgba(199, 155, 245, 0.32);
+}
+
+.ax-env__tab-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.ax-env__tab-kicker {
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.ax-env__tab-label {
+  font-size: 1.125rem;
+  line-height: 1.25;
+  opacity: 0.62;
+  transition: opacity var(--dur-2) var(--ease);
+}
+.ax-env__tab:hover .ax-env__tab-label {
+  opacity: 0.88;
+}
+.ax-env__tab[aria-selected="true"] .ax-env__tab-label {
+  opacity: 1;
+}
+
+.ax-env__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  min-height: 16rem;
+  padding: var(--sp-6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-lg);
+  background: rgba(6, 8, 12, 0.62);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.ax-env__line {
+  margin: 0;
+  font-size: clamp(1.125rem, 2.1vw, 1.5rem);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 38ch;
+}
+
+.ax-env__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-env__tags li {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--r-pill);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ax-env__count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-env__count span {
+  color: #fff;
+}
+.ax-env__count i {
+  width: 1.5rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.24);
+}
+
+html.ax-motion:not(.ax-reduced) .ax-env__copy {
+  animation: ax-env-in 0.55s var(--ease) both;
+}
+@keyframes ax-env-in {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 991px) {
+  .ax-env {
+    padding-block: var(--sp-9);
+  }
+  .ax-env__stage::after {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 8, 12, 0.8) 0%,
+      rgba(6, 8, 12, 0.6) 40%,
+      rgba(6, 8, 12, 0.82) 100%
+    );
+  }
+  .ax-env__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-6);
+  }
+  .ax-env__inner {
+    gap: var(--sp-7);
+  }
+  .ax-env__panel {
+    min-height: 0;
+  }
+}
+
+/* ----------------------------------------------------------------
+   4. "The part that runs at 3am" — the scrubbed band
+   ---------------------------------------------------------------- */
+
+.ax-infra {
+  position: relative;
+  color: #fff;
+  background: #0a0c11;
+}
+
+.ax-infra__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: min(46rem, 96vh);
+  padding-block: var(--sp-10);
+}
+
+/* Same reasoning as `.ax-env__stage::after`: this clip is scrubbed, so the
+   frame under the heading is chosen by how fast the reader scrolled. The
+   scrim is anchored to the layout so the heading is legible at every
+   frame, not just the one this was designed against. */
+.ax-infra__inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(6, 8, 12, 0.84) 0%,
+      rgba(6, 8, 12, 0.56) 34%,
+      rgba(6, 8, 12, 0.14) 70%
+    ),
+    linear-gradient(180deg, rgba(6, 8, 12, 0.48) 0%, rgba(6, 8, 12, 0) 24%);
+}
+
+.ax-infra__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: var(--sp-9);
+  align-items: center;
+}
+
+/* The one kinetic detail in this band — a live-style pulse, the same visual
+   grammar `AgentConsole`'s status dot already uses in the hero, so it reads
+   as this site's established way of saying "this is running", not a new
+   idiom. It states the section's own premise (this kind of system doesn't
+   clock off) rather than a number, because nothing on this page can source
+   a live count honestly — see the note in Infrastructure.jsx. */
+.ax-infra__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.78);
+}
+.ax-infra__status-dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: #6ee7a8;
+  box-shadow: 0 0 0 0 rgba(110, 231, 168, 0.5);
+}
+html.ax-motion:not(.ax-reduced) .ax-infra__status-dot {
+  animation: ax-infra-pulse 2.2s ease-out infinite;
+}
+@keyframes ax-infra-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(110, 231, 168, 0.5); }
+  70% { box-shadow: 0 0 0 0.5rem rgba(110, 231, 168, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(110, 231, 168, 0); }
+}
+
+.ax-infra__kicker {
+  margin: 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet-300);
+}
+.ax-infra__title {
+  margin: 0.9rem 0 0;
+  font-size: clamp(2.25rem, 5.2vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: #fff;
+}
+.ax-infra__lede p {
+  margin: 1.35rem 0 0;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 32rem;
+}
+
+/* ---- the three commitments, as cards ----
+
+   Were a single bordered list with shared hairlines between rows — visually
+   a footnote, whatever the sentences said. Three standalone panels instead,
+   each carrying its own icon, so the section reads as three considered
+   promises rather than one paragraph broken into bullets. */
+.ax-infra__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+.ax-infra__item {
+  position: relative;
+  padding: 1.5rem 1.6rem 1.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--r-lg);
+  background: rgba(6, 8, 12, 0.58);
+  backdrop-filter: blur(16px) saturate(1.05);
+  -webkit-backdrop-filter: blur(16px) saturate(1.05);
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease),
+    transform 0.4s var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  html.ax-motion:not(.ax-reduced) .ax-infra__item:hover {
+    border-color: rgba(146, 72, 228, 0.4);
+    background: rgba(10, 8, 20, 0.68);
+    transform: translateX(0.25rem);
+  }
+}
+
+.ax-infra__item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet-500), var(--violet-700));
+  box-shadow: 0 0.5rem 1.5rem rgba(146, 72, 228, 0.3);
+  color: #fff;
+}
+.ax-infra__item-icon svg {
+  width: 46%;
+  height: 46%;
+}
+.ax-infra__item-index {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.6rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.28);
+}
+.ax-infra__item-k {
+  margin: 0.9rem 0 0;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--violet-300);
+}
+.ax-infra__item-v {
+  margin: 0.4rem 0 0;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #fff;
+}
+.ax-infra__item-d {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+  max-width: 34rem;
+}
+
+@media (max-width: 991px) {
+  .ax-infra__inner::before {
+    background: linear-gradient(
+      180deg,
+      rgba(6, 8, 12, 0.8) 0%,
+      rgba(6, 8, 12, 0.6) 40%,
+      rgba(6, 8, 12, 0.78) 100%
+    );
+  }
+  .ax-infra__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-7);
+  }
+  .ax-infra__inner {
+    min-height: 0;
+    padding-block: var(--sp-9);
+  }
+}
+
+/* ================================================================
+   5. The hero
+
+   Rebuilt from the ground up. What was here originally was a two-column
+   Webflow grid carrying five separate pieces of atmosphere at once — a
+   violet section colour, two blurred glow blobs, a live WebGL neural
+   network, two floating 3D renders — and none of them could be seen
+   properly because all of them were fighting for the same space. Five
+   half-strength effects is not atmosphere, it is mud.
+
+   This is one idea: real footage of the thing the company sells — hands on
+   a laptop, a holographic "AI AGENTS" interface — full bleed, full
+   strength, with the claim set on top of it. See components/Hero.jsx for
+   what was removed and why.
+
+   A second pass made it interactive: `.ax-hero__bg` holds one film per
+   entry in `heroModes` (components/video.data.js), stacked and crossfaded
+   exactly like `.ax-env__stage` further down this file — the active one at
+   `data-on="true"`, opacity 1, everything else at 0. Same mechanism, same
+   reason: a reader who switches Fintech/HealthTech should see a cut between
+   two pieces of footage, not seven pieces of scenery all half-visible at
+   once.
+
+   It is deliberately NOT named `.ax-hero__stage` — that class already
+   exists in app/hero.css, `#header .ax-hero__stage { position: relative }`,
+   left from the section's original two-column layout (it positioned
+   `header_dec-1`/`header_dec-2` in the right-hand gutter; both are gone
+   from Hero.jsx now, so that rule is dead code, harmless on its own). Dead
+   or not, it is an ID-qualified selector, which beats a plain class on
+   `position` regardless of source order — reusing the name here silently
+   overrode `position: absolute` back to `relative`, and an
+   auto-positioned wrapper with only absolutely-positioned children
+   collapses to zero height. Every film inside inherited that zero height
+   from its containing block and the entire hero went dark. If this ever
+   goes blank again, check for exactly this: a class colliding with a
+   stale ID-scoped rule in one of the pre-existing stylesheets. */
+.ax-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: auto;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #05070a;
+}
+
+.ax-hero__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.ax-hero__film {
+  opacity: 0;
+  transition: opacity 0.9s var(--ease);
+}
+.ax-hero__film[data-on="true"] {
+  opacity: 1;
+}
+/* The subject of each of these three clips sits in the lower two-thirds of
+   the frame — hands and a laptop, a stack of coins, a lab bench. Anchoring
+   `object-position` there keeps that in view across the very wide aspect
+   ratios a browser window can be; the default centre crop was cutting the
+   subject off on anything short of ultrawide. */
+.ax-hero__film .ax-film__el {
+  object-position: 50% 68%;
+}
+
+/* The text scrim. A separate element from the film's own vignette because
+   it is a function of the LAYOUT, not the image: the copy is a centred
+   column, so this is a vertical ramp — dark under the nav and through the
+   copy, opening up to show the footage through the middle third, dark again
+   for the ticker. It works whichever frame of the clip is on screen. */
+.ax-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 7, 10, 0.94) 0%,
+      rgba(5, 7, 10, 0.82) 24%,
+      rgba(5, 7, 10, 0.5) 48%,
+      rgba(5, 7, 10, 0.58) 68%,
+      rgba(5, 7, 10, 0.9) 100%
+    );
+}
+
+.ax-hero__body {
+  position: relative;
+  z-index: 2;
+  padding-top: 9rem;
+  padding-bottom: 4rem;
+  width: 100%;
+}
+
+.ax-hero__lead {
+  max-width: 50rem;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ax-hero .ax-kicker {
+  justify-content: center;
+}
+
+.ax-hero__title {
+  margin: 1.25rem 0 0;
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  line-height: 1.03;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.4);
+  text-wrap: balance;
+}
+
+.ax-hero__lede {
+  margin: 1.5rem 0 0;
+  max-width: 38rem;
+  min-height: 3.3em; /* Holds three lines' worth so the row below it does
+    not jump vertically as the sentence length changes between modes. */
+  font-size: clamp(1rem, 1.3vw, 1.1875rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
+}
+/* Keyed by `active.id` in Hero.jsx, so this replays on every mode switch —
+   the same cut-in `Environments` uses for its panel copy (`ax-env-in`,
+   defined further down this file), reused rather than redeclared. */
+html.ax-motion:not(.ax-reduced) .ax-hero__lede {
+  animation: ax-env-in 0.5s var(--ease) both;
+}
+
+/* ---- the mode switcher ----
+
+   Three small tabs, not a segmented control with a heavy background: the
+   footage behind them is the point, and a solid pill bar would be one more
+   opaque shape competing with the headline above it. Each tab's own
+   progress rail is thin enough to read as a detail rather than a UI
+   chrome the reader has to parse before finding the actual buttons. */
+.ax-hero__modes {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+}
+.ax-hero__mode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem 0;
+  background: none;
+  border: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-hero__mode:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+.ax-hero__mode[aria-selected="true"] {
+  color: #fff;
+}
+.ax-hero__mode:focus-visible {
+  outline: 2px solid var(--violet-300);
+  outline-offset: 0.25rem;
+  border-radius: 0.25rem;
+}
+.ax-hero__mode-rail {
+  display: block;
+  width: 2.75rem;
+  height: 0.125rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+.ax-hero__mode-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--coral), var(--violet-400));
+  transition: width 60ms linear;
+}
+.ax-hero__mode[aria-selected="true"] .ax-hero__mode-rail {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.ax-hero .ax-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2.25rem;
+}
+
+/* Replaces the Webflow button, which needed four nested wrappers and two
+   CDN images to draw a rectangle with an arrow in it. */
+.ax-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.0625rem 1.75rem;
+  border-radius: var(--r-pill);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.4);
+  transition: background var(--dur-2) var(--ease), color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+.ax-hero__cta svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-hero__cta:hover {
+  background: var(--violet-500);
+  color: #fff;
+  box-shadow: 0 1rem 2.5rem rgba(146, 72, 228, 0.5);
+}
+.ax-hero__cta:hover svg {
+  transform: translateX(0.25rem);
+}
+
+.ax-hero .ax-hero__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.32);
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+}
+.ax-hero .ax-hero__ghost svg {
+  width: 1rem;
+  height: 1rem;
+}
+.ax-hero .ax-hero__ghost:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+.ax-hero .ax-proof {
+  justify-content: center;
+  margin-top: 3rem;
+}
+
+/* ---- the logo ticker ----
+
+   `.header_ticker` ships from Webflow as a translucent dark strip
+   (`#161d2533`) meant to sit on the section's original flat violet. The
+   client marks riding on it — Halyk, ICU, Raiffeisen, bcc invest — are
+   dark, coloured wordmarks with no light backing of their own, drawn for
+   that light-ish violet, not for a dark video. Unchanged, they nearly
+   vanish into the footage: the one row on this screen whose entire job is
+   third-party recognisability became the least legible thing on it.
+
+   The fix is a light strip, not a filter on the logos — `invert()` on a
+   coloured SVG mark shifts its hue instead of producing clean white, which
+   would have made Halyk's mark look like a different company's. A frosted
+   light bar underneath is how a "trusted by" row usually survives a dark
+   hero, and it reads as a deliberate plinth rather than a patch. */
+.ax-hero .header_ticker {
+  z-index: 2;
+  background: rgba(248, 247, 250, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.ax-hero .ticker_image {
+  opacity: 0.85;
+}
+.ax-hero .ticker_image:hover {
+  opacity: 1;
+}
+
+@media (max-width: 991px) {
+  .ax-hero__body {
+    padding-top: 7.5rem;
+    padding-bottom: 3rem;
+  }
+  .ax-hero::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(5, 7, 10, 0.95) 0%,
+        rgba(5, 7, 10, 0.82) 30%,
+        rgba(5, 7, 10, 0.6) 55%,
+        rgba(5, 7, 10, 0.92) 100%
+      );
+  }
+}
+
+/* ================================================================
+   6. The library, reused across the page
+
+   Every surface below shows one of the shared clips, at the one grade
+   defined in section 1. What differs between them is never the film —
+   only the scrim, and only where copy sits directly on top of it. See
+   `filmFor` in components/video.data.js for the assignments.
+   ================================================================ */
+
+/* ---- Featured ----
+
+   Layered explicitly rather than with a negative z-index, and that is not
+   a preference — the negative version did not paint. `.featured_component`
+   is a rounded violet card (`background-color: var(--violet)`,
+   `position: relative`, `z-index: 0`, `overflow: hidden`), and although a
+   negative-index child of a stacking context is supposed to paint above
+   that context's own background, here it did not: the clip was confirmed
+   mounted, playing, `opacity: 1`, sized exactly to the card — and the
+   section still rendered as a flat purple slab.
+
+   So the film covers the card outright and the real content is lifted
+   above it. That needs no assumption about negative layers, and it
+   degrades correctly: if the clip never loads, the violet card is what
+   remains. The WhyUs cards below use the same pattern. */
+.ax-featured__film {
+  z-index: 0;
+  border-radius: 0.625rem; /* `.featured_component` in the Webflow sheet */
+}
+#featured .featured_component > h3,
+#featured .featured_component > p,
+#featured .featured_component > .ax-featured-terminal {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Inside the system ----
+   `.ax-path` is `isolation: isolate`, so -1 is scoped and safe. This
+   section's content is thin violet linework, which a busy image destroys
+   before anything else does, so its scrim is the heaviest on the page. */
+.ax-path {
+  isolation: isolate;
+}
+.ax-path__film {
+  z-index: -1;
+}
+.ax-path::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(5, 7, 10, 0.68);
+}
+
+/* ---- Deployments ----
+   `.ax-reels.ax-sweep` sets `isolation: isolate`, so the film lands under
+   the violet scroll wash (the section's own `::before` at -1) and over the
+   band colour. The console in front of it is the content. */
+.ax-reels__film {
+  z-index: -2;
+}
+.ax-reels::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 7, 10, 0.78) 0%,
+    rgba(5, 7, 10, 0.54) 40%,
+    rgba(5, 7, 10, 0.74) 100%
+  );
+}
+
+/* ---- Closing CTA ----
+   `.section_cta_dark` sets `isolation: isolate` inline, so -2 is reliable
+   and puts the film under the network canvas at -1. */
+.section_cta_dark .ax-cta__film {
+  z-index: -2;
+}
+
+/* ---- WhyUs capability cards ----
+
+   Dark cards, so the film is their surface rather than a hover reveal —
+   there is nothing to uncover, it is simply what the card is made of.
+
+   Scoped by `#whyus` so the id outranks Webflow's `.whyus_item.bg1`
+   background images without `!important`. */
+#whyus .whyus_item {
+  background-color: #0a0c11;
+  background-image: none;
+  border-color: rgba(255, 255, 255, 0.12);
+  isolation: isolate;
+}
+#whyus .whyus_item .heading-style-h5,
+#whyus .whyus_item .text-color-black {
+  color: #fff;
+}
+#whyus .whyus_item .body20 {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ax-whyus__film {
+  z-index: 0;
+  border-radius: 0.625rem; /* matches `.whyus_item` */
+}
+/* Copy sits directly on the footage, so the card carries its own scrim. */
+.ax-whyus__film::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(5, 7, 10, 0.82) 0%,
+    rgba(5, 7, 10, 0.58) 45%,
+    rgba(5, 7, 10, 0.8) 100%
+  );
+}
+/* Everything that is not the film goes above it. `.whyus_bottom` is left
+   `static`: it carries `inset: auto 0 0` from the Webflow sheet, and making
+   it relative would activate those offsets and shift it — it is a flex
+   child of `.whyus_item`, so `z-index` applies without positioning.
+   `.whyus_bg_1` (the one `grad: true` card's icon layer) is already
+   absolute. Its own background is cleared below — it used to be a second,
+   opaque violet panel, which is what made that one card in the row read as
+   flat purple while its five siblings showed film. */
+#whyus .whyus_item > h3,
+#whyus .whyus_item > p,
+#whyus .whyus_item > .whyus_bottom,
+#whyus .whyus_item > .whyus_bg_1 {
+  z-index: 1;
+}
+#whyus .whyus_item > .whyus_bg_1,
+#whyus .whyus_grad {
+  background: none;
+}
+
+/* ---- WhyUs polish ----
+
+   Everything above makes the cards correct; this makes them feel considered
+   rather than merely functional. Four small additions, each answering one
+   specific way the row read as flat:
+
+   1. A hairline gradient top edge — the one place colour is allowed to
+      touch the card frame itself, since the film inside already carries
+      the rest of the palette.
+   2. The hover lift (`motion.css`, `.whyus_item:hover`) already moves the
+      card; the shadow it casts was a generic dark one inherited from every
+      other lifted card on the page. Tinted violet here, it reads as this
+      card's own light rather than a shared default.
+   3. The film gets a slow, barely-there zoom on hover — 1 to 1.05 over
+      600ms. Not a play/pause state, since every clip already plays
+      continuously; this is the one hover cue confirming the pointer is
+      over THIS card specifically, the same job `.whyus-icon-disc`'s lift
+      already does for the icon.
+   4. The icon disc's glow (`refine.css`) was hover-only, so the six discs
+      sat flat and identical until touched. A faint resting glow gives the
+      row some life on arrival, before any interaction — hover still adds
+      the stronger one on top. */
+#whyus .whyus_item {
+  position: relative;
+}
+#whyus .whyus_item::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 2;
+  height: 0.125rem;
+  background: linear-gradient(90deg, var(--coral) 0%, var(--violet-400) 100%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  html.ax-motion:not(.ax-reduced) .whyus-box_item:hover .whyus_item {
+    box-shadow: 0 1.5rem 3rem rgba(146, 72, 228, 0.32);
+  }
+  .ax-whyus__film .ax-film__el {
+    transition: opacity 1s var(--ease), transform 0.6s var(--ease);
+  }
+  html.ax-motion:not(.ax-reduced) .whyus-box_item:hover .ax-whyus__film .ax-film__el {
+    transform: scale(1.05);
+  }
+}
+#whyus .whyus-icon-disc {
+  box-shadow: 0 0.5rem 1.5rem rgba(146, 72, 228, 0.22);
+}
+
+/* ---- Case media tiles ----
+   Already dark panels holding a `SystemVisual` diagram, drawn in light
+   strokes that need the footage held back a little behind them. */
+.cases_item.bg-1 {
+  isolation: isolate;
+}
+.ax-case__film {
+  z-index: -1;
+}
+.cases_item.bg-1::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(5, 7, 10, 0.44);
+}
+
+/* ---- The closing "Will your <app> be next?" card ----
+
+   The one full-bleed flat image left on the page: a static
+   `bg_corner45_violet.webp` behind a 3D gem render, sitting directly below
+   three case tiles that had all just been given real footage — it read as
+   a leftover. `.cases_item.grad1` is already `position: relative` (every
+   `.cases_item` is, per refine.css), so the film slots in the same way the
+   old image did.
+
+   The wash on top is doing the job that flat image used to do alone: this
+   card is the page's one deliberately violet, brand-forward block — every
+   other CTA on the page is dark. Full strength film with no wash would
+   have turned it into just another dark band; the gradient keeps it
+   reading as violet first, with the footage as texture and motion under
+   that colour rather than the colour itself. */
+.ax-cases-cta__film {
+  z-index: -2;
+}
+.ax-cases-cta__wash {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    128deg,
+    rgba(103, 44, 169, 0.88) 0%,
+    rgba(146, 72, 228, 0.8) 46%,
+    rgba(63, 22, 110, 0.86) 100%
+  );
+}
+
+/* ---- Services — a film per offer, behind the panel ----
+   `.ax-svc__panel` is `position: sticky`, a stacking context on its own, so
+   the stage sits at -1 and stays inside the panel's rounded corners. */
+.ax-svc__stage {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+.ax-svc__film {
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+}
+.ax-svc__film[data-on="true"] {
+  opacity: 1;
+}
+.ax-svc__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    200deg,
+    rgba(5, 7, 10, 0.36) 0%,
+    rgba(5, 7, 10, 0.66) 100%
+  );
+}
+.ax-svc__panel-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Pipeline — one screen above the rail ----
+   The one surface with nothing written across it but a corner label, so it
+   is allowed to show the footage plainly. */
+.ax-pipe__screen {
+  position: relative;
+  isolation: isolate;
+  /* Ratio alone, no `max-height` — with both set the clamped height wins
+     and the box stops filling its column. */
+  aspect-ratio: 4 / 1;
+  margin-bottom: 2.5rem;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--ink-deep);
+  box-shadow: var(--shadow-3);
+}
+.ax-pipe__film {
+  opacity: 0;
+  transition: opacity 0.8s var(--ease);
+}
+.ax-pipe__film[data-on="true"] {
+  opacity: 1;
+}
+
+.ax-pipe__screen-label {
+  position: absolute;
+  left: 1.25rem;
+  bottom: 1.15rem;
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 1.0625rem;
+  color: #fff;
+  text-shadow: 0 0.0625rem 1rem rgba(0, 0, 0, 0.7);
+}
+.ax-pipe__screen-label span {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: var(--violet-300);
+}
+
+@media (max-width: 991px) {
+  .ax-pipe__screen {
+    aspect-ratio: 16 / 9;
+    margin-bottom: 2rem;
+  }
+}
+
+.ax-pipe__stage[data-lit="true"] {
+  opacity: 1;
+}
+.ax-pipe__stage[data-lit="true"] .ax-pipe__title {
+  color: var(--violet-600);
+}
+
+/* ================================================================
+   7. Reduced motion
+
+   `AmbientVideo` mounts no `<video>` at all under `prefers-reduced-motion`,
+   so there is no playback left to stop. What remains is the placeholder,
+   and it should read as a deliberate still rather than a clip that failed:
+   no crossfades, no cut-in.
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .ax-env__film,
+  .ax-env__tab-fill,
+  .ax-svc__film,
+  .ax-pipe__film {
+    transition: none;
+  }
+}

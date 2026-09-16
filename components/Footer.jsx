@@ -2,6 +2,8 @@
 
 import Logo from "@/components/Logo";
 import Reveal from "@/components/motion/Reveal";
+import Magnetic from "@/components/motion/Magnetic";
+import { usePopup } from "@/components/PopupContext";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
@@ -23,34 +25,61 @@ const navItems = [
 ];
 
 export default function Footer() {
+  const { openPopup } = usePopup();
+
   const scrollTo = (id) => (e) => {
     e.preventDefault();
     const el = document.getElementById(id);
     if (el) window.scrollTo({ top: el.offsetTop, behavior: "smooth" });
   };
 
+  const scrollToTop = (e) => {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <div id="footer" className="section_footer">
+    <div id="footer" className="section_footer ax-footer">
       <div className="padding-global">
         <Reveal
           variant="stagger"
-          selector=".footer-logo-box, .footer-nav, .footer-social, .footer-copy"
+          selector=".footer-logo-box, .footer-nav, .footer-social"
           className="footer-grid"
         >
+          {/* The brand column used to be a single 2MB PNG set to 12rem
+              tall — most of which is the file's own transparent margin, so
+              it read as a stamp-sized mark floating in an empty third of
+              the footer. Same logo asset the navbar uses, at a size that
+              matches it, with the one line that says what the company
+              does under it. */}
           <div className="footer-logo-box">
-
- <img
-      src="/logo3.png"
-      alt="AIBrigade"
-      className="footer-logo"
-      
-      style={{
-        display: "block",
-        height: "12rem",
-        width: "auto",
-        flexShrink: 0,
-      }}
-      />
+            <Logo dark size="3.5rem" className="footer-logo" />
+            <p className="footer-logo-line">
+              Production-grade AI systems for fintech and healthtech —
+              from discovery through deployment.
+            </p>
+            <Magnetic>
+              <a
+                href="#"
+                className="ax-footer__cta"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openPopup();
+                }}
+              >
+                Start a project
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M9 5l7 7-7 7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
+            </Magnetic>
           </div>
 
           <div className="footer-nav">
@@ -114,45 +143,20 @@ export default function Footer() {
               ))}
             </div>
           </div>
-
-          <div className="footer-copy">
-            <div className="footer-text">
-              <div className="body16 is-special-text-footer grey is-text-14pt-mob">
-                © 2026 AI Brigade, Inc.
-              </div>
-              <div className="body16 is-special-text-footer grey is-text-14pt-mob">
-                Our Platforms
-                <br />→{" "}
-                <a href="https://fintech.aibrigade.ai" target="_blank" rel="noreferrer" className="link-2">
-                  AI in Fintech
-                </a>
-                <br />→{" "}
-                <a href="https://healthtech.aibrigade.ai" target="_blank" rel="noreferrer" className="link-3">
-                  AI in Healthcare
-                </a>
-              </div>
-              <div className="body16 is-special-text-footer grey is-text-14pt-mob">
-                All rights reserved | AI Brigade, Inc.
-              </div>
-            </div>
-            <a
-              href="https://www.aibrigade.ai/terms-of-service"
-              target="_blank"
-              rel="noreferrer"
-              className="body16 is-special-text-footer is--link"
-            >
-              Terms of service
-            </a>
-            <a
-              href="https://www.aibrigade.ai/privacy-policy"
-              target="_blank"
-              rel="noreferrer"
-              className="body16 is-special-text-footer is--link"
-            >
-              Privacy policy
-            </a>
-          </div>
         </Reveal>
+
+        <button type="button" className="ax-footer__totop" onClick={scrollToTop} aria-label="Back to top">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 19V5M5 12l7-7 7 7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   );

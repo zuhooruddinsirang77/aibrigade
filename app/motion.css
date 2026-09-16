@@ -7,16 +7,16 @@
    Import AFTER globals.css in app/layout.jsx.
    ================================================================ */
 
+/* These were the motion layer's own palette, defined before there was a
+   design system. They are aliases now: app/system.css owns the values, and
+   nothing here should introduce a colour it doesn't define. */
 :root {
-  --ax-violet: #9248e4;
-  --ax-violet-deep: #3f166e;
-  --ax-violet-mid: #672ca9;
-  --ax-ink: #161d25;
-  /* The one non-violet accent already in use (the scroll-progress gradient
-     below) — named so the terminal and the hero/CtaDark network diagrams
-     can share it instead of each hardcoding the hex. */
-  --ax-coral: #f87756;
-  --ax-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ax-violet: var(--violet-500);
+  --ax-violet-deep: var(--violet-700);
+  --ax-violet-mid: var(--violet-600);
+  --ax-ink: var(--ink-canvas);
+  --ax-coral: var(--coral);
+  --ax-ease: var(--ease);
 }
 
 /* ----------------------------------------------------------------
@@ -183,57 +183,33 @@ html.ax-reduced .ax-rail__label {
   transition: none;
 }
 
-/* Chapter title card — flashes once each time the story rail's active
-   chapter changes (never on load, see the `firstCallRef` guard in
-   StoryRail.jsx). This is the one moment on the page that names the beat
-   you just crossed into, the way a documentary drops a title card between
-   sections instead of just cutting. Below the rail's z-index so the rail
-   pill stays visible and clickable through it, and always pointer-events:
-   none so it can never block the content underneath. */
-.ax-chapter-flash {
-  position: fixed;
-  inset: 0;
-  z-index: 55;
+/* Chapter counter — the rail says which beat you are in; this says how far
+   through the set. It replaces a full-screen title card that used to drop
+   over the page content on every chapter change (see StoryRail.jsx). */
+.ax-rail__count {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-.ax-chapter-flash__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.1rem 2.5rem;
-  border-radius: 1.25rem;
-  background: rgba(17, 12, 28, 0.6);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.35);
-  text-align: center;
-  animation: ax-chapter-flash 1.75s var(--ax-ease) forwards;
-}
-.ax-chapter-flash__eyebrow {
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ax-violet);
+  align-items: baseline;
+  gap: 0.05rem;
+  padding: 0 0.5rem 0 0.25rem;
+  margin-right: 0.2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.6875rem;
   font-weight: 600;
-}
-.ax-chapter-flash__label {
-  font-size: clamp(1.5rem, 4.5vw, 2.75rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
   color: #fff;
 }
-@keyframes ax-chapter-flash {
-  0% { opacity: 0; transform: scale(0.92); }
-  14% { opacity: 1; transform: scale(1); }
-  78% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.03); }
+.ax-rail__count i {
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.45;
 }
-html.ax-reduced .ax-chapter-flash {
-  display: none;
+html.ax-motion:not(.ax-reduced) .ax-rail__count {
+  animation: ax-rail-count 0.5s var(--ax-ease);
+}
+@keyframes ax-rail-count {
+  0% { opacity: 0; transform: translateY(0.4rem); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ----------------------------------------------------------------
@@ -425,13 +401,6 @@ html.ax-reduced .ax-sweep::before {
   font-variant-numeric: tabular-nums;
 }
 
-/* The hero gallery is position:absolute in the Webflow CSS; clip-path on an
-   absolutely positioned box needs an explicit stacking context or Safari
-   paints the un-clipped frame for one tick. */
-html.ax-motion .header_image_gallery {
-  isolation: isolate;
-}
-
 /* ----------------------------------------------------------------
    8. Cards answer the pointer
 
@@ -615,4 +584,196 @@ html.ax-motion:not(.ax-reduced) .header_dec-1 {
   html.ax-motion:not(.ax-reduced) .footer_social-new:hover {
     transform: translateX(0.25rem);
   }
+}
+
+/* ----------------------------------------------------------------
+   14. Pipeline — "How we run it"
+
+   Five stages on one drawn line. See components/motion/Pipeline.jsx for
+   why this is a line rather than the 3x2 grid of equal tiles it replaced:
+   the order is the point, and the grid didn't say there was one.
+   ---------------------------------------------------------------- */
+
+.ax-pipe {
+  position: relative;
+  margin-top: 4rem;
+}
+
+.ax-pipe__rail {
+  position: relative;
+  height: 0.125rem;
+  margin: 0 0 3.25rem;
+}
+.ax-pipe__rail-base,
+.ax-pipe__rail-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+}
+.ax-pipe__rail-base {
+  background: rgba(22, 29, 37, 0.1);
+}
+.ax-pipe__rail-fill {
+  background: linear-gradient(90deg, var(--ax-coral), var(--ax-violet));
+  transform-origin: 0 50%;
+  /* The transform is written inline from scroll progress; the transition
+     only smooths the gap between scrub ticks, so it stays short. */
+  transition: transform 0.15s linear;
+}
+
+.ax-pipe__stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: none;
+}
+
+.ax-pipe__stage {
+  position: relative;
+  padding-top: 0.25rem;
+  transition: opacity 0.5s var(--ax-ease), transform 0.5s var(--ax-ease);
+}
+/* Stages the line has not reached yet stay legible — this is a reading
+   order cue, not a paywall. Dropping them below ~0.45 turns the section
+   into a wall of grey for the first half of the scroll. */
+.ax-pipe__stage[data-state="next"] {
+  opacity: 0.45;
+}
+.ax-pipe__stage[data-state="past"] {
+  opacity: 0.8;
+}
+.ax-pipe__stage[data-state="now"] {
+  opacity: 1;
+  transform: translateY(-0.25rem);
+}
+
+/* The node sits on the rail above, not inside the stage box. */
+.ax-pipe__node {
+  position: absolute;
+  top: -3.9375rem;
+  left: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 0.125rem solid rgba(22, 29, 37, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.45s var(--ax-ease), box-shadow 0.45s var(--ax-ease);
+}
+.ax-pipe__node-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: rgba(22, 29, 37, 0.18);
+  transition: background-color 0.45s var(--ax-ease), transform 0.45s var(--ax-ease);
+}
+.ax-pipe__stage[data-state="past"] .ax-pipe__node,
+.ax-pipe__stage[data-state="now"] .ax-pipe__node {
+  border-color: var(--ax-violet);
+}
+.ax-pipe__stage[data-state="past"] .ax-pipe__node-dot,
+.ax-pipe__stage[data-state="now"] .ax-pipe__node-dot {
+  background: var(--ax-violet);
+}
+.ax-pipe__stage[data-state="now"] .ax-pipe__node {
+  box-shadow: 0 0 0 0.375rem rgba(146, 72, 228, 0.16);
+}
+.ax-pipe__stage[data-state="now"] .ax-pipe__node-dot {
+  transform: scale(1.3);
+}
+
+.ax-pipe__index {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ax-violet);
+  margin-bottom: 0.5rem;
+}
+.ax-pipe__title {
+  margin: 0 0 0.6rem;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ax-ink);
+}
+.ax-pipe__text {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: rgba(22, 29, 37, 0.66);
+}
+
+/* Closing claim — not a stage, so it reads as an aside rather than a sixth
+   node on the line. */
+.ax-pipe__closer {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  padding-top: 2.25rem;
+  border-top: 1px solid rgba(22, 29, 37, 0.08);
+  max-width: 44rem;
+}
+.ax-pipe__closer-img {
+  width: 4.5rem;
+  height: 4.5rem;
+  flex: none;
+  object-fit: contain;
+}
+.ax-pipe__closer h3 {
+  margin: 0 0 0.5rem;
+}
+.ax-pipe__closer p {
+  margin: 0;
+  color: rgba(22, 29, 37, 0.66);
+}
+
+@media (max-width: 991px) {
+  /* No pin below this width, so the rail has nothing to draw against — the
+     stages become a plain numbered list, which is what they are. */
+  .ax-pipe__rail {
+    display: none;
+  }
+  .ax-pipe__stages {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .ax-pipe__stage {
+    padding-left: 2.5rem;
+  }
+  .ax-pipe__stage[data-state="next"],
+  .ax-pipe__stage[data-state="past"] {
+    opacity: 1;
+  }
+  .ax-pipe__stage[data-state="now"] {
+    transform: none;
+  }
+  .ax-pipe__node {
+    top: 0.35rem;
+    left: 0;
+  }
+  .ax-pipe__closer {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Featured-section terminal. Sized here rather than inline so it can be a
+   full-width panel with a sane ceiling instead of the sliver the Webflow
+   grid's own column tracks gave it (see Featured.jsx). */
+.ax-featured-terminal {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 32rem;
+  margin-top: 2.5rem;
+}
+.ax-featured-terminal .ax-terminal__body {
+  min-height: 9.5rem;
 }

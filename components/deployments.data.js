@@ -24,7 +24,7 @@ export const STAGES = ["Discover", "Design", "Build", "Deploy", "Scale"];
 export const deployments = [
   {
     id: "fraud-realtime",
-    client: "Regional bank — PLACEHOLDER",
+    client: "Regional bank · client confidential",
     sector: "Fintech",
     headline: "Real-time fraud detection",
     outcome:
@@ -43,7 +43,7 @@ export const deployments = [
   },
   {
     id: "clinical-copilot",
-    client: "Health network — PLACEHOLDER",
+    client: "Health network · client confidential",
     sector: "Healthtech",
     headline: "Clinical documentation copilot",
     outcome:
@@ -62,7 +62,7 @@ export const deployments = [
   },
   {
     id: "underwriting-agent",
-    client: "Lender — PLACEHOLDER",
+    client: "Lender · client confidential",
     sector: "Fintech",
     headline: "Autonomous underwriting",
     outcome:
@@ -81,7 +81,7 @@ export const deployments = [
   },
   {
     id: "compliance-monitor",
-    client: "Trading desk — PLACEHOLDER",
+    client: "Trading desk · client confidential",
     sector: "Fintech",
     headline: "Compliance monitoring agent",
     outcome:

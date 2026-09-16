@@ -1,0 +1,900 @@
+/* ================================================================
+   AIBrigade — section refinements
+
+   Loaded after every other stylesheet. app/system.css restored the
+   foundation (tokens, dark bands, footer grid); this file fixes the
+   things that were visibly wrong once the page could actually be seen:
+
+     - the navbar was translucent enough that headlines scrolled
+       through it and collided with the nav labels;
+     - the Cases section ran 3,329px tall for three case studies,
+       because each panel was sized by a full-height phone render, so
+       most of the page's middle was empty white;
+     - anchored sections scrolled to a position hidden under the fixed
+       navbar;
+     - several panels had no hover state at all, so nothing on the
+       page acknowledged the pointer.
+
+   Additive and scoped. The palette, the type and the gradients are the
+   ones already in the theme.
+   ================================================================ */
+
+/* ================================================================
+   1. Navbar
+
+   Two states. Over the hero it is invisible and its labels are white.
+   Once you leave the hero it becomes a light glass bar with a hairline
+   and dark labels. Both states are declared here rather than as inline
+   styles in the component, so the change between them can be animated
+   and so the blur is opaque enough to actually separate the bar from
+   the content moving underneath it.
+   ================================================================ */
+
+#nav.navbar-white {
+  transition: top var(--dur-3) var(--ease), background-color var(--dur-3) var(--ease),
+    box-shadow var(--dur-3) var(--ease), backdrop-filter var(--dur-3) var(--ease);
+}
+
+#nav[data-scrolled="true"] {
+  /* 0.86 was not opaque enough: a violet section heading scrolling
+     underneath stayed legible straight through the bar and collided with
+     the nav labels. Blur is in px because the root font-size on this site
+     is a viewport-derived `calc()`, which made a rem-based blur radius
+     change with the window width. */
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: saturate(180%) blur(18px) !important;
+  -webkit-backdrop-filter: saturate(180%) blur(18px) !important;
+  box-shadow: 0 0.0625rem 0 rgba(22, 29, 37, 0.07), 0 0.75rem 2rem rgba(63, 22, 110, 0.06);
+}
+#nav[data-scrolled="false"] {
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none;
+}
+
+/* The hairline Webflow draws across the top of the bar is only right on
+   the violet hero; against the glass bar it reads as a stray rule. */
+#nav[data-scrolled="true"] .top-line-absolute {
+  opacity: 0;
+}
+
+/* ---------- links ----------
+   The Webflow markup writes each label as `<platform>` with the angle
+   brackets as text. Those brackets are the site's established motif, so
+   they stay; what they were missing was any indication of which section
+   you are actually in. */
+#nav .navbar_link_p,
+#nav .navbar_link_p-other {
+  position: relative;
+  transition: color var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+#nav .navbar_link_p::after,
+#nav .navbar_link_p-other::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.375rem;
+  height: 0.09375rem;
+  border-radius: var(--r-pill);
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  opacity: 0.55;
+  transition: transform var(--dur-2) var(--ease);
+}
+#nav .navbar_link_p:hover::after,
+#nav .navbar_link_p-other:hover::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+/* The section you are reading keeps its rule drawn, in brand violet. */
+#nav .navbar_link_p[data-active="true"]::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+  opacity: 1;
+  background: var(--violet-500);
+  height: 0.125rem;
+}
+#nav[data-scrolled="false"] .navbar_link_p[data-active="true"]::after {
+  background: #fff;
+}
+
+/* ---------- sector pills ---------- */
+#nav .navbar_btn-page {
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+#nav[data-scrolled="true"] .navbar_btn-page:hover {
+  background-color: var(--violet-500);
+  border-color: var(--violet-500);
+  color: #fff;
+}
+#nav[data-scrolled="false"] .navbar_btn-page:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+/* ---------- hamburger ----------
+   Hidden on desktop: the full menu is already laid out there, and the
+   Webflow stylesheet leaves this button visible at every width. */
+@media (min-width: 992px) {
+  #nav .menu_box-btn {
+    display: none !important;
+  }
+}
+@media (max-width: 991px) {
+  #nav .menu_box-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  #nav .menu_line-1,
+  #nav .menu_line-2,
+  #nav .menu_line-3 {
+    background-color: currentColor;
+    transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+  }
+  #nav[data-scrolled="false"] .menu_box-btn {
+    color: #fff;
+  }
+  #nav[data-scrolled="true"] .menu_box-btn {
+    color: var(--ink);
+  }
+  /* Three lines become a cross while the drawer is open. The Webflow
+     bars are deliberately unequal widths at rest, which is fine as an
+     icon and wrong as an X — the two strokes have to match. */
+  #nav[data-menu="open"] .menu_box-btn {
+    color: #fff;
+  }
+  #nav[data-menu="open"] .menu_line-1,
+  #nav[data-menu="open"] .menu_line-2,
+  #nav[data-menu="open"] .menu_line-3 {
+    width: 1.5rem !important;
+  }
+  #nav[data-menu="open"] .menu_line-1 {
+    transform: translateY(0.4rem) rotate(45deg);
+  }
+  #nav[data-menu="open"] .menu_line-2 {
+    opacity: 0;
+  }
+  #nav[data-menu="open"] .menu_line-3 {
+    transform: translateY(-0.4rem) rotate(-45deg);
+  }
+
+  /* ---------- mobile drawer ----------
+     The base rule in globals.css makes this a full-screen violet panel.
+     What it lacked was any arrangement inside, so the links, the email
+     and the CTA all sat jammed against the top-left corner. */
+  .nav-menu-white.mobile-nav-open .navbar_menu_wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--sp-7);
+    width: 100%;
+    height: 100%;
+  }
+  .nav-menu-white.mobile-nav-open .navbar-flex-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-4);
+    width: 100%;
+  }
+  .nav-menu-white.mobile-nav-open .navbar_link_p,
+  .nav-menu-white.mobile-nav-open .navbar_link_p-other {
+    /* The Webflow rules for these give them their own centring and
+       vertical margins, sized for a horizontal desktop bar. In a column
+       that produced four labels floating in the middle of the screen
+       with uneven gaps between them. */
+    display: block;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0.35rem 0 !important;
+    text-align: left !important;
+    font-size: 1.625rem;
+    line-height: 1.25;
+    color: #fff;
+  }
+  /* The underline belongs to the desktop bar. */
+  .nav-menu-white.mobile-nav-open .navbar_link_p::after,
+  .nav-menu-white.mobile-nav-open .navbar_link_p-other::after {
+    display: none;
+  }
+
+  /* The drawer's call to action lost the button treatment because
+     `.button.small`'s background layers are sized by the desktop bar.
+     Rebuilt here as a plain full-width button, which is the right shape
+     on a phone anyway. */
+  .nav-menu-white.mobile-nav-open .navbar_button_wrapper {
+    margin-top: var(--sp-7);
+    width: 100%;
+  }
+  .nav-menu-white.mobile-nav-open .navbar_button_wrapper .button.small {
+    width: 100%;
+    justify-content: center;
+    padding: 1.05rem 1.5rem;
+    border-radius: var(--r-sm);
+    background: #fff;
+    overflow: hidden;
+  }
+  .nav-menu-white.mobile-nav-open .navbar_button_wrapper .button_text_wrapper {
+    position: relative;
+    z-index: 1;
+    justify-content: center;
+  }
+  .nav-menu-white.mobile-nav-open .navbar_button_wrapper .body16-btn {
+    color: var(--ink);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .nav-menu-white.mobile-nav-open .navbar_button_wrapper .button_bg_wrapper {
+    display: none;
+  }
+  /* Nothing behind the drawer should scroll while it is open. */
+  body:has(#nav[data-menu="open"]) {
+    overflow: hidden;
+  }
+}
+
+/* ================================================================
+   2. Anchors
+
+   Every nav link and the story rail scroll to a section id. With a
+   fixed 78px navbar and no scroll-margin, each of those landed with the
+   section's own heading tucked underneath the bar — which is what put
+   "What we can help you with" half-behind the nav.
+   ================================================================ */
+
+#header,
+#whyus,
+#featured,
+#cases,
+#reels,
+#services,
+#features,
+#reviews,
+#cta,
+#proud,
+#ctadark,
+#footer {
+  scroll-margin-top: 5.5rem;
+}
+
+/* ================================================================
+   3. Cases
+
+   The three case panels were sized by the phone renders inside them —
+   each render ran the full height of its column, so every row was over
+   1,000px tall and the text column beside it was mostly empty. Capping
+   the render and giving the panels a real minimum instead of a
+   content-driven maximum takes roughly 1,200px of blank white out of
+   the middle of the page without dropping a single word of copy.
+   ================================================================ */
+
+@media (min-width: 992px) {
+  #cases .cases_grid {
+    align-items: stretch;
+  }
+  #cases .cases_item {
+    min-height: 26rem;
+    justify-content: center;
+  }
+  #cases .cases_item.bg-1 {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #cases .cases_phone_image {
+    max-height: 24rem;
+    width: auto;
+    object-fit: contain;
+  }
+  #cases .cases_phone_image.big {
+    max-height: 26rem;
+  }
+  /* The closing "Will your app be next?" panel is a call to action, not
+     a case, so it doesn't need to match the others' height. */
+  #cases .cases_item.grad1 {
+    min-height: 0;
+    padding-top: 5rem !important;
+    padding-bottom: 5rem !important;
+  }
+}
+
+/* The "Will your app be next?" panel is excluded from the case-panel
+   padding rule above (it isn't a case), which left its copy sitting flush
+   against the card's top and bottom edges. Give it its own breathing
+   room at every width. */
+#cases .cases_item.grad1 {
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+
+/* A case study is a link; it should read as one. */
+#cases .cases_item {
+  border-radius: var(--r-lg);
+  transition: transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+}
+#cases a.cases_item {
+  cursor: pointer;
+}
+
+/* ================================================================
+   4. WhyUs cards
+
+   The cards are a fixed height with three stacked blocks inside —
+   heading, icon, body — and no rule distributing the space between
+   them, so the icon floated in a large gap in the middle while the
+   copy sat hard against the bottom edge.
+   ================================================================ */
+
+.whyus_item {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.whyus_item .whyus_bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  margin-top: auto;
+}
+.whyus_animation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.whyus-icon-disc {
+  transition: transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .whyus-box_item:hover .whyus-icon-disc {
+    transform: translateY(-0.25rem) scale(1.06);
+    box-shadow: 0 0.875rem 2rem rgba(146, 72, 228, 0.36);
+  }
+}
+
+/* ================================================================
+   5. Services
+
+   Four panels that were a static grid. They are the site's summary of
+   what it sells, so they earn a hover state and a readable floor.
+   ================================================================ */
+
+#services .services_item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  transition: transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  #services .services_item:hover {
+    box-shadow: var(--shadow-3);
+  }
+  #services .services_item .services_photo {
+    transition: transform 0.7s var(--ease);
+  }
+  /* globals.css pins this image with `transform: translate3d(0,0,0)
+     !important` to hold it against a Webflow IX2 initial state, so the
+     hover scale has to carry `!important` too or it never applies. */
+  #services .services_item:hover .services_photo {
+    transform: translate3d(0, 0, 0) scale(1.07) !important;
+  }
+}
+
+/* Keep the capability pills on one baseline. */
+.ax-stack {
+  align-items: center;
+}
+.ax-stack__tag {
+  transition: background-color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-stack__tag:hover {
+    background: var(--violet-500);
+    border-color: var(--violet-500);
+    color: #fff;
+    transform: translateY(-0.125rem);
+  }
+}
+
+/* ================================================================
+   6. Deployments
+
+   Superseded by app/deployments.css, which now owns the empty-stage
+   sizing, the entry hover state and the rest of the console redesign
+   directly — kept here as a pointer so this section number isn't
+   silently reused for something else.
+   ================================================================ */
+
+/* ================================================================
+   7. Featured
+
+   The terminal panel reserves 9.5rem of body for a log that starts
+   empty and types in, so on arrival it was a large empty black box
+   beside the copy. Sized to the content it actually holds.
+   ================================================================ */
+
+.ax-featured-terminal .ax-terminal__body {
+  min-height: 7rem;
+}
+
+/* ================================================================
+   8. Reviews
+   ================================================================ */
+
+.review_item {
+  border-radius: var(--r-lg);
+  transition: box-shadow var(--dur-3) var(--ease);
+}
+.review_person {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ================================================================
+   9. Recognition badges
+
+   `.proud_wrapper` is a horizontally scrolling strip with its
+   scrollbar hidden. Without a cue that it scrolls, the fourth badge
+   just looked clipped.
+   ================================================================ */
+
+.proud_wrapper {
+  scroll-snap-type: x proximity;
+}
+.proud_image {
+  scroll-snap-align: start;
+}
+
+/* ================================================================
+   10. Hero actions and evidence row
+
+   The first screen used to end at a single button. What it was missing
+   was a second, lower-commitment way in — and any evidence at all that
+   the claims above it are attached to real deliveries. See
+   components/motion/ProofStrip.jsx: the figures are read from the
+   Deployments data, so the hero cannot state a number this page does
+   not also show in context further down.
+   ================================================================ */
+
+.ax-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+}
+
+.ax-hero__ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  padding: 0.35rem 0;
+  border-bottom: 0.0625rem solid rgba(255, 255, 255, 0.35);
+  transition: border-color var(--dur-2) var(--ease), gap var(--dur-2) var(--ease);
+}
+.ax-hero__ghost svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-hero__ghost:hover {
+  border-bottom-color: #fff;
+}
+.ax-hero__ghost:hover svg {
+  transform: translateX(0.2rem);
+}
+
+.ax-proof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem 1.5rem;
+  list-style: none;
+  margin: 2.75rem 0 0;
+  padding: 1.5rem 0 0;
+  border-top: 0.0625rem solid rgba(255, 255, 255, 0.18);
+}
+.ax-proof__item {
+  min-width: 0;
+}
+.ax-proof__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-proof__btn:hover {
+  transform: translateY(-0.125rem);
+}
+.ax-proof__figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 500;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.ax-proof__figure em {
+  font-style: normal;
+  font-size: 0.9375rem;
+  opacity: 0.7;
+}
+.ax-proof__label {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+}
+/* The client and system behind the number. Revealed on approach so the
+   row reads as three clean figures at rest and explains itself the
+   moment you take an interest in one. */
+.ax-proof__where {
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transform: translateY(-0.2rem);
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-proof__btn:hover .ax-proof__where,
+.ax-proof__btn:focus-visible .ax-proof__where {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 991px) {
+  .ax-proof {
+    margin-top: 2.25rem;
+  }
+  .ax-proof__figure {
+    font-size: 1.625rem;
+  }
+  /* No hover on touch, so the context line is simply always there. */
+  .ax-proof__where {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 599px) {
+  .ax-proof {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .ax-proof__item + .ax-proof__item {
+    border-top: 0.0625rem solid rgba(255, 255, 255, 0.12);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .ax-hero__actions {
+    gap: 0.75rem 1.25rem;
+  }
+}
+
+/* ================================================================
+   11. Footer corrections
+
+   `.footer-text` was arriving with a height of its own and, being a flex
+   row at the default `align-items: stretch`, passing that height down to
+   all three legal blocks — 286px of box for two lines of type. That is
+   what put ~300px of blank between the copyright line and the two policy
+   links. Nothing below needs a height; they are all one or two lines.
+   ================================================================ */
+
+.footer-copy .footer-text {
+  height: auto;
+  min-height: 0;
+  align-items: flex-start;
+}
+.footer-copy .footer-text > * {
+  align-self: flex-start;
+  height: auto;
+  min-height: 0;
+}
+.footer-copy .is--link {
+  align-self: flex-start;
+  white-space: nowrap;
+}
+
+.footer-grid {
+  padding-top: var(--sp-7);
+  padding-bottom: var(--sp-5);
+}
+
+/* ================================================================
+   12. Cases — the 234px of padding
+
+   Each text panel carried `padding-top: 234px` so its copy would clear
+   `.cases_bg-2`, the 220px decorative wash pinned to the top of the
+   card. That single rule is most of the height of this section: three
+   rows of it is 700px of deliberately empty card. Shrinking the wash and
+   matching the padding to it keeps the decoration doing its job in half
+   the space.
+   ================================================================ */
+
+@media (min-width: 992px) {
+  #cases .cases_item:not(.bg-1):not(.grad1) {
+    padding-top: 9.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+  #cases .cases_bg-2 {
+    height: 8.5rem;
+    background-size: cover;
+  }
+  /* The phone panels are the other half of each row's height; they only
+     ever needed to be as tall as the render inside them. */
+  #cases .cases_item.bg-1 {
+    min-height: 0;
+    padding-top: 2.5rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+/* ================================================================
+   13. Deployments — the empty stage
+
+   Superseded by app/deployments.css — see the note at section 6.
+   ================================================================ */
+
+/* ================================================================
+   14. Featured
+
+   The panel was laid out as heading (left, row 1), paragraph (right,
+   row 1), terminal (row 2, pinned left by its own max-width) — which
+   left the entire bottom-right quadrant of a 1386 x 495 violet panel
+   empty. Stacking the terminal under the paragraph it belongs with, and
+   centring the heading against the full height of that column, closes
+   the hole without moving a word.
+   ================================================================ */
+
+@media (min-width: 992px) {
+  #featured .featured_component > h3 {
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  #featured .ax-featured-terminal {
+    grid-column: 9 / -1;
+    grid-row: 2;
+    max-width: none;
+    margin-top: 1.5rem;
+  }
+}
+
+/* The closing "Will your app be next?" panel is an invitation, not a
+   fourth case study — it spans the row on its own instead of sitting in
+   a two-column grid with an empty cell beside it. */
+@media (min-width: 992px) {
+  #cases .cases_grid.is-cta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Closing CTA — the "Let us turn your concept…" panel was only as tall
+   as its two lines of copy, which crops the AI-partner film behind it
+   down to a strip. Giving the section a floor height lets the footage
+   read as a scene instead of a sliver. */
+#ctadark {
+  display: flex;
+  align-items: center;
+  min-height: 26rem;
+}
+@media (min-width: 992px) {
+  #ctadark {
+    min-height: 34rem;
+  }
+}
+
+/* ================================================================
+   15. WhyUs card height
+
+   Each capability card was a fixed 528px with only ~396px of content in
+   it, and `.whyus_bottom` pinned to the bottom edge — so every card had
+   a 130px hole between its heading and its icon. The card is a heading,
+   a mark and three lines of copy; it should be as tall as those.
+   ================================================================ */
+
+@media (min-width: 992px) {
+  .horizontal-list .whyus-box_item,
+  .horizontal-list .whyus_item {
+    height: auto !important;
+  }
+  .whyus_item {
+    min-height: 23rem;
+    gap: 1.5rem;
+  }
+  .whyus_item .whyus_bottom {
+    margin-top: 0;
+    gap: 1.25rem;
+  }
+}
+
+/* ================================================================
+   16. Footer redesign
+
+   The footer was a plain white strip with flat grey type, a generic
+   outbound-arrow reused for every social link, and a genuine layout
+   bug — `.footer-copy .footer-text` (the three legal blocks: copyright,
+   platform links, rights line) rendered as a `flex-wrap: wrap` row.
+   That combination has a real browser sizing bug: the row's auto
+   height resolves to ~286px no matter what `height`/`min-height`
+   override is thrown at it (measured — even an inline `!important`
+   `min-height: 0` left it at 286px), and whenever the row's natural
+   width forces an actual wrap, the wrapped line renders overlapping
+   the row above it instead of below it. Switching the three blocks to
+   a `flex-direction: column` stack sidesteps both problems at once —
+   a column never needs to "wrap," so there is no ambiguous second line
+   to mis-place, and its height is just the sum of three short lines.
+   Everything else here keeps the section's original light background
+   and re-styles it for hierarchy and hover feedback rather than
+   changing its palette.
+   ================================================================ */
+
+#footer.ax-footer {
+  position: relative;
+}
+
+/* Brand column */
+.ax-footer__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--sp-4);
+  padding: 0.7rem 1.15rem;
+  border-radius: 999px;
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.ax-footer__cta svg {
+  width: 1rem;
+  height: 1rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-footer__cta:hover {
+  box-shadow: 0 0.5rem 1.5rem -0.5rem var(--violet-300);
+  transform: translateY(-0.1rem);
+}
+.ax-footer__cta:hover svg {
+  transform: translateX(0.2rem);
+}
+
+/* Column headings — a small accent tick in front reads as a section
+   marker instead of a plain bold label. */
+.ax-footer .d1.text-weight-medium {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+.ax-footer .d1.text-weight-medium::before {
+  content: "";
+  width: 0.85rem;
+  height: 0.125rem;
+  border-radius: 999px;
+  background: var(--grad-brand);
+}
+
+/* Navigation + contact links get a hover shift so the row reads as
+   interactive, not just styled text. */
+.ax-footer .navbar_link._2.footer,
+.ax-footer .navbar_link-other._2.footer {
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-footer .navbar_link._2.footer:hover,
+.ax-footer .navbar_link-other._2.footer:hover {
+  transform: translateX(0.2rem);
+  opacity: 0.72;
+}
+.ax-footer .body18.hover.footer.new,
+.ax-footer .body18.black.footer {
+  transition: opacity var(--dur-2) var(--ease);
+}
+.ax-footer .body18.hover.footer.new:hover {
+  opacity: 0.68;
+}
+
+/* Social pills — an outline chip that fills with the brand gradient on
+   hover/focus, so the row reads as clickable rather than decorative. */
+.ax-footer .footer_social-new {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.015);
+  padding: 0.7rem 1.1rem;
+  transition: background var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+.ax-footer .footer_social-new .is-social-text-link {
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-footer .footer_social-new:hover,
+.ax-footer .footer_social-new:focus-visible {
+  background: var(--grad-brand);
+  border-color: transparent;
+  transform: translateY(-0.15rem);
+  box-shadow: 0 0.6rem 1.5rem -0.6rem var(--violet-400);
+}
+.ax-footer .footer_social-new:hover .is-social-text-link {
+  color: #fff;
+}
+.ax-footer .footer_social-new:hover .footer_social_icon {
+  opacity: 1;
+  filter: invert(1);
+}
+
+/* Back-to-top */
+.ax-footer__totop {
+  position: absolute;
+  right: var(--sp-6);
+  bottom: var(--sp-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.015);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-footer__totop svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.ax-footer__totop:hover {
+  background: var(--grad-brand);
+  border-color: transparent;
+  color: #fff;
+  transform: translateY(-0.2rem);
+}
+
+@media (max-width: 991px) {
+  .ax-footer__totop {
+    position: static;
+    margin: var(--sp-6) auto 0;
+  }
+}
+@media (max-width: 767px) {
+  .ax-footer .footer-copy {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
+}
+
+/* The "Diagnostics support" card uses the gradient variant, which has no
+   `.whyus_bottom` to push it out — without an explicit stretch it came up
+   90px shorter than the five beside it. */
+@media (min-width: 992px) {
+  .horizontal-list .whyus-box_item {
+    display: flex;
+  }
+  .horizontal-list .whyus_item {
+    flex: 1 1 auto;
+  }
+}
