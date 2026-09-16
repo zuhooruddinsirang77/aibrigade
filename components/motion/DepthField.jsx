@@ -140,8 +140,10 @@ export default function DepthField({
            depth; the long tail of small ones is the haze behind them. */
         scales[i] = 0.5 + Math.pow(Math.random(), 2.4) * 3.2;
         phases[i] = Math.random() * Math.PI * 2;
-        drifts[i * 2] = (Math.random() - 0.5) * 0.06;
-        drifts[i * 2 + 1] = (Math.random() - 0.5) * 0.045;
+        /* World units per second — `uTime` is in seconds, so these are
+           read directly by the shader with no frame-rate term. */
+        drifts[i * 2] = (Math.random() - 0.5) * 0.6;
+        drifts[i * 2 + 1] = (Math.random() - 0.5) * 0.45;
       }
 
       const geometry = new THREE.BufferGeometry();
@@ -149,6 +151,14 @@ export default function DepthField({
       geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
       geometry.setAttribute("aScale", new THREE.BufferAttribute(scales, 1));
       geometry.setAttribute("aPhase", new THREE.BufferAttribute(phases, 1));
+      /* The lateral drift is a vertex-shader function of `uTime`, not a
+         position buffer rewritten on the CPU. The first version walked all
+         COUNT positions every frame and re-uploaded the whole attribute —
+         ~840 floats per instance per frame, twice over on the home page,
+         for motion that is a pure function of elapsed time. Measured
+         against a real GPU it was inside the noise, but it is the only
+         per-frame CPU array work in this component and it buys nothing. */
+      geometry.setAttribute("aDrift", new THREE.BufferAttribute(drifts, 2));
 
       const material = new THREE.ShaderMaterial({
         transparent: true,
@@ -166,6 +176,7 @@ export default function DepthField({
         vertexShader: /* glsl */ `
           attribute float aScale;
           attribute float aPhase;
+          attribute vec2 aDrift;
           uniform float uTime;
           uniform float uPixelRatio;
           uniform float uDepth;
@@ -174,7 +185,21 @@ export default function DepthField({
 
           void main() {
             vColor = color;
-            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+
+            // Lateral drift, wrapped inside the slab. Each mote carries its
+            // own velocity so the field never reads as one sheet sliding,
+            // and mod() recycles it through the opposite edge rather than
+            // letting it wander out of frame. Widened with depth for the
+            // same reason the seeding spread is: a constant box would
+            // taper to the vanishing point.
+            // (No backticks anywhere in this shader source — it lives in a
+            // template literal, and one would end the string here.)
+            float spread = 4.0 + abs(position.z) * 0.62;
+            vec3 p = position;
+            p.x = mod(p.x + aDrift.x * uTime + spread, spread * 2.0) - spread;
+            p.y = mod(p.y + aDrift.y * uTime + spread * 0.7, spread * 1.4) - spread * 0.7;
+
+            vec4 mv = modelViewMatrix * vec4(p, 1.0);
 
             // Distance from the camera, 0 at the lens, 1 at the far edge
             // of the slab.
@@ -278,21 +303,6 @@ export default function DepthField({
 
         readScroll();
         material.uniforms.uTime.value += dt;
-
-        /* Lateral drift, wrapped. Each mote has its own velocity so the
-           field never reads as one sheet sliding. */
-        const pos = geometry.attributes.position.array;
-        for (let i = 0; i < COUNT; i++) {
-          const ix = i * 3;
-          const spread = 4 + Math.abs(pos[ix + 2]) * 0.62;
-          pos[ix] += drifts[i * 2] * dt * 10;
-          pos[ix + 1] += drifts[i * 2 + 1] * dt * 10;
-          if (pos[ix] > spread) pos[ix] = -spread;
-          else if (pos[ix] < -spread) pos[ix] = spread;
-          if (pos[ix + 1] > spread * 0.7) pos[ix + 1] = -spread * 0.7;
-          else if (pos[ix + 1] < -spread * 0.7) pos[ix + 1] = spread * 0.7;
-        }
-        geometry.attributes.position.needsUpdate = true;
 
         /* Scroll dollies the FIELD rather than the camera, so the pointer
            sway below stays an independent signal on the camera and the two
