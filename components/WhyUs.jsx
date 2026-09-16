@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { whyUs } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
 import Kicker from "@/components/motion/Kicker";
@@ -52,30 +52,26 @@ const WHYUS_ICONS = {
   ),
 };
 
-function WhyUsIcon({ name, dark }) {
+/**
+ * The capability mark.
+ *
+ * Was a 5.5rem violet disc centred in its own block in the middle of the
+ * card, which is what gave the row its "icon floating in a hole" look —
+ * the mark was the largest object on a card whose subject is the footage
+ * behind it. It is a mark now, not an illustration: it sits on the
+ * caption block it belongs to, at the size the rest of the page uses for
+ * an inline indicator, and the size is a prop so the tablet rail can take
+ * it down further without a second component.
+ */
+function WhyUsIcon({ name }) {
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div
-        className="whyus-icon-disc"
-        style={{
-          width: "5.5rem",
-          height: "5.5rem",
-          flexShrink: 0,
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: dark
-            ? "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06))"
-            : "linear-gradient(135deg, #9248E4, #6a2fc4)",
-          boxShadow: dark ? "none" : "0 0.5rem 1.5rem rgba(146,72,228,0.28)",
-        }}
-      >
-        <div style={{ width: "48%", color: "#fff" }}>{WHYUS_ICONS[name] || WHYUS_ICONS.network}</div>
-      </div>
-    </div>
+    <span className="whyus-icon-disc" aria-hidden="true">
+      <span className="whyus-icon-disc__glyph">{WHYUS_ICONS[name] || WHYUS_ICONS.network}</span>
+    </span>
   );
 }
+
+const pad = (n) => String(n).padStart(2, "0");
 
 export default function WhyUs() {
   const sectionRef = useRef(null);
@@ -85,6 +81,12 @@ export default function WhyUs() {
   const thumbRef = useRef(null);
   const prevBtnRef = useRef(null);
   const nextBtnRef = useRef(null);
+
+  /* Which card the rail is currently showing. Printed above the row, and
+     the only piece of this section's state React needs to know about —
+     everything else the readout drives is written straight to CSS custom
+     properties in the loop below, because it changes every frame. */
+  const [active, setActive] = useState(0);
 
   useEffect(() => {
     let ctx;
@@ -249,6 +251,116 @@ export default function WhyUs() {
     };
   }, []);
 
+  /* ------------------------------------------------------------------
+     Depth of field along the rail.
+
+     The row used to be six cards at identical weight sliding past a
+     window, which is the thing that made it read as a grid that happens
+     to move: nothing on screen said which card you were being shown. This
+     measures how much of each card is actually inside the window and
+     publishes it as `--ax-focus` (0 = mostly out of frame, 1 = fully in
+     it). app/compose.css spends it on a veil, the frame's edge light and
+     the top hairline, so a card resolves as it arrives and recedes as it
+     leaves — the same cue a rack focus gives, and the reason the row now
+     has a subject at every scroll position.
+
+     Deliberately read from `getBoundingClientRect` rather than from the
+     scroll progress: the row is moved by a pinned `transform` on desktop,
+     by native `scrollLeft` on tablet and by the arrows and the slider at
+     any width. Measuring where the cards ended up is the one description
+     that is true for all four, and it is what lets the readout above the
+     row work on a phone, where there is no ScrollTrigger at all.
+
+     The loop only runs while the section is on screen.
+     ------------------------------------------------------------------ */
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const list = listRef.current;
+    const section = sectionRef.current;
+    if (!wrap || !list || !section) return;
+
+    let raf = 0;
+    let running = false;
+    let lastIndex = -1;
+
+    const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
+
+    const sample = () => {
+      const wr = wrap.getBoundingClientRect();
+      if (wr.width <= 0) return;
+      const items = list.children;
+      let firstVisible = 0;
+      let seen = false;
+
+      for (let i = 0; i < items.length; i++) {
+        const el = items[i];
+        const r = el.getBoundingClientRect();
+        if (r.width <= 0) continue;
+        const inside = Math.min(r.right, wr.right) - Math.max(r.left, wr.left);
+        const ratio = clamp01(inside / r.width);
+        /* Not the raw ratio: a card that is 90% in frame should read as
+           present, not as 10% dimmed. The ramp puts everything past ~85%
+           at full strength and everything under ~35% at none, so the
+           change happens at the edges of the window where it belongs. */
+        el.style.setProperty("--ax-focus", clamp01((ratio - 0.35) / 0.5).toFixed(3));
+        if (!seen && ratio > 0.6) {
+          firstVisible = i;
+          seen = true;
+        }
+      }
+
+      /* The edge fades are part of the same measurement. The mask used to
+         be a constant, so the first card was feathered away at its left
+         edge while the row was still at rest against that edge — a card
+         dissolving into nothing with no content behind it to dissolve
+         into, which reads as a rendering fault rather than as "there is
+         more this way". These go to zero when there is nothing past the
+         edge and come up over the first 2.5rem of travel. */
+      const lr = list.getBoundingClientRect();
+      wrap.style.setProperty("--ax-fade-l", clamp01((wr.left - lr.left) / 40).toFixed(3));
+      wrap.style.setProperty("--ax-fade-r", clamp01((lr.right - wr.right) / 40).toFixed(3));
+
+      if (seen && firstVisible !== lastIndex) {
+        lastIndex = firstVisible;
+        setActive(firstVisible);
+      }
+    };
+
+    const tick = () => {
+      sample();
+      if (running) raf = requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    const io = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { rootMargin: "20% 0px" }
+    );
+    io.observe(section);
+
+    /* A resize changes the window without moving anything inside it, so
+       the loop may well be parked when it happens. */
+    window.addEventListener("resize", sample);
+    sample();
+
+    return () => {
+      io.disconnect();
+      stop();
+      window.removeEventListener("resize", sample);
+    };
+  }, []);
+
+  const total = whyUs.length;
+
   return (
     <div id="whyus" className="section_whyus js">
       <div className="horizontal-section" ref={sectionRef}>
@@ -268,9 +380,55 @@ export default function WhyUs() {
                   </p>
                 </Reveal>
 
+                {/* The bar between the opening and the row.
+
+                    Two things used to be wrong with this band. The head
+                    ended on a rule and the cards began 70px later with
+                    nothing in between, which is a gap rather than a
+                    transition; and the only controls the rail had sat
+                    BELOW the cards, ~180px past the bottom of a pinned
+                    viewport — present in the DOM, never once on screen at
+                    1440x900. Putting the position readout and the
+                    controls on one line directly above the row fixes both:
+                    the reader is told which of six they are looking at,
+                    and the means to move are in the same glance. */}
+                <div className="ax-caps__bar">
+                  <p className="ax-caps__read">
+                    <span className="ax-caps__idx">{pad(active + 1)}</span>
+                    <span className="ax-caps__of">/ {pad(total)}</span>
+                    <span className="ax-caps__now">{whyUs[active].title}</span>
+                  </p>
+
+                  <div className="whyus-slider-row">
+                    <button
+                      type="button"
+                      aria-label="Previous capability"
+                      className="whyus-slider-arrow"
+                      ref={prevBtnRef}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 5l-7 7 7 7" />
+                      </svg>
+                    </button>
+                    <div className="whyus-slider-track" ref={trackRef}>
+                      <div className="whyus-slider-thumb" ref={thumbRef} />
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="Next capability"
+                      className="whyus-slider-arrow"
+                      ref={nextBtnRef}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="horizontal-list-wrapper" ref={wrapRef}>
                   <section id="horizontal-list-js" className="horizontal-list" ref={listRef}>
-                    {whyUs.map((c) => (
+                    {whyUs.map((c, i) => (
                       <div className="whyus-box_item" key={c.title}>
                         {/* The six cards are the one place on this page a
                             reader drives the pace themselves — the rail is
@@ -279,74 +437,54 @@ export default function WhyUs() {
                             card in a horizontally-scrolling row that leans
                             hard starts to fight the row's own motion. */}
                         <TiltCard max={4} lift={6} depth={20} perspective={1000}>
-                        <div className={`whyus_item ${c.bg || ""}`}>
-                          {/* Always running, never gated on hover. These
-                              cards are dark now (see app/film.css) so the
-                              clip is the card's surface rather than a
-                              reveal — there is nothing to uncover. */}
-                          <AmbientVideo
-                            film={filmFor.whyUs[c.title]}
-                            className="ax-whyus__film"
-                            data-lift="far"
-                          />
-                          <h3 className="heading-style-h5 _30">
-                            &lt;<span className="text-color-black">{c.title}</span>&gt;
-                          </h3>
-                          {c.grad ? (
-                            <>
-                              <p className="body20 text-color-black height">{c.text}</p>
-                              <div className="whyus_bg_1">
-                                <div className="whyus_grad" style={{ color: "#fff" }}>
-                                  {/* Not `dark`. That variant drew a white
-                                      translucent disc to read against the
-                                      violet panel this card used to have —
-                                      with the panel gone, it was the one
-                                      icon in the row that didn't match. */}
-                                  <WhyUsIcon name={c.icon} />
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="whyus_bottom">
-                              <div className={`whyus_animation ${c.animWrapCls || ""}`}>
-                                <div className={c.animCls}>
-                                  <WhyUsIcon name={c.icon} />
-                                </div>
-                              </div>
-                              <p className="body20 text-color-black height">{c.text}</p>
+                          {/* A dossier, not a tile. The index and the
+                              sector sit at the top as metadata, the
+                              footage owns the middle, and the mark, the
+                              name and the copy are one block anchored to
+                              the bottom edge. The middle of the card is
+                              empty ON PURPOSE now — it is the window onto
+                              the film, which is the only thing about these
+                              six that differs. Previously the middle held
+                              a 5.5rem icon disc with clear space above and
+                              below it, so all six cards were the same
+                              three stacked blocks and the row read as a
+                              grid laid on its side. */}
+                          <article className={`whyus_item ax-cap ${c.bg || ""}`}>
+                            {/* Always running, never gated on hover. These
+                                cards are dark (see app/film.css) so the
+                                clip is the card's surface rather than a
+                                reveal — there is nothing to uncover. */}
+                            <AmbientVideo
+                              film={filmFor.whyUs[c.title]}
+                              className="ax-whyus__film"
+                              data-lift="far"
+                            />
+
+                            <header className="ax-cap__meta">
+                              <span className="ax-cap__index">{pad(i + 1)}</span>
+                              <span className="ax-cap__rule" aria-hidden="true" />
+                              <span className="ax-cap__domain">{c.domain}</span>
+                            </header>
+
+                            {/* `data-lift` without a value is the NEAR
+                                layer (immersive.css): it drifts against
+                                the pointer and rises toward the viewer,
+                                the opposite sign to the film's `far`. Two
+                                layers moving opposite ways is what makes
+                                the card read as a box with things inside
+                                it rather than one image being skewed. */}
+                            <div className="ax-cap__body" data-lift>
+                              <WhyUsIcon name={c.icon} />
+                              <h3 className="ax-cap__title heading-style-h5 _30">
+                                &lt;<span className="text-color-black">{c.title}</span>&gt;
+                              </h3>
+                              <p className="ax-cap__text body20 text-color-black">{c.text}</p>
                             </div>
-                          )}
-                        </div>
+                          </article>
                         </TiltCard>
                       </div>
                     ))}
                   </section>
-                </div>
-
-                <div className="whyus-slider-row">
-                  <button
-                    type="button"
-                    aria-label="Previous"
-                    className="whyus-slider-arrow"
-                    ref={prevBtnRef}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M15 5l-7 7 7 7" />
-                    </svg>
-                  </button>
-                  <div className="whyus-slider-track" ref={trackRef}>
-                    <div className="whyus-slider-thumb" ref={thumbRef} />
-                  </div>
-                  <button
-                    type="button"
-                    aria-label="Next"
-                    className="whyus-slider-arrow"
-                    ref={nextBtnRef}
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
                 </div>
               </div>
             </div>

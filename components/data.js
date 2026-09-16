@@ -3,6 +3,7 @@ const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 export const whyUs = [
   {
     title: "Fraud detection",
+    domain: "Fintech",
     bg: "bg1",
     text: "We build real-time fraud detection systems that spot anomalous transactions before they cost you, tuned for the complexity of financial services.",
     animWrapCls: "_1",
@@ -11,6 +12,7 @@ export const whyUs = [
   },
   {
     title: "Autonomous underwriting",
+    domain: "Fintech",
     bg: "bg2",
     text: "Decision intelligence workflows that automate underwriting with the accuracy and auditability financial institutions require.",
     animWrapCls: "_12-col-grid",
@@ -19,6 +21,7 @@ export const whyUs = [
   },
   {
     title: "Clinical documentation",
+    domain: "Healthtech",
     bg: "bg3",
     text: "HIPAA-compliant copilots that reduce clinician documentation burden while integrating cleanly with existing EHR systems.",
     animCls: "lottie width hide-tablet",
@@ -26,12 +29,14 @@ export const whyUs = [
   },
   {
     title: "Diagnostics support",
+    domain: "Healthtech",
     text: "AI-assisted diagnostics and risk stratification models that help clinical teams surface the right insight at the right moment.",
     grad: true,
     icon: "pulse",
   },
   {
     title: "Compliance & trading",
+    domain: "Fintech",
     bg: "bg5",
     text: "Automation agents that monitor trading activity and compliance obligations, giving your team a complete, always-current view.",
     animCls: "lottie hide-tablet",
@@ -39,6 +44,7 @@ export const whyUs = [
   },
   {
     title: "EHR integration",
+    domain: "Healthtech",
     bg: "bg6",
     text: "Deep integration experience with HL7 FHIR, Epic, and Cerner ensures our systems fit directly into your clinical workflows.",
     animCls: "lottie _2 hide-tablet",

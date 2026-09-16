@@ -24,6 +24,26 @@ export default function Reveal({
   selector,
   delay = 0,
   start = "top 82%",
+  /**
+   * Play on mount instead of on scroll.
+   *
+   * Required for anything in the first viewport, and the hero's CTA row is
+   * the cautionary tale. `start: "top 82%"` means "fire once the element's
+   * top passes 82% of the way down the screen" — which for content that is
+   * ALREADY on screen is a question about where it happens to sit. The
+   * hero's buttons sat at 61% of the viewport and fired; a later increase
+   * to the headline size pushed them to 84%, two percent past the line,
+   * and the primary call to action on the page silently stopped being
+   * painted at all. It still occupied its box, still reported
+   * `visibility: visible`, and was at `opacity: 0` on first paint with no
+   * scroll position that would ever reveal it without scrolling the hero
+   * away first.
+   *
+   * Nothing above the fold should be waiting to be scrolled to. This skips
+   * the trigger entirely so the reveal is a function of the page having
+   * loaded, which is what it actually means there.
+   */
+  immediate = false,
   as: Tag = "div",
   className = "",
   ...rest
@@ -60,10 +80,16 @@ export default function Reveal({
 
       ctx = gsap.context(() => {
 
-        const common = {
-          scrollTrigger: { trigger: el, start, once: true },
-          delay,
-        };
+        /* `immediate` drops the trigger rather than moving it: a
+           ScrollTrigger that is meant to fire unconditionally is just a
+           tween with extra machinery, and it would still be re-evaluated
+           on every refresh for the life of the page. */
+        const common = immediate
+          ? { delay }
+          : {
+              scrollTrigger: { trigger: el, start, once: true },
+              delay,
+            };
 
         if (variant === "clip") {
           gsap.fromTo(
@@ -121,7 +147,7 @@ export default function Reveal({
       cancelled = true;
       ctx && ctx.revert();
     };
-  }, [variant, selector, delay, start]);
+  }, [variant, selector, delay, start, immediate]);
 
   return (
     <Tag ref={ref} className={className} {...rest}>

@@ -21,6 +21,10 @@ import "./refine.css";
    Nothing in it introduces a colour, a typeface or a layout — see its own
    header. */
 import "./immersive.css";
+/* compose.css last: it is the layout rework — the type scale, the vertical
+   rhythm and the Cases sequence — and it deliberately outranks the
+   Webflow section padding it replaces. */
+import "./compose.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";
@@ -28,6 +32,7 @@ import PageTransition from "@/components/PageTransition";
 import PopupForm from "@/components/PopupForm";
 import MotionProvider from "@/components/motion/MotionProvider";
 import SmoothScroll from "@/components/motion/SmoothScroll";
+import ThreadField from "@/components/motion/ThreadField";
 import Cursor from "@/components/motion/Cursor";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 
@@ -91,6 +96,14 @@ export default function RootLayout({ children }) {
             title="gtm"
           />
         </noscript>
+
+        {/* The one thing that persists across every section. It has to be a
+            direct child of <body> — it paints at `z-index: -1`, which only
+            puts it above the page background and below the content if no
+            ancestor in between has made a stacking context of its own. See
+            the component for why the dark bands covering it is the point
+            rather than a problem. */}
+        <ThreadField />
 
         <MotionProvider />
         {/* Interpolated scrolling, mounted above everything that scrubs

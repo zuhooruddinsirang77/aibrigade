@@ -31,6 +31,40 @@ export default function MotionProvider() {
 
     root.classList.add("ax-motion");
 
+    /* ---- `--ax-bleed`: how far it is from the container to the screen ----
+     *
+     * Every section on this page lays out inside `.padding-global >
+     * .container-large`, a centred column with a max width. Nothing was
+     * able to break out of it, which is why the page reads as a stack of
+     * equally-inset panels: an image that runs off the edge of the screen
+     * is the single cheapest signal that a composition was art-directed
+     * rather than poured into a template.
+     *
+     * A grid item cannot compute that distance in CSS alone. Percentage
+     * margins on a grid item resolve against its own grid area, not
+     * against the container, so the usual `margin-left: calc(50% - 50vw)`
+     * full-bleed trick silently produces the wrong number here. And a
+     * hard-coded `-12vw` is only correct at one window width — past the
+     * container's max-width the gutter keeps growing and the image stops
+     * short of the edge, which looks like a bug rather than a decision.
+     *
+     * So it is measured once and published as a length any stylesheet can
+     * use. `0px` until measured and whenever there is no container, so the
+     * fallback is simply "no bleed" — a correct, if plainer, layout.
+     */
+    const measureBleed = () => {
+      const container = document.querySelector(".container-large");
+      if (!container) return;
+      const left = container.getBoundingClientRect().left;
+      root.style.setProperty("--ax-bleed", `${Math.max(0, Math.round(left))}px`);
+    };
+    measureBleed();
+    window.addEventListener("resize", measureBleed);
+    /* The two remote Webflow stylesheets land after first paint and change
+       the container's width; a value measured before them is stale. */
+    if (document.fonts?.ready) document.fonts.ready.then(measureBleed);
+    window.addEventListener("load", measureBleed);
+
     let ready = false;
     let cleanupGsap = () => {};
 
@@ -80,6 +114,8 @@ export default function MotionProvider() {
     return () => {
       clearTimeout(failsafe);
       mq.removeEventListener("change", sync);
+      window.removeEventListener("resize", measureBleed);
+      window.removeEventListener("load", measureBleed);
       root.classList.remove("ax-motion");
       cleanupGsap();
     };

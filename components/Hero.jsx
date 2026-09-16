@@ -132,6 +132,7 @@ export default function Hero() {
       ([entry]) => { inView.current = entry.isIntersecting; },
       { threshold: 0.35 }
     );
+    
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -254,7 +255,11 @@ export default function Hero() {
                 ))}
               </div>
 
-              <Reveal variant="rise" delay={0.58} className="ax-hero__actions">
+              {/* `immediate`: this is the first screen, so the reveal is a
+                  function of the page having loaded, not of a scroll that
+                  may never happen. See the note on the prop — this row is
+                  exactly the element that proved why. */}
+              <Reveal variant="rise" delay={0.58} immediate className="ax-hero__actions">
                 <Magnetic>
                   <a
                     id="OpenPop"

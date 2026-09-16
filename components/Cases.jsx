@@ -8,11 +8,91 @@ import SystemVisual from "@/components/motion/SystemVisual";
 import TiltCard from "@/components/motion/TiltCard";
 import GemCore from "@/components/motion/GemCore";
 import AmbientVideo from "@/components/motion/AmbientVideo";
+import ActReveal from "@/components/motion/ActReveal";
 import { filmFor } from "@/components/video.data";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
+/**
+ * The three cases, as data.
+ *
+ * `title` and `body` are the homepage's own copy, moved out of the markup
+ * unchanged — deliberately NOT sourced from `casestudies.data.js`, whose
+ * `dek` for each client is written differently for the long-form page.
+ * `sector` and `client` are the only things read across from there, and
+ * both are facts that file already states and both case-study pages
+ * already print; nothing is claimed here that wasn't claimed before.
+ *
+ * `decs` are the Webflow decoration classes each row already carried —
+ * large blurred colour blobs (coral, violet, green) that sit behind the
+ * film inside the media panel. They are this section's existing colour
+ * atmosphere and they stay exactly as they were.
+ */
+const ACTS = [
+  {
+    id: "icu",
+    href: "/icu",
+    sector: "Fintech",
+    client: "ICU Capital",
+    title: "Real-time fraud detection for a regional bank",
+    body: "AIBrigade built an autonomous fraud detection system for ICU Capital, a self-contained asset and investment management company. It provides real-time transaction monitoring, explainable risk scoring, and multi-factor authentication for a secure, flawless user experience.",
+    film: filmFor.cases.icu,
+    visual: "stream",
+    decs: ["cases_dec-1", "cases_dec-2"],
+  },
+  {
+    id: "halyk",
+    href: "/halyk",
+    sector: "Fintech",
+    client: "Meridian Capital",
+    title: "Autonomous underwriting for a leading investment bank",
+    body: "Meridian Capital is a leading investment bank serving clients nationwide. AIBrigade built a decision intelligence workflow that automates underwriting while keeping every decision auditable and compliant.",
+    film: filmFor.cases.halyk,
+    visual: "split",
+    decs: ["cases_dec-3", "cases_dec-4"],
+  },
+  {
+    id: "uub",
+    href: "/uub",
+    sector: "Healthtech",
+    client: "UUB Health",
+    title: "A HIPAA-compliant clinical documentation copilot",
+    body: "UUB Health is a growing multi-site clinical network. AIBrigade built a HIPAA-compliant documentation copilot, integrated with Epic via HL7 FHIR, that reduces clinician charting time and improves clinical efficiency.",
+    film: filmFor.cases.uub,
+    visual: "draft",
+    decs: [],
+  },
+];
 
+/**
+ * Evidence — three acts.
+ *
+ * This was a 2×4 grid of `.cases_item` boxes, and the Webflow class doing
+ * the work was `padding: 18rem 4.375rem 6.25rem` with `text-align: center`
+ * and a 1px border. Three consequences, all of them the reason the section
+ * read as filler rather than as the strongest thing on the page:
+ *
+ *   - Every row was a bordered rounded rectangle on white — the visual
+ *     grammar of a blog index, applied to the only proof this company has.
+ *   - 18rem of top padding inside each box, plus 6.25rem above and below
+ *     each row, put the better part of a screen of empty white between one
+ *     case and the next. Not negative space: dead space. It had no
+ *     compositional job and nothing was placed against it.
+ *   - Centred copy in a half-width column, which is neither the most
+ *     readable setting nor a confident one.
+ *
+ * What replaces it is the same three cases and the same words, composed:
+ * each is a full act with the media panel running off the edge of the
+ * screen, the copy set against it in the opposite gutter on a real
+ * typographic hierarchy, and the two sides alternating down the page. The
+ * bleed is the point — it is the difference between a picture in a box and
+ * a frame that continues past the window — and it needs `--ax-bleed`
+ * (measured in MotionProvider) because CSS cannot work that distance out
+ * for a grid item on its own.
+ *
+ * `ActReveal` then ties the two halves together on scroll, so an act
+ * arrives as one move rather than as two boxes fading in side by side.
+ */
 export default function Cases() {
   const { openPopup, startTransition } = usePopup();
 
@@ -22,12 +102,12 @@ export default function Cases() {
   };
 
   return (
-    <div id="cases" className="section_cases position-relative">
+    <div id="cases" className="section_cases position-relative ax-cases">
       <div className="padding-global">
         <div className="container-large">
-          <div className="padding-section-cases padding-top-100_ipad-pro">
+          <div className="ax-cases__head">
             <Kicker id="cases" label="Evidence" />
-            <Reveal variant="rise" className="_3-columns-grid">
+            <Reveal variant="rise" className="ax-cases__headline">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                 Prominent <br />
                 Cases
@@ -37,186 +117,147 @@ export default function Cases() {
                 organizations nationwide.
               </p>
             </Reveal>
-
-            <Reveal variant="stagger" selector=".cases_grid" className="cases_component">
-              {/* ICU */}
-              <div className="cases_grid first">
-                <div className="cases_item">
-                  <h3 className="heading-style-h5 _30 _24 heading-30pt-ipad_pro">
-                    Real-time fraud detection for a regional bank
-                  </h3>
-                  <p className="body18 opacity50">
-                    AIBrigade built an autonomous fraud detection system for ICU Capital, a self-contained
-                    asset and investment management company. It provides real-time transaction monitoring,
-                    explainable risk scoring, and multi-factor authentication for a secure, flawless
-                    user experience.
-                  </p>
-                  <div className="cases_bg">
-                    <div className="cases_bg-2 _3" />
-                  </div>
-                  <a href="/icu" className="link click case_1 w-inline-block" onClick={go("/icu")}>
-                    <div className="d2 _20 _18">learn more</div>
-                    <div className="link_line_box">
-                      <div className="link_arrow_wrapper" />
-                    </div>
-                  </a>
-                </div>
-                {/* The three media tiles are the largest pieces of footage
-                    on the page and the only ones with a diagram floating
-                    over them, so they are where the difference between "a
-                    video is playing here" and "there is a system in this
-                    box" is actually visible. `TiltCard` turns the frame;
-                    `data-lift` decides what sits at which distance inside
-                    it — the film behind (drifting with the pointer, pushed
-                    back), the console in front (drifting against it,
-                    pulled forward). See app/immersive.css §3. */}
-                <TiltCard max={5} lift={8} depth={26}>
-                  <a href="/icu" className="cases_item bg-1 w-inline-block" data-cursor="view" onClick={go("/icu")}>
-                    {/* The tile already draws the system as a diagram; the
-                        film puts it somewhere. */}
-                    <AmbientVideo film={filmFor.cases.icu} className="ax-case__film" data-lift="far" />
-                    <SystemVisual variant="stream" data-lift="" />
-                    <div className="cases_dec-1" />
-                    <div className="cases_dec-2" />
-                  </a>
-                </TiltCard>
-              </div>
-
-              {/* Halyk */}
-              <div className="cases_grid">
-                <TiltCard max={5} lift={8} depth={26}>
-                  <a href="/halyk" className="cases_item bg-1 w-inline-block" data-cursor="view" onClick={go("/halyk")}>
-                    <AmbientVideo film={filmFor.cases.halyk} className="ax-case__film" data-lift="far" />
-                    <div className="cases_dec-3" />
-                    <SystemVisual variant="split" data-lift="" />
-                    <div className="cases_dec-4" />
-                  </a>
-                </TiltCard>
-                <div className="cases_item _2">
-                  <h3 className="heading-style-h5 _30 _24">
-                    Autonomous underwriting for a leading investment bank
-                  </h3>
-                  <p className="body18 opacity50">
-                    Meridian Capital is a leading investment bank serving clients nationwide.
-                    AIBrigade built a decision intelligence workflow that automates underwriting
-                    while keeping every decision auditable and compliant.
-                  </p>
-                  <div className="cases_bg">
-                    <div className="cases_bg-2 _2" />
-                  </div>
-                  <a href="/halyk" className="link click case_2 w-inline-block" onClick={go("/halyk")}>
-                    <div className="d2 _20 _18">learn more</div>
-                    <div className="link_line_box">
-                      <div className="link_arrow_wrapper" />
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-              {/* UUB */}
-              <div className="cases_grid">
-                <div className="cases_item d">
-                  <h3 className="heading-style-h5 _30 _24">
-                    A HIPAA-compliant clinical documentation copilot
-                  </h3>
-                  <p className="body18 opacity50">
-                    UUB Health is a growing multi-site clinical network. AIBrigade built a
-                    HIPAA-compliant documentation copilot, integrated with Epic via HL7 FHIR, that
-                    reduces clinician charting time and improves clinical efficiency.
-                  </p>
-                  <div className="cases_bg">
-                    <div className="cases_bg-2" />
-                  </div>
-                  <a href="/uub" className="link click case_3 w-inline-block" onClick={go("/uub")}>
-                    <div className="d2 _20 _18">learn more</div>
-                    <div className="link_line_box">
-                      <div className="link_arrow_wrapper" />
-                    </div>
-                  </a>
-                </div>
-
-                <TiltCard max={5} lift={8} depth={26}>
-                  <a href="/uub" className="cases_item bg-1 w-inline-block" data-cursor="view" onClick={go("/uub")}>
-                    <AmbientVideo film={filmFor.cases.uub} className="ax-case__film" data-lift="far" />
-                    <SystemVisual variant="draft" data-lift="" />
-                  </a>
-                </TiltCard>
-              </div>
-
-              {/* The closing invitation is not a fourth case study, so it
-                  gets its own full-width row rather than sitting in a
-                  two-column grid pretending to be one. */}
-              <div className="cases_grid last is-cta">
-                <div className="cases_item grad1">
-                  {/* This card was the one full-bleed flat image left on the
-                      page — a static violet gradient .webp behind a 3D gem
-                      render, next to three case tiles that had all just
-                      been given real footage. It kept its identity as the
-                      site's one flagship violet-brand block (the gradient
-                      wash below is still the dominant thing you see) but
-                      now has actual motion under that wash instead of a
-                      flat PNG-shaped gradient. */}
-                  <AmbientVideo film="energy" className="ax-cases-cta__film" />
-                  {/* Was a still of this object. It is the largest brand
-                      render on the page and sits on the one card that asks
-                      for a decision, so it is the right place for the
-                      crystal to actually be a crystal — turning, catching
-                      the palette, leaning toward the pointer. `Parallax`
-                      still drives its drift; `GemCore` only replaces what
-                      is inside the frame, and falls back to this exact
-                      still wherever WebGL can't or shouldn't run. */}
-                  <Parallax speed={-22}>
-                    <GemCore
-                      className="cases_dec-5"
-                      src={`${CDN}/642d51c99450cf1e66ed1397_pisma_glass_1.webp`}
-                      alt="Transparent purple faceted gem."
-                      size={360}
-                      spin={120}
-                    />
-                  </Parallax>
-                  <div className="cases_text_wrapper text-color-white">
-                    <div className="cases_text_top">
-                      <div className="heading-style-h1 big heading-80pt-ipad_pro">Will</div>
-                    </div>
-                    <div className="heading-style-h1 _2">
-                      your <span className="text-color-black">&lt;</span>app
-                      <span className="text-color-black">&gt;</span>
-                    </div>
-                    <div className="heading-style-h1 _2">be next?</div>
-                    <div className="div-block-3">
-                      <a
-                        href="#"
-                        className="link fill w-inline-block"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          openPopup();
-                        }}
-                      >
-                        <div className="link_fill_text_wrapper">
-                          <div className="body20 text-weight-medium _20">Request Free Strategy Session</div>
-                          <div className="button_line_box">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={`${CDN}/641c7d69b358b24cc0dac8fe_Vector%20(6).svg`}
-                              alt=""
-                              className="button_line_arrow arrow"
-                            />
-                          </div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  {/* Was the `bg_corner45_violet.webp` flat gradient image
-                      this card used before the film above replaced it.
-                      Kept as a pure CSS wash now — see `.ax-cases-cta__wash`
-                      — rather than a second image, since its whole job is
-                      colour, not content. */}
-                  <div className="ax-cases-cta__wash" aria-hidden="true" />
-                </div>
-              </div>
-            </Reveal>
-            <div id="cases-end" className="anchor-cases" />
           </div>
+        </div>
+      </div>
+
+      <div className="padding-global">
+        <div className="container-large">
+          <div className="ax-acts">
+        {ACTS.map((act, i) => (
+          <ActReveal
+            key={act.id}
+            className="ax-act"
+            /* Which side the media runs off. Alternating is what keeps the
+               eye moving down the page instead of settling into a column,
+               and it is what makes the three read as a sequence. */
+            data-side={i % 2 === 0 ? "right" : "left"}
+          >
+            <div className="ax-act__copy">
+              <p className="ax-act__meta">
+                <span className="ax-act__index">{String(i + 1).padStart(2, "0")}</span>
+                <span className="ax-act__rule" aria-hidden="true" />
+                <span>
+                  {act.sector} &middot; {act.client}
+                </span>
+              </p>
+
+              <h3 className="ax-act__title">{act.title}</h3>
+              <p className="ax-act__body">{act.body}</p>
+
+              <a href={act.href} className="ax-act__link" onClick={go(act.href)}>
+                <span>learn more</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M5 12h13M13 6l6 6-6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </a>
+            </div>
+
+            {/* `max` is lower than the old tiles used: these panels are much
+                larger now and run off the screen edge, and a big surface
+                rotating by the same angle as a small one reads as the whole
+                page tipping rather than as one object leaning. */}
+            <TiltCard max={3.5} lift={6} depth={30} perspective={1400}>
+              <a
+                href={act.href}
+                className="ax-act__media"
+                data-cursor="view"
+                aria-label={`${act.title} — read the case study`}
+                onClick={go(act.href)}
+              >
+                <AmbientVideo film={act.film} className="ax-case__film" data-lift="far" />
+                {act.decs.map((d) => (
+                  <div className={d} key={d} />
+                ))}
+                <SystemVisual variant={act.visual} data-lift="" />
+              </a>
+            </TiltCard>
+          </ActReveal>
+        ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="padding-global">
+        <div className="container-large">
+          {/* The closing invitation is not a fourth case study, so it keeps
+              a block of its own rather than pretending to be one. */}
+          <div className="ax-cases__cta">
+            <div className="cases_item grad1">
+              {/* This card was the one full-bleed flat image left on the
+                  page — a static violet gradient .webp behind a 3D gem
+                  render, next to three case tiles that had all just been
+                  given real footage. It keeps its identity as the site's
+                  one flagship violet-brand block (the gradient wash below
+                  is still the dominant thing you see) but now has actual
+                  motion under that wash instead of a flat PNG-shaped
+                  gradient. */}
+              <AmbientVideo film="energy" className="ax-cases-cta__film" />
+              {/* Was a still of this object. It is the largest brand render
+                  on the page and sits on the one card that asks for a
+                  decision, so it is the right place for the crystal to
+                  actually be a crystal — turning, catching the palette,
+                  leaning toward the pointer. `Parallax` still drives its
+                  drift; `GemCore` only replaces what is inside the frame,
+                  and falls back to this exact still wherever WebGL can't or
+                  shouldn't run. */}
+              <Parallax speed={-22}>
+                <GemCore
+                  className="cases_dec-5"
+                  src={`${CDN}/642d51c99450cf1e66ed1397_pisma_glass_1.webp`}
+                  alt="Transparent purple faceted gem."
+                  size={360}
+                  spin={120}
+                />
+              </Parallax>
+              <div className="cases_text_wrapper text-color-white">
+                <div className="cases_text_top">
+                  <div className="heading-style-h1 big heading-80pt-ipad_pro">Will</div>
+                </div>
+                <div className="heading-style-h1 _2">
+                  your <span className="text-color-black">&lt;</span>app
+                  <span className="text-color-black">&gt;</span>
+                </div>
+                <div className="heading-style-h1 _2">be next?</div>
+                <div className="div-block-3">
+                  <a
+                    href="#"
+                    className="link fill w-inline-block"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      openPopup();
+                    }}
+                  >
+                    <div className="link_fill_text_wrapper">
+                      <div className="body20 text-weight-medium _20">Request Free Strategy Session</div>
+                      <div className="button_line_box">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`${CDN}/641c7d69b358b24cc0dac8fe_Vector%20(6).svg`}
+                          alt=""
+                          className="button_line_arrow arrow"
+                        />
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+              {/* Was the `bg_corner45_violet.webp` flat gradient image this
+                  card used before the film above replaced it. Kept as a
+                  pure CSS wash now — see `.ax-cases-cta__wash` — rather
+                  than a second image, since its whole job is colour, not
+                  content. */}
+              <div className="ax-cases-cta__wash" aria-hidden="true" />
+            </div>
+          </div>
+          <div id="cases-end" className="anchor-cases" />
         </div>
       </div>
     </div>

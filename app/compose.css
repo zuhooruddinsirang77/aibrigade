@@ -1,0 +1,1513 @@
+/* ================================================================
+   AIBrigade — composition
+
+   This file is about arrangement, not decoration. It holds the pieces of
+   the page whose LAYOUT was rebuilt rather than animated: the Cases
+   sequence, the type scale the section openings are set on, and the
+   vertical rhythm that makes one section follow another instead of
+   simply coming after it.
+
+   The rule the rest of the stylesheets follow applies here too — nothing
+   below introduces a colour, a typeface or a shadow that isn't already a
+   token in app/system.css. What changes is size, position, measure and
+   space, which is where the difference between "a template with
+   animations on it" and "an art-directed page" actually lives.
+
+   Loaded after immersive.css.
+   ================================================================ */
+
+/* ================================================================
+   1. Type scale
+
+   The page had one heading size. Every section opened with a heading in
+   roughly the same 2.5–4.5rem band, every paragraph sat at 16–18px, and
+   the only typographic contrast anywhere was colour. That reads as a
+   template no matter how good the individual sections are, because the
+   reader is never told what is more important than what.
+
+   Three ranks, used consistently:
+
+     display — a section's own name. Large, tight, set to be looked at
+               before it is read.
+     title   — the thing inside a section (a case, a card). Roughly half
+               the display size, so the relationship is unmistakable.
+     detail  — metadata, indices, sector labels. Small, letterspaced,
+               uppercase. It does structural work: it tells you where you
+               are, which is why it can be this quiet.
+   ================================================================ */
+
+:root {
+  /* One size for every chapter opening on the page. Measured before this
+     existed, the section headings ran 57.5px, 61.3px, 61.3px, 69px,
+     80.5px, 92px, 92px, 92px — eight values across eight peer sections,
+     and none of the variation meant anything: "The part that runs at 3am"
+     was the quietest heading on the page and "What our clients say about
+     us" the loudest. Sections that are peers should open at the same
+     volume; the hierarchy that matters is the one INSIDE each of them. */
+  --t-display: clamp(2.5rem, 4.6vw, 4.6rem);
+  --t-title: clamp(1.625rem, 2.5vw, 2.625rem);
+  --t-body: clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --t-detail: 0.6875rem;
+
+  --track-display: -0.035em;
+  --track-title: -0.02em;
+  --track-detail: 0.22em;
+
+  /* Vertical rhythm. One scale for the distance between movements, so
+     sections relate to each other by ratio rather than by whatever
+     padding each one happened to ship with. */
+  --rhythm-1: clamp(3rem, 5vw, 5rem);
+  --rhythm-2: clamp(5rem, 8vw, 8rem);
+  --rhythm-3: clamp(7rem, 11vw, 11rem);
+}
+
+/* ================================================================
+   2. Cases — the three acts
+
+   Was a 2×4 grid of bordered, centre-aligned boxes with 18rem of interior
+   top padding. See the note in components/Cases.jsx for what that cost.
+
+   The composition now: copy in one gutter, a media panel running off the
+   opposite edge of the screen, alternating down the page. The panel is
+   the largest object on the light half of the site and it is meant to be
+   — this section is the only proof the page has.
+   ================================================================ */
+
+.ax-cases__head {
+  padding-top: var(--rhythm-2);
+}
+
+/* The opening. Heading left, one line of context right, baselines
+   aligned — the same head shape the dark bands already use
+   (`.ax-reels__head`), so light and dark sections open the same way. */
+.ax-cases__headline {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: var(--rhythm-1);
+  align-items: end;
+  padding-bottom: var(--rhythm-1);
+  border-bottom: 1px solid var(--line);
+}
+.ax-cases__headline h2 {
+  margin: 0;
+  font-size: var(--t-display);
+  line-height: 0.98;
+  letter-spacing: var(--track-display);
+}
+.ax-cases__headline p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--ink-60);
+}
+
+@media (max-width: 991px) {
+  .ax-cases__headline {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+    align-items: start;
+  }
+}
+
+/* ---- the sequence ---- */
+
+.ax-acts {
+  display: grid;
+  gap: var(--rhythm-3);
+  /* Deliberately shorter than the gap BETWEEN acts. The first act should
+     feel like it belongs to the heading above it; the space that separates
+     one case from the next is the larger interval. Equal spacing here is
+     what makes a sequence read as a list. */
+  padding-top: var(--rhythm-2);
+  padding-bottom: var(--rhythm-2);
+}
+
+@media (min-width: 992px) {
+  .ax-act {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(1.5rem, 3.2vw, 3.75rem);
+    align-items: center;
+  }
+
+  /* Both halves are placed on the same row explicitly. Without this the
+     `display: contents` wrapper TiltCard renders would let the media fall
+     to a second implicit row — the wrapper generates no box, so its child
+     is the grid item, but source order still decides auto-placement. */
+  .ax-act__copy,
+  .ax-act__media {
+    grid-row: 1;
+  }
+
+  .ax-act[data-side="right"] .ax-act__copy { grid-column: 1 / 6; }
+  .ax-act[data-side="right"] .ax-act__media {
+    grid-column: 6 / -1;
+    /* Out through the container's own gutter to the edge of the screen.
+       `--ax-bleed` is measured in MotionProvider; the `0px` fallback is a
+       correct, if plainer, layout for no-JS. */
+    margin-right: calc(-1 * var(--ax-bleed, 0px));
+    border-radius: var(--r-xl) 0 0 var(--r-xl);
+  }
+
+  .ax-act[data-side="left"] .ax-act__copy { grid-column: 8 / -1; }
+  .ax-act[data-side="left"] .ax-act__media {
+    grid-column: 1 / 8;
+    margin-left: calc(-1 * var(--ax-bleed, 0px));
+    border-radius: 0 var(--r-xl) var(--r-xl) 0;
+  }
+}
+
+.ax-act__media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(1.75rem, 3.5vw, 3.5rem);
+  /* Tall enough to be the subject of the composition rather than an
+     illustration beside the text. Capped against the viewport so a short
+     laptop screen never has to scroll past one panel to reach its own
+     caption. */
+  min-height: min(62vh, 34rem);
+  background: var(--ink-deep);
+  text-decoration: none;
+  border-radius: var(--r-xl);
+}
+
+/* The panel's scrim.
+ *
+ * app/film.css is explicit that no clip gets a per-instance grade and that
+ * a surface needing more contrast adds its own — this is that. It is
+ * needed here specifically because the panel got much bigger: the fintech
+ * clip is a bright, near-white stop-motion, and at tile size it read as a
+ * texture behind a console, while at half the screen it read as a pale
+ * rectangle with no weight, next to a headline in near-black. The ramp
+ * restores the weight and lets the console read as lit from within;
+ * the radial keeps the middle of the frame open so the footage is still
+ * legible as footage.
+ *
+ * Above the film, below the console — hence z-index 1 against the
+ * console's 2 and the edge light's 4. */
+.ax-act__media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 12, 17, 0.58) 0%,
+      rgba(10, 12, 17, 0.14) 40%,
+      rgba(10, 12, 17, 0.76) 100%
+    ),
+    radial-gradient(
+      88% 72% at 50% 46%,
+      rgba(10, 12, 17, 0) 0%,
+      rgba(10, 12, 17, 0.52) 100%
+    );
+}
+
+/* The panel's own edge light, brightening as the card engages — the same
+   material language as the console chrome in hero.css. */
+.ax-act__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, calc(0.07 + var(--ax-tilt, 0) * 0.13));
+  transition: box-shadow var(--dur-3) var(--ease);
+}
+
+/* The console floats over the film rather than being laid out by it. */
+.ax-act__media .ax-sysv {
+  position: relative;
+  z-index: 2;
+  max-width: min(28rem, 100%);
+}
+
+/* ---- the copy ---- */
+
+.ax-act__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* Left-aligned, always. The old boxes centred this, which at a
+     half-width measure produces a ragged left edge on every line and
+     gives the reader no consistent place to start. */
+  text-align: left;
+  gap: var(--sp-5);
+}
+
+.ax-act__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: var(--t-detail);
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-act__index {
+  color: var(--violet-500);
+  font-variant-numeric: tabular-nums;
+}
+/* Short, and it stops — a rule that ran to the column edge would compete
+   with the border under the section heading. */
+.ax-act__rule {
+  width: 2.25rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.ax-act__title {
+  margin: 0;
+  font-size: var(--t-title);
+  line-height: 1.14;
+  letter-spacing: var(--track-title);
+  font-weight: 500;
+  color: var(--ink);
+  max-width: 18ch;
+  text-wrap: balance;
+}
+
+.ax-act__body {
+  margin: 0;
+  /* A measure, not a column width. The old setting ran to ~90 characters
+     because it simply filled half the grid. */
+  max-width: 42ch;
+  font-size: var(--t-body);
+  line-height: 1.72;
+  color: var(--ink-60);
+}
+
+.ax-act__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: var(--sp-2);
+  padding-bottom: 0.3rem;
+  color: var(--violet-500);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+}
+.ax-act__link svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+/* Drawn from the left, so the underline reads as being written rather
+   than switched on. */
+.ax-act__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-act__link:hover::after { transform: scaleX(1); }
+  .ax-act__link:hover svg { transform: translateX(0.3rem); }
+}
+
+/* ---- narrow ----
+   One column, media first. The panel still bleeds — at this width the
+   container gutter is the only thing between it and the screen edge, and
+   a full-width image is the strongest thing a phone layout can do. */
+@media (max-width: 991px) {
+  .ax-act {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-6);
+  }
+  .ax-act__media {
+    order: -1;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    margin-inline: calc(-1 * var(--ax-bleed, 0px));
+    border-radius: 0;
+  }
+  .ax-acts {
+    gap: var(--rhythm-2);
+    padding-top: var(--rhythm-2);
+  }
+}
+
+/* ---- the closing invitation ---- */
+
+.ax-cases__cta {
+  padding-bottom: var(--rhythm-1);
+}
+
+/* ================================================================
+   3. Section rhythm
+
+   Every section shipped its own padding, and the numbers came from
+   wherever each one was built — `padding-section-cases` is 6.1875rem top
+   and 6.25rem bottom, `padding-section-features` is something else, the
+   dark bands use `--sp-9`. The result is a page whose sections are
+   roughly, but never exactly, the same distance apart, which reads as
+   slack rather than as rhythm.
+
+   These put the light sections on the one scale declared above. The dark
+   bands keep `--sp-9` from system.css — they are a different kind of
+   element and they earn a different measure.
+   ================================================================ */
+
+.section_features .padding-section-features,
+.section_services .padding-section-services,
+.section_whyus .padding-section-whyus {
+  padding-top: var(--rhythm-2);
+  padding-bottom: var(--rhythm-2);
+}
+
+/* `.section_cases` owns its own spacing now — the acts inside carry it,
+   and the Webflow padding would add a second, unrelated gap on top. */
+.ax-cases .padding-section-cases {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+
+/* ================================================================
+   4. One opening for every chapter
+
+   `._3-columns-grid` is the head wrapper WhyUs, Features, Services and
+   Reviews already share; `.ax-cases__headline` is the Cases equivalent,
+   and the two dark bands have their own (`.ax-reels__head`). They were
+   four different shapes with eight different heading sizes between them.
+
+   This is the single shape, everywhere: the chapter name on the left at
+   display size, one line of context on the right, both sitting on a rule
+   that runs the width of the column. A reader arriving at any section on
+   this page should be able to tell what kind of thing it is before
+   reading a word, and that only works if the form is constant.
+   ================================================================ */
+
+#whyus ._3-columns-grid,
+#features ._3-columns-grid,
+#services ._3-columns-grid,
+#reviews ._3-columns-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  column-gap: var(--rhythm-1);
+  row-gap: var(--sp-5);
+  /* Baselines, not boxes. The context line sits on the last line of the
+     heading rather than floating at the top of its own column, which is
+     what turns two adjacent blocks into one composed head. */
+  align-items: end;
+  padding-bottom: var(--rhythm-1);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: var(--rhythm-1);
+}
+
+#whyus ._3-columns-grid h2,
+#features ._3-columns-grid h2,
+#services ._3-columns-grid h2,
+#reviews ._3-columns-grid h2 {
+  margin: 0;
+  font-size: var(--t-display);
+  line-height: 0.98;
+  letter-spacing: var(--track-display);
+  text-wrap: balance;
+}
+
+#whyus ._3-columns-grid p,
+#features ._3-columns-grid p,
+#services ._3-columns-grid p,
+#reviews ._3-columns-grid p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--t-body);
+  line-height: 1.65;
+  color: var(--ink-60);
+}
+
+/* The dark bands open the same way. Their heads were already this shape —
+   they only disagreed about size. */
+.ax-reels__title,
+.ax-env__title,
+.ax-infra__title {
+  font-size: var(--t-display);
+  line-height: 0.98;
+  letter-spacing: var(--track-display);
+}
+
+@media (max-width: 991px) {
+  #whyus ._3-columns-grid,
+  #features ._3-columns-grid,
+  #services ._3-columns-grid,
+  #reviews ._3-columns-grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding-bottom: var(--sp-6);
+    margin-bottom: var(--sp-6);
+  }
+}
+
+/* ================================================================
+   5. The hero sits one rank above
+
+   It is not a chapter — it is the cover. Before this it was
+   `clamp(2.5rem, 6vw, 4.75rem)`, which at most widths put it within a few
+   pixels of the section headings below it, so the page had no single
+   largest thing on it. The gap is now deliberate and holds at every
+   width.
+   ================================================================ */
+
+.ax-hero__title {
+  font-size: clamp(2.75rem, 6.4vw, 6.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+}
+.ax-hero__lede {
+  font-size: clamp(1rem, 1.15vw, 1.1875rem);
+  letter-spacing: 0.002em;
+}
+
+/* ================================================================
+   6. Voices — the stage
+
+   See components/Reviews.jsx for what the grey plates and, after them,
+   the three-column text block cost. The short version: nine quotations
+   at once is a wall a reader skims rather than reads, and a pull quote
+   whose attribution is 340px away across an empty gutter is two things,
+   not one statement.
+
+   The composition now is one panel with one quotation on it, and beside
+   it the list of everyone who vouched. The list is the credibility — a
+   reader scans it for a name they know — and the panel is the one thing
+   asking to be read at any moment.
+
+   There is exactly one surface in this section, and it is this panel. The
+   earlier objection to plates was never that a surface is wrong; it was
+   that nine identical ones carry no information. One does: it says where
+   the reading happens.
+
+   Everything below resolves to a token in app/system.css and to the type
+   ranks declared in §1.
+   ================================================================ */
+
+.ax-voices {
+  margin-top: var(--rhythm-1);
+}
+
+.ax-voices__stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(0, 0.88fr);
+  gap: clamp(1.75rem, 3vw, 3.25rem);
+  align-items: stretch;
+}
+
+/* ---- the panel ---- */
+
+.ax-voices__panel {
+  position: relative;
+  display: flex;
+  padding: clamp(2rem, 3.4vw, 3.5rem) clamp(1.75rem, 3vw, 3.25rem);
+  border-radius: var(--r-xl);
+  border: 1px solid var(--line);
+  /* White into the violet-tinted sunken surface: the panel lifts off the
+     page at its top edge and settles into it at the foot, which is what
+     gives it depth without a second colour. */
+  background: linear-gradient(170deg, var(--surface) 0%, var(--surface-sunken) 100%);
+  box-shadow: var(--shadow-2);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* The same lit top edge the capability cards carry two sections up. It is
+   the one place colour touches a frame on this page, and using it in both
+   places is what makes the two sections read as one system. */
+.ax-voices__panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--grad-rail);
+  z-index: 2;
+}
+
+/* A quotation mark at display scale, in the lightest violet on the ramp.
+   Set behind the text rather than above it: it is the section's watermark,
+   not a piece of punctuation to be read.
+
+   In the top RIGHT corner, bleeding off it. At the top left — where a
+   quotation mark conventionally goes — it sat directly behind the "01/09"
+   counter, and a pale violet glyph under a violet numeral reads as a
+   rendering artefact rather than as a watermark. Here it balances the
+   counter across the panel's top edge and has nothing behind it. */
+.ax-voices__mark {
+  position: absolute;
+  top: clamp(-3.5rem, -3.4vw, -1.75rem);
+  right: clamp(1rem, 2.4vw, 2.75rem);
+  z-index: 0;
+  font-size: clamp(10rem, 17vw, 17rem);
+  line-height: 1;
+  font-weight: 500;
+  color: var(--violet-100);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* All nine quotations occupy one grid cell, so the panel is as tall as
+   the longest of them and switching between them cannot move anything
+   else on the page. It is also why the transition can be a crossfade
+   rather than a height animation — there is no height to animate. */
+.ax-voices__deck {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ax-voices__deck > .ax-voice {
+  grid-area: 1 / 1;
+}
+
+.ax-voice--on {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.45s var(--ease), transform 0.55s var(--ease);
+}
+.ax-voice--off {
+  opacity: 0;
+  /* Down and away, so the incoming quote appears to arrive from where the
+     outgoing one went. `visibility` is what actually takes it out of the
+     pointer's reach; opacity alone would leave an invisible block of text
+     selectable over the live one. */
+  transform: translateY(0.75rem);
+  visibility: hidden;
+  transition: opacity 0.3s var(--ease), transform 0.45s var(--ease),
+    visibility 0s linear 0.3s;
+}
+
+/* ---- one voice ---- */
+
+.ax-voice {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  /* `.section_reviews` inherits a centred text alignment from the Webflow
+     sheet, which the old `.review_item` overrode for itself. Without this
+     the name and the job title centre independently of each other and of
+     the quote — three different axes in one caption. */
+  text-align: left;
+}
+
+.ax-voice__count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 clamp(1rem, 2vw, 1.75rem);
+  font-size: var(--t-detail);
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-voice__count-n {
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--violet-500);
+}
+.ax-voice__count-of {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.ax-voice__quote {
+  /* Webflow's normalize ships `blockquote { border-left: 5px solid;
+     padding: 10px 20px }`. Left unreset it drew a grey bar down the left
+     of every quotation, which read as an accidental second rule fighting
+     the intentional one above. */
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-size: clamp(1.125rem, 1.65vw, 1.6875rem);
+  line-height: 1.46;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+  /* In `em`, not `ch`: `ch` resolves against the font-size of the element
+     it is declared on, which on the figure is the inherited body size and
+     not the quote's own — a `54ch` cap silently became a 432px column and
+     the pull quote wrapped every four words. */
+  max-width: 30em;
+  /* Full-strength ink. This is the one thing in the section a reader is
+     meant to actually read. */
+  color: var(--ink);
+}
+
+/* The panel is as tall as the index column beside it, and the nine
+   quotations are between two and seven lines long, so there is always
+   surplus height to place. The counter holds the top edge and the
+   attribution holds the foot — both are fixed points the reader's eye can
+   return to across a switch — and the quotation takes the middle,
+   optically centred by its own auto margins. Anchoring the quote to the
+   top instead left Paul Larsen's two lines stranded against the ceiling
+   with 300px of white under them. */
+.ax-voices__deck .ax-voice__quote {
+  margin-block: auto;
+}
+
+.ax-voice__by {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: clamp(1.5rem, 2.6vw, 2.5rem);
+  /* Declared here and not left to inherit from `.ax-voice`. Webflow's
+     base sheet centres `figure figcaption` directly, and a declaration on
+     the element always beats an inherited value no matter how specific
+     the ancestor rule is — so the name and the job title were each
+     centring inside the caption column while the quote beside them was
+     ranged left. */
+  text-align: left;
+}
+.ax-voice__face {
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  /* Cropped to the face rather than centred on the frame — these are
+     portrait photographs at several different crops. */
+  object-position: 50% 22%;
+  box-shadow: 0 0 0 1px var(--line), var(--shadow-1);
+}
+/* One of the nine has no photograph. An initial on the brand tint is a
+   deliberate placeholder; the alternative — a caption that starts at a
+   different x than the other eight — reads as a missing image. */
+.ax-voice__face--mono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-violet);
+  color: var(--violet-600);
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+.ax-voice__who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.ax-voice__name {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.ax-voice__role {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  font-size: var(--t-detail);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+/* The organisation is the half of the role that does the vouching, so it
+   is the half that gets the ink. */
+.ax-voice__org {
+  position: relative;
+  padding-left: 0.85rem;
+  color: var(--ink-60);
+}
+.ax-voice__org::before {
+  content: "";
+  position: absolute;
+  left: 0.3rem;
+  top: 50%;
+  width: 0.25rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.ax-voice__project {
+  margin-left: auto;
+  padding-left: var(--sp-4);
+  font-size: var(--t-detail);
+  letter-spacing: 0.08em;
+  color: var(--ink-45);
+  white-space: nowrap;
+}
+.ax-voice__project .purple {
+  color: var(--violet-500);
+}
+
+/* ---- the index ---- */
+
+.ax-voices__index {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ax-voices__index-label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 var(--sp-5);
+  font-size: var(--t-detail);
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-voices__index-label > span {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--violet-500);
+}
+.ax-voices__index-label::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.ax-voices__listwrap {
+  position: relative;
+  flex: 1 1 auto;
+  padding-left: var(--sp-5);
+}
+
+.ax-voices__spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: var(--r-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+.ax-voices__spine-fill {
+  display: block;
+  width: 100%;
+  border-radius: inherit;
+  background: var(--grad-rail);
+  transition: transform 0.45s var(--ease);
+}
+
+.ax-voices__list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ax-voices__tab {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.75rem 0.5rem 0.9rem;
+  margin: 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-voices__tab-face {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  filter: grayscale(1);
+  opacity: 0.6;
+  transition: filter var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-voices__tab-face--mono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-violet);
+  color: var(--violet-600);
+  font-size: 0.75rem;
+  font-weight: 500;
+  filter: none;
+}
+.ax-voices__tab-who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.ax-voices__tab-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink-60);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-voices__tab-org {
+  font-size: var(--t-detail);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ax-voices__tab.is-on {
+  background: var(--surface-violet);
+}
+.ax-voices__tab.is-on .ax-voices__tab-name {
+  color: var(--violet-600);
+}
+.ax-voices__tab.is-on .ax-voices__tab-face {
+  filter: none;
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ax-voices__tab:hover {
+    background: rgba(146, 72, 228, 0.045);
+    transform: translateX(0.15rem);
+  }
+  .ax-voices__tab:hover .ax-voices__tab-name {
+    color: var(--ink);
+  }
+  .ax-voices__tab:hover .ax-voices__tab-face {
+    filter: none;
+    opacity: 1;
+  }
+}
+
+.ax-voices__nav {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: var(--sp-5);
+  padding-left: var(--sp-5);
+}
+/* The arrows are `.whyus-slider-arrow`, which globals.css only styles
+   above 992px because that is the only width the capability rail shows
+   them at. The stage is desktop-only too, so the shared rule covers it —
+   these are the two differences the smaller context needs. */
+.ax-voices__nav .whyus-slider-arrow {
+  width: 2.375rem;
+  height: 2.375rem;
+}
+
+/* ---- narrower desktops ----
+   Below about 1200px the two columns stop being a panel and an index and
+   start being two cramped columns. Stacking the index under the panel as
+   a row of tabs keeps every name visible without squeezing the quote. */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .ax-voices__stage {
+    grid-template-columns: 1fr;
+    gap: var(--sp-6);
+  }
+  .ax-voices__listwrap {
+    padding-left: 0;
+    padding-top: var(--sp-4);
+  }
+  .ax-voices__spine {
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+  .ax-voices__spine-fill {
+    height: 100% !important;
+    width: calc(100% / 9);
+    transition: transform 0.45s var(--ease);
+  }
+  .ax-voices__list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .ax-voices__tab {
+    flex: 0 1 auto;
+  }
+  .ax-voices__nav {
+    padding-left: 0;
+  }
+}
+
+/* ---- tablet and phone: the carousel ----
+
+   The stage is a two-column reading layout and a nine-row index; neither
+   survives a 390px screen, and a swipe is the better gesture for a set of
+   quotations anyway.
+
+   `.ax-voices` was being hidden here by a rule in globals.css written
+   against `.reviews_component.hide-reviews-tablet` — a class name from
+   the markup this component replaced. It matched nothing, so the desktop
+   block and the carousel both rendered and every phone visitor read the
+   nine testimonials twice, once at pull-quote scale. The rule is
+   corrected at its source; this is the slide it leaves behind. */
+.ax-voice--slide {
+  height: 100%;
+  padding: var(--sp-6);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(170deg, var(--surface) 0%, var(--surface-sunken) 100%);
+  box-shadow: var(--shadow-1);
+}
+.ax-voice--slide .ax-voice__quote {
+  font-size: 1rem;
+  line-height: 1.62;
+  letter-spacing: 0;
+  max-width: none;
+}
+.ax-voice--slide .ax-voice__count {
+  margin-bottom: var(--sp-4);
+}
+.ax-voice--slide .ax-voice__count-n {
+  font-size: 1rem;
+}
+.ax-voice--slide .ax-voice__face {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+.ax-voice--slide .ax-voice__by {
+  /* A carousel slide is stretched to its tallest sibling, so here the
+     attribution does want pinning to the foot. */
+  margin-top: auto;
+}
+.ax-voice--slide .ax-voice__project {
+  margin-left: 0;
+  padding-left: 0;
+  flex: 1 1 100%;
+}
+
+.ax-voices--mobile {
+  margin-top: var(--rhythm-1);
+}
+/* Swiper's own arrows are 44px chevrons in its default blue, floated over
+   the slides. Given the same round button the rest of the page uses, and
+   moved off the prose. */
+.ax-voices--mobile .swiper {
+  padding-bottom: 4rem;
+}
+.ax-voices--mobile .swiper-button-prev,
+.ax-voices--mobile .swiper-button-next {
+  top: auto;
+  bottom: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-voices--mobile .swiper-button-prev {
+  left: 0;
+}
+.ax-voices--mobile .swiper-button-next {
+  left: 3.25rem;
+  right: auto;
+}
+.ax-voices--mobile .swiper-button-prev::after,
+.ax-voices--mobile .swiper-button-next::after {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.ax-voices--mobile .swiper-button-disabled {
+  opacity: 0.35;
+}
+
+/* Under reduced motion the crossfade is a cut and the spine jumps to
+   position. The stage still works — it was never the animation that made
+   it legible. */
+html.ax-reduced .ax-voice--on,
+html.ax-reduced .ax-voice--off,
+html.ax-reduced .ax-voices__spine-fill,
+html.ax-reduced .ax-voices__tab {
+  transition: none;
+}
+
+/* ================================================================
+   7. The substrate
+
+   `ThreadField`'s canvas. Fixed, full-viewport, never interactive.
+
+   `z-index: -1` is doing precise work: it paints above the root's white
+   background and below every in-flow element, which is what lets the
+   lattice show continuously through the light sections (none of which
+   declare a background of their own) while the opaque dark bands cover
+   it. That occlusion is the depth cue — the bands read as objects in
+   front of a space rather than as panels in a stack.
+
+   It only works from a direct child of <body>: any ancestor that makes a
+   stacking context would trap the negative index inside it, and the
+   canvas would vanish behind that ancestor's own background.
+   ================================================================ */
+
+.ax-thread {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* The lattice is drawn in violet and coral at very low alpha. `multiply`
+     keeps it sitting *in* the white page rather than glowing on top of
+     it — the same reason the film layers use `color`/`screen` rather than
+     plain alpha. */
+  mix-blend-mode: multiply;
+}
+
+/* Under reduced motion the component never mounts a canvas; this makes
+   sure the host box can never contribute anything either. */
+html.ax-reduced .ax-thread {
+  display: none;
+}
+
+/* ================================================================
+   8. The hero measure
+
+   The headline is one rank above every section heading now (see §5), and
+   at that size the 50rem column it was set in could no longer hold the
+   line breaks `components/Hero.jsx` chooses per breakpoint: "Custom AI
+   Systems / for Fintech & HealthTech" wrapped to four lines instead of
+   two, which grew the hero to 1116px in a 950px viewport and pushed the
+   proof strip and the ticker below the fold.
+
+   The column is widened to fit the type. The lede and the tab row keep
+   their own narrower measures, so only the headline uses the extra width
+   — a wide heading over a narrow paragraph is the shape this wants.
+   ================================================================ */
+
+.ax-hero__lead {
+  max-width: min(78rem, 92vw);
+}
+.ax-hero__title {
+  /* Its own ceiling, so on an ultrawide display the headline settles at a
+     readable measure instead of stretching to the full 78rem. */
+  max-width: 20ch;
+}
+
+/* ================================================================
+   9. What we're good at — the capability rail
+
+   The section was a horizontal row of six identical dark tiles with a
+   5.5rem violet disc floating in the middle of each, opened by a heading
+   block and closed by a slider the reader never saw. Three things were
+   actually wrong with it, and none of them was the colour:
+
+     - **It didn't fit.** `.horizontal-sticky` measured 1078px of content
+       inside a 900px pinned viewport, so for the entire length of the pin
+       the cards were guillotined ~60px above their own bottom edge and
+       the slider row (938–974px) was off screen. The section that gets
+       the longest dwell time on the page was the one the reader never saw
+       the bottom of.
+     - **Nothing said which card was the subject.** Six tiles at identical
+       weight sliding past a window is a grid laid on its side. A rail
+       needs a focal point or the motion is just displacement.
+     - **The cards had no interior hierarchy.** Heading, disc, paragraph:
+       three stacked blocks at three sizes, the same on all six — so the
+       one genuinely differentiating thing about each card, the footage it
+       is made of, was the thing with the least room.
+
+   What follows is composition only. Every colour resolves to a token in
+   app/system.css, the dark card surface and the film are film.css's, and
+   the type ranks are the ones declared in §1 of this file.
+   ================================================================ */
+
+/* Registered so `--ax-focus` is a number rather than an opaque string:
+   it is read inside `calc()` in an alpha channel and in a `box-shadow`
+   below, and an unregistered custom property that has never been written
+   makes the whole declaration invalid at computed-value time. The initial
+   value is 1 — a card nothing has measured yet is fully resolved, which
+   is the correct first paint for a reader whose JS never runs. */
+@property --ax-focus {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* ---- the pinned frame ----
+
+   The whole point of a pin is that the section IS the viewport for as
+   long as it holds. So the section is laid out as a viewport: a column
+   with a fixed top clearance for the navbar, a head and a control bar at
+   their natural heights, and the rail taking whatever is left. Nothing
+   inside can overflow the pin, at any window height, because nothing
+   inside has a height of its own to overflow with. */
+@media (min-width: 992px) {
+  #whyus .horizontal-sticky {
+    height: 100vh;
+    height: 100svh;
+    align-items: stretch;
+    /* The navbar clearance moves onto the padded column below so that it
+       is part of the same height budget as everything else. */
+    padding-top: 0;
+  }
+  #whyus .horizontal-sticky > .padding-global,
+  #whyus .horizontal-sticky .container-large {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  #whyus .padding-section-whyus {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    /* 78px of fixed navbar, plus air. In `vh` so a short laptop window
+       gives the rail its space back rather than keeping a clearance sized
+       for a desktop display. */
+    padding-top: clamp(5.5rem, 11vh, 7.5rem);
+    padding-bottom: clamp(1.5rem, 4vh, 3rem);
+  }
+
+  /* The chapter opening keeps its shape — it is the same head all four
+     light sections share (§4) — but not the two `--rhythm-1` gaps under
+     it. Those are sized for a section that can be as tall as it likes;
+     this one has a ceiling, and 144px of white between the rule and the
+     cards is the single largest thing that was pushing the row off the
+     bottom of the pin. */
+  #whyus ._3-columns-grid {
+    padding-bottom: clamp(1.75rem, 3.4vh, 2.75rem);
+    margin-bottom: 0;
+  }
+}
+
+/* ---- the control bar ----
+
+   Position readout on the left, the means to move on the right, sitting
+   in the space between the head's rule and the row. */
+.ax-caps__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: clamp(0.85rem, 2vh, 1.25rem) 0;
+}
+
+.ax-caps__read {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 0;
+  font-size: var(--t-detail);
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-caps__idx {
+  /* The one number on this line that changes, so it is the one that gets
+     the colour and the size. Tabular figures because it counts. */
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--violet-500);
+}
+.ax-caps__of {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+.ax-caps__now {
+  /* Set off from the count by a rule rather than by punctuation — the
+     same hairline-in-a-contents-list idiom `.ax-kicker` uses. */
+  position: relative;
+  padding-left: 1.5rem;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink-60);
+}
+.ax-caps__now::before {
+  content: "";
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  width: 0.55rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+/* The slider row was written for a position under the cards, where it was
+   the last thing on the line. On the control bar it is one of two. */
+.ax-caps__bar .whyus-slider-row {
+  margin-top: 0;
+  flex: 0 1 22rem;
+  min-width: 0;
+}
+
+/* ---- the window ----
+
+   The mask is driven by the rail's own position now (see the measuring
+   loop in components/WhyUs.jsx). At rest against the left edge there is
+   nothing past it to suggest, so there is no fade; the fade appears as
+   the row starts to travel and the cut edge becomes real. */
+@media (min-width: 992px) {
+  #whyus .horizontal-list-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* A card is a poster, not a panel. Past this the rail would keep
+       growing with the window and the six cards would end up half again
+       taller than they are wide. (The root font size on this site is
+       13px, not 16 — 44rem is 572px.) */
+    max-height: 44rem;
+    /* The padding is the room the cards' shadows need inside the clip,
+       and the negative margin takes it back out of the flow. It was
+       asymmetrical — 39px of it at the top against 19.5 at the bottom —
+       which sat the row visibly below the centre of its own window. */
+    padding: 1.5rem 0;
+    margin: -1.5rem 0;
+    display: flex;
+    align-items: stretch;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 calc(var(--ax-fade-l, 0) * 2.5rem),
+      #000 calc(100% - var(--ax-fade-r, 0) * 6rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 calc(var(--ax-fade-l, 0) * 2.5rem),
+      #000 calc(100% - var(--ax-fade-r, 0) * 6rem),
+      transparent 100%
+    );
+  }
+  #whyus .horizontal-list {
+    align-items: stretch;
+    height: 100%;
+  }
+  #whyus .horizontal-list .whyus-box_item,
+  #whyus .horizontal-list .whyus_item {
+    height: 100%;
+    min-height: 0;
+  }
+}
+
+/* ---- the card ----
+
+   Metadata at the head, a block at the foot, the film holding the middle. */
+#whyus .whyus_item {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.5rem 1.75rem;
+  border-radius: var(--r-md);
+  isolation: isolate;
+}
+#whyus .ax-whyus__film {
+  border-radius: inherit;
+}
+/* The scrim in film.css is symmetrical — dark top, dark bottom, open
+   middle — which is right for copy that runs the full height of the card.
+   This composition is a metadata line at the top and a block at the foot,
+   so the weight goes where the block is and the middle opens up. */
+#whyus .ax-whyus__film::after {
+  background: linear-gradient(
+    180deg,
+    rgba(5, 7, 10, 0.72) 0%,
+    rgba(5, 7, 10, 0.34) 30%,
+    rgba(5, 7, 10, 0.62) 62%,
+    rgba(5, 7, 10, 0.93) 100%
+  );
+}
+
+/* Everything that isn't the film sits above it. Replaces the element list
+   in film.css, which named the markup this composition replaced. */
+#whyus .whyus_item > :not(.ax-whyus__film):not(.ax-tilt__glare) {
+  position: relative;
+  z-index: 1;
+}
+
+/* One pseudo carries both the card's frame light and the gradient top
+   edge, because `box-shadow` doesn't cascade additively and the hover
+   rules in motion.css and film.css already own the card's own
+   `box-shadow`. Both ramp with `--ax-focus`, so a card resolves as it
+   comes into the window. */
+#whyus .whyus_item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  height: auto;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--coral) 0%, var(--violet-400) 100%) top left / 100%
+    0.125rem no-repeat;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, calc(0.04 + var(--ax-focus, 1) * 0.09));
+  opacity: calc(0.4 + var(--ax-focus, 1) * 0.6);
+}
+
+/* The rack focus. A veil over the whole card — copy included, which is
+   the point: a card at the edge of the window is out of frame, not merely
+   behind a tint. Above the content and below TiltCard's glare, so the
+   card you are pointing at is by definition the sharp one. */
+#whyus .whyus_item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  background: rgba(6, 8, 12, calc((1 - var(--ax-focus, 1)) * 0.55));
+}
+
+/* ---- card: the metadata line ---- */
+.ax-cap__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--t-detail);
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+}
+.ax-cap__index {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.92);
+}
+.ax-cap__rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.04));
+}
+.ax-cap__domain {
+  flex: none;
+  padding: 0.22rem 0.55rem;
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(199, 155, 245, 0.34);
+  background: rgba(146, 72, 228, 0.18);
+  color: #d7bcfa;
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+}
+
+/* ---- card: the block at the foot ---- */
+.ax-cap__body {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding-top: var(--sp-6);
+}
+#whyus .ax-cap__title {
+  margin: 0;
+  font-size: clamp(1.125rem, 1.45vw, 1.4375rem);
+  line-height: 1.16;
+  letter-spacing: var(--track-title);
+  text-wrap: balance;
+}
+#whyus .ax-cap__text {
+  margin: 0;
+  /* The `.height` class this paragraph used to carry is a Webflow fixed
+     height, which is what clipped the last line on the two longest
+     cards. */
+  height: auto;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* ---- card: the mark ----
+   A 2.75rem indicator on the caption block it belongs to, not a 5.5rem
+   illustration in the middle of the card. */
+.whyus-icon-disc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet-500), var(--violet-600));
+  color: #fff;
+}
+.whyus-icon-disc__glyph {
+  display: block;
+  width: 1.375rem;
+  height: 1.375rem;
+}
+.whyus-icon-disc__glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- hover ----
+   film.css already lifts the card, tints its shadow violet and eases the
+   film to 1.05. The two additions here are the ones that say WHICH card:
+   the top edge goes to full strength and the sector tag brightens. */
+@media (hover: hover) and (pointer: fine) {
+  #whyus .ax-cap__domain,
+  #whyus .whyus_item::before {
+    transition: opacity var(--dur-3) var(--ease), background-color var(--dur-3) var(--ease),
+      border-color var(--dur-3) var(--ease);
+  }
+  #whyus .whyus-box_item:hover .whyus_item::before {
+    opacity: 1;
+  }
+  #whyus .whyus-box_item:hover .ax-cap__domain {
+    border-color: rgba(199, 155, 245, 0.6);
+    background: rgba(146, 72, 228, 0.3);
+  }
+}
+
+/* ---- tablet and phone ----
+   The rail is a native scroll-snap row here (globals.css). It keeps the
+   readout — the measuring loop works off element positions, so it is
+   driven by `scrollLeft` at this width without knowing it — and loses the
+   slider, which has nothing to do on a surface you can swipe. */
+@media (max-width: 991px) {
+  .ax-caps__bar {
+    padding: var(--sp-4) 0 var(--sp-5);
+  }
+  #whyus .whyus_item {
+    min-height: 26rem;
+    padding: 1.25rem 1.25rem 1.5rem;
+  }
+  #whyus .horizontal-list-wrapper {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  /* Out of the window on a touch rail means out of reach, so the veil is
+     dropped rather than dimming a card the reader simply has not swiped
+     to yet. The frame light stays. */
+  #whyus .whyus_item::after {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  #whyus .whyus_item {
+    min-height: 23rem;
+  }
+}
+
+/* Under reduced motion nothing measures and nothing moves: every card is
+   fully resolved, which is what `--ax-focus`'s initial value already
+   says. This only makes sure a stale inline value written before the
+   setting changed can't leave a card veiled. */
+html.ax-reduced #whyus .whyus-box_item {
+  --ax-focus: 1;
+}

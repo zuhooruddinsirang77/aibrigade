@@ -203,10 +203,18 @@ html.ax-smooth body {
    4. The scroll cue
    ================================================================ */
 
+/* In the right-hand gutter, not under the headline.
+ *
+ * It was centred at the foot of the hero, which put it straight through
+ * the middle metric of the proof strip once the headline grew and the
+ * whole column moved down — a scroll hint sitting on top of "saved per
+ * encounter". The centre of a hero belongs to the claim; an instrument
+ * belongs at the edge, where it also stops competing with the two
+ * buttons for the same axis. */
 .ax-cue {
   position: absolute;
-  left: 50%;
-  bottom: 7.5rem;
+  right: 2.5vw;
+  bottom: 9rem;
   z-index: 3;
   display: flex;
   flex-direction: column;
@@ -220,8 +228,15 @@ html.ax-smooth body {
   font-size: 0.625rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  transform: translateX(-50%);
+  /* Reading downward, along the direction it is pointing. */
+  writing-mode: vertical-rl;
   transition: opacity var(--dur-3) var(--ease), color var(--dur-2) var(--ease);
+}
+.ax-cue__label {
+  /* The rail below is a block in vertical writing mode too, so the flex
+     column lays the two out along the same axis without either needing to
+     be rotated independently. */
+  white-space: nowrap;
 }
 .ax-cue:hover {
   color: rgba(255, 255, 255, 0.9);
@@ -233,8 +248,12 @@ html.ax-smooth body {
 .ax-cue__rail {
   position: relative;
   display: block;
+  /* Explicit both ways: in vertical writing mode `width`/`height` still
+     refer to the physical axes, but the flex container's main axis is now
+     vertical, so the rail needs a fixed block size or it collapses. */
   width: 1px;
-  height: 3rem;
+  min-width: 1px;
+  height: 3.5rem;
   overflow: hidden;
   background: var(--line-invert);
 }

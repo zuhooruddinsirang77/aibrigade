@@ -397,8 +397,13 @@ body { overflow-x: hidden; }
   }
 }
 
-/* ---------- Reviews responsive switch ---------- */
+/* ---------- Reviews responsive switch ----------
+   The second rule used to be written against `.reviews_component`, a
+   class name from the markup components/Reviews.jsx replaced. It matched
+   nothing, so below 992px the desktop block and the carousel BOTH
+   rendered and every phone visitor read the nine testimonials twice —
+   once at pull-quote scale, then again as slides. The selector names what
+   the component actually carries. */
 @media (min-width: 992px) { .review-swiper-tablet { display: none !important; } }
-@media (max-width: 991px) { .reviews_component.hide-reviews-tablet { display: none !important; } }
-.review-swiper-tablet .swiper { padding-bottom: 3rem; }
+@media (max-width: 991px) { .hide-reviews-tablet { display: none !important; } }
 .review-swiper-tablet .review_item { height: 100%; }
