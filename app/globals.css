@@ -405,5 +405,13 @@ body { overflow-x: hidden; }
    once at pull-quote scale, then again as slides. The selector names what
    the component actually carries. */
 @media (min-width: 992px) { .review-swiper-tablet { display: none !important; } }
-@media (max-width: 991px) { .hide-reviews-tablet { display: none !important; } }
+@media (max-width: 991px) {
+  .hide-reviews-tablet { display: none !important; }
+  /* The Webflow sheet takes `.review-swiper-tablet` back to `display:
+     none` below 768px — the original template had a third, phone-only
+     testimonial block that this component does not render. With the
+     desktop stage correctly hidden above, that left a phone with no
+     testimonials at all. This carousel is the phone layout. */
+  .review-swiper-tablet { display: block !important; }
+}
 .review-swiper-tablet .review_item { height: 100%; }

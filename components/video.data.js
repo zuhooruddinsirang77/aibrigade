@@ -20,9 +20,11 @@
  * which is exactly why they are NOT allowed near a specific, falsifiable
  * claim either: nothing here names a client or quotes a result, generated
  * or licensed. `Deployments` ("The work, playing") is the one section that
- * makes that kind of claim, and it keeps its own honest empty state until
- * real capture of actual client systems exists — none of this manifest
- * substitutes for that. See components/deployments.data.js.
+ * makes that kind of claim. It draws on this library through `filmFor.reels`
+ * below, under one condition: the clip is labelled in the frame as reference
+ * footage and the slot for real capture of the actual client system stays
+ * open and takes precedence. See the longer note at `filmFor.reels` and
+ * components/deployments.data.js.
  *
  * No posters exist for these files, so nothing here references one. A clip
  * fades up from the page's own ink instead of flashing a black rectangle —
@@ -274,6 +276,35 @@ export const filmFor = {
      AI Development gets the real agents-interface footage — it is the one
      offer that is literally "we build the thing this clip is showing". */
   services: ["fintechGrowth", "geneEditing", "agentsInterface", "factory"],
+
+  /* Deployments — the four reels in "The work, playing", keyed by the id in
+     components/deployments.data.js.
+
+     Read the provenance note at the top of this file before changing these.
+     That note says this footage is not allowed near a specific, falsifiable
+     claim, and the Deployments section is exactly where the page makes one:
+     it names a sector, a metric and an outcome per reel. The reason these
+     assignments are nonetheless correct is that the section no longer
+     presents the clip as capture of that client's system — it labels the
+     screen "reference footage" in the frame itself and keeps the real
+     capture slot open (`src` in deployments.data.js, which still wins when
+     it is filled).
+
+     What changed is that the alternative was worse. Every reel pointed at a
+     `/reels/*.mp4` that has never existed, so all four 404'd and the
+     section — the one whose entire subject is work playing — showed four
+     identical terminal fallbacks and not one moving frame.
+
+     Matched to the system each reel is about: coins and live market data for
+     fraud scoring, the lab bench for the clinical copilot, a person working
+     an agent interface for autonomous underwriting, and the racks a
+     multi-venue feed runs on for compliance monitoring. */
+  reels: {
+    "fraud-realtime": "fintechGrowth",
+    "clinical-copilot": "geneEditing",
+    "underwriting-agent": "agentsInterface",
+    "compliance-monitor": "infrastructure",
+  },
 
   /* Pipeline — the five engagement stages. Order carries meaning here: a
      room full of people (Discover), a chip coming up (Design), a real

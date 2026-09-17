@@ -285,6 +285,19 @@ export default function WhyUs() {
 
     const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
+    /* The rack focus is the one part of this that a reader who has asked
+       for reduced motion should not get: it dims and resolves copy as the
+       row travels, which is exactly the kind of scroll-linked change that
+       setting exists to refuse. The readout and the edge fades stay — they
+       are information about where you are in a set, not motion — so the
+       loop still runs and only this one value is pinned. Read live rather
+       than captured, so toggling the OS setting takes effect without a
+       reload. */
+    const reduced =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : null;
+
     const sample = () => {
       const wr = wrap.getBoundingClientRect();
       if (wr.width <= 0) return;
@@ -302,7 +315,10 @@ export default function WhyUs() {
            present, not as 10% dimmed. The ramp puts everything past ~85%
            at full strength and everything under ~35% at none, so the
            change happens at the edges of the window where it belongs. */
-        el.style.setProperty("--ax-focus", clamp01((ratio - 0.35) / 0.5).toFixed(3));
+        el.style.setProperty(
+          "--ax-focus",
+          reduced?.matches ? "1" : clamp01((ratio - 0.35) / 0.5).toFixed(3)
+        );
         if (!seen && ratio > 0.6) {
           firstVisible = i;
           seen = true;

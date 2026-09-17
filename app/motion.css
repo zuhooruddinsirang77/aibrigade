@@ -351,7 +351,7 @@ html.ax-motion:not(.ax-reduced) .ax-rail__count {
   background: var(--ax-violet);
   border-color: var(--ax-violet);
 }
-.ax-cursor[data-state="play"] .ax-cursor__label {
+.ax-cursor[data-state="play"] .ax-cursor__label--play {
   opacity: 1;
 }
 @media (hover: hover) and (pointer: fine) and (min-width: 992px) {

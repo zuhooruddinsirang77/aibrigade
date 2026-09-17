@@ -1024,24 +1024,14 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
     rgba(5, 7, 10, 0.8) 100%
   );
 }
-/* Everything that is not the film goes above it. `.whyus_bottom` is left
-   `static`: it carries `inset: auto 0 0` from the Webflow sheet, and making
-   it relative would activate those offsets and shift it — it is a flex
-   child of `.whyus_item`, so `z-index` applies without positioning.
-   `.whyus_bg_1` (the one `grad: true` card's icon layer) is already
-   absolute. Its own background is cleared below — it used to be a second,
-   opaque violet panel, which is what made that one card in the row read as
-   flat purple while its five siblings showed film. */
-#whyus .whyus_item > h3,
-#whyus .whyus_item > p,
-#whyus .whyus_item > .whyus_bottom,
-#whyus .whyus_item > .whyus_bg_1 {
-  z-index: 1;
-}
-#whyus .whyus_item > .whyus_bg_1,
-#whyus .whyus_grad {
-  background: none;
-}
+/* Stacking the card's contents above its film used to be a list of the
+   four elements the card had — `h3`, `p`, `.whyus_bottom` and the one
+   `grad: true` card's `.whyus_bg_1` icon layer. None of those exist any
+   more: the card is a metadata line and a caption block now, and the
+   `grad` variant is gone with the violet panel that made that one card in
+   the row read as flat purple. The rule is written against "anything that
+   is not the film" in app/compose.css §9, which cannot go stale the same
+   way. */
 
 /* ---- WhyUs polish ----
 
@@ -1051,7 +1041,10 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
 
    1. A hairline gradient top edge — the one place colour is allowed to
       touch the card frame itself, since the film inside already carries
-      the rest of the palette.
+      the rest of the palette. app/compose.css §9 takes this pseudo over
+      and gives it the card's inner frame light as well, both ramped by
+      how far into the window the card has travelled; the declaration
+      below is what that one builds on.
    2. The hover lift (`motion.css`, `.whyus_item:hover`) already moves the
       card; the shadow it casts was a generic dark one inherited from every
       other lifted card on the page. Tinted violet here, it reads as this

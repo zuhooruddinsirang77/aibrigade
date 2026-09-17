@@ -6,10 +6,19 @@
  * the most load-bearing claim on a studio site — it is the one section a
  * prospect will check against your references.
  *
- * Videos: drop MP4s in /public/reels/. Keep them short (25–60s), muted-safe
- * (no essential audio), and H.264 so Safari plays them inline. Re-encode to
- * ~1280px wide and under ~6MB each; this section loads one at a time, but a
- * 40MB hero reel will still ruin the first impression on mobile.
+ * Videos: drop MP4s in /public/reels/ and set `src` (plus `poster`) on the
+ * entry. Keep them short (25–60s), muted-safe (no essential audio), and
+ * H.264 so Safari plays them inline. Re-encode to ~1280px wide and under
+ * ~6MB each; this section loads one at a time, but a 40MB hero reel will
+ * still ruin the first impression on mobile.
+ *
+ * Until that capture exists, `film` names a clip from the shared library in
+ * components/video.data.js and the section labels the screen as reference
+ * footage. `src` wins whenever it is set, so filling one in is the only step
+ * needed to swap a stand-in for the real thing — and the `film` line can
+ * then be deleted. Every entry below carried a `src` pointing at a
+ * /public/reels/ file that was never added, which meant all four reels 404'd
+ * and the section about work playing had nothing playing in it.
  *
  * `chapters` is the mechanism that makes this section worth building: the
  * timestamps map the footage onto the five stages the site already claims to
@@ -30,8 +39,7 @@ export const deployments = [
     outcome:
       "Transaction scoring in under 40ms, with an explainable trail the compliance team can read.",
     metric: { value: "40", unit: "ms", label: "median scoring latency" },
-    src: "/reels/fraud-detection.mp4",
-    poster: "/reels/fraud-detection.jpg",
+    film: "fintechGrowth",
     duration: 48,
     chapters: [
       { t: 0, stage: "Discover", caption: "Mapping two years of settled disputes" },
@@ -49,8 +57,7 @@ export const deployments = [
     outcome:
       "Note drafting inside the existing Epic workflow, so nobody had to learn a second system.",
     metric: { value: "11", unit: "min", label: "saved per encounter" },
-    src: "/reels/clinical-copilot.mp4",
-    poster: "/reels/clinical-copilot.jpg",
+    film: "geneEditing",
     duration: 52,
     chapters: [
       { t: 0, stage: "Discover", caption: "Shadowing clinicians through a full shift" },
@@ -68,8 +75,7 @@ export const deployments = [
     outcome:
       "Straight-through decisions on the clear cases, so analysts only see the files that need judgement.",
     metric: { value: "3", unit: "×", label: "throughput per analyst" },
-    src: "/reels/underwriting.mp4",
-    poster: "/reels/underwriting.jpg",
+    film: "agentsInterface",
     duration: 44,
     chapters: [
       { t: 0, stage: "Discover", caption: "Where the current queue actually stalls" },
@@ -87,8 +93,7 @@ export const deployments = [
     outcome:
       "One view across venues, with alerts that carry the evidence instead of pointing at it.",
     metric: { value: "6", unit: "venues", label: "unified in one feed" },
-    src: "/reels/compliance.mp4",
-    poster: "/reels/compliance.jpg",
+    film: "infrastructure",
     duration: 39,
     chapters: [
       { t: 0, stage: "Discover", caption: "Reconciling six incompatible feeds" },

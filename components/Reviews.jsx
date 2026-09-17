@@ -70,6 +70,10 @@ function Voice({ r, index, variant, id, labelledBy, hidden }) {
          reachable by tab or findable by a screen reader while it is
          sitting invisible under the live one. */
       inert={hidden || undefined}
+      /* A tabpanel holding no focusable content of its own needs a tab
+         stop, or a keyboard reader arrives at the list of names with no
+         way into the quotation any of them is attached to. */
+      tabIndex={id && !hidden ? 0 : undefined}
     >
       {typeof index === "number" ? (
         <p className="ax-voice__count">
@@ -234,15 +238,21 @@ export default function Reviews() {
                         than a border on every row: a single line down the
                         whole list with a lit segment on it reads as a
                         position in a sequence, which is the same thing the
-                        capability rail's slider says two sections up. */}
-                    <span className="ax-voices__spine" aria-hidden="true">
-                      <span
-                        className="ax-voices__spine-fill"
-                        style={{
-                          transform: `translateY(${(active * 100).toFixed(2)}%)`,
-                          height: `${(100 / reviews.length).toFixed(4)}%`,
-                        }}
-                      />
+                        capability rail's slider says two sections up.
+
+                        The position is published as two numbers and the
+                        stylesheet decides what to do with them, because
+                        the spine is vertical beside a nine-row list and
+                        horizontal above a wrapped one below 1200px. An
+                        inline `translateY` — which is what this was — is
+                        correct for the first and slides the lit segment
+                        straight out of a 2px-tall bar in the second. */}
+                    <span
+                      className="ax-voices__spine"
+                      aria-hidden="true"
+                      style={{ "--ax-voice-i": active, "--ax-voice-n": reviews.length }}
+                    >
+                      <span className="ax-voices__spine-fill" />
                     </span>
 
                     <div
@@ -284,6 +294,15 @@ export default function Reviews() {
                             <span className="ax-voices__tab-who">
                               <span className="ax-voices__tab-name">{r.name}</span>
                               <span className="ax-voices__tab-org">{company || r.role}</span>
+                            </span>
+                            {/* The row's own number, ranged right. It
+                                fills a column whose names only ever use
+                                the left half of it, and it is the same
+                                numbering the panel prints as "03 / 09" and
+                                the capability cards carry two sections up
+                                — one counting convention for the page. */}
+                            <span className="ax-voices__tab-n" aria-hidden="true">
+                              {pad(i + 1)}
                             </span>
                           </button>
                         );

@@ -551,10 +551,14 @@
    counter across the panel's top edge and has nothing behind it. */
 .ax-voices__mark {
   position: absolute;
-  top: clamp(-3.5rem, -3.4vw, -1.75rem);
+  /* Only just off the top edge. At -3.4vw the panel's `overflow: hidden`
+     cut the glyph through its own ink — a left double quote carries all of
+     it in the top third of the em box — and what was left read as two
+     stray blobs rather than as a quotation mark. */
+  top: clamp(-0.75rem, -0.7vw, -0.35rem);
   right: clamp(1rem, 2.4vw, 2.75rem);
   z-index: 0;
-  font-size: clamp(10rem, 17vw, 17rem);
+  font-size: clamp(8rem, 13vw, 13rem);
   line-height: 1;
   font-weight: 500;
   color: var(--violet-100);
@@ -798,8 +802,10 @@
 .ax-voices__spine-fill {
   display: block;
   width: 100%;
+  height: calc(100% / var(--ax-voice-n, 9));
   border-radius: inherit;
   background: var(--grad-rail);
+  transform: translateY(calc(var(--ax-voice-i, 0) * 100%));
   transition: transform 0.45s var(--ease);
 }
 
@@ -872,8 +878,21 @@
   text-overflow: ellipsis;
 }
 
+.ax-voices__tab-n {
+  margin-left: auto;
+  padding-left: var(--sp-4);
+  font-size: var(--t-detail);
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  color: var(--line-strong);
+  transition: color var(--dur-2) var(--ease);
+}
+
 .ax-voices__tab.is-on {
   background: var(--surface-violet);
+}
+.ax-voices__tab.is-on .ax-voices__tab-n {
+  color: var(--violet-400);
 }
 .ax-voices__tab.is-on .ax-voices__tab-name {
   color: var(--violet-600);
@@ -933,10 +952,12 @@
     width: auto;
     height: 2px;
   }
+  /* Laid on its side with the list: the lit segment steps along the bar
+     rather than down it. */
   .ax-voices__spine-fill {
-    height: 100% !important;
-    width: calc(100% / 9);
-    transition: transform 0.45s var(--ease);
+    height: 100%;
+    width: calc(100% / var(--ax-voice-n, 9));
+    transform: translateX(calc(var(--ax-voice-i, 0) * 100%));
   }
   .ax-voices__list {
     flex-direction: row;
@@ -1268,11 +1289,6 @@ html.ax-reduced .ax-thread {
   #whyus .horizontal-list-wrapper {
     flex: 1 1 auto;
     min-height: 0;
-    /* A card is a poster, not a panel. Past this the rail would keep
-       growing with the window and the six cards would end up half again
-       taller than they are wide. (The root font size on this site is
-       13px, not 16 — 44rem is 572px.) */
-    max-height: 44rem;
     /* The padding is the room the cards' shadows need inside the clip,
        and the negative margin takes it back out of the flow. It was
        asymmetrical — 39px of it at the top against 19.5 at the bottom —
@@ -1280,25 +1296,37 @@ html.ax-reduced .ax-thread {
     padding: 1.5rem 0;
     margin: -1.5rem 0;
     display: flex;
-    align-items: stretch;
+    /* Centred, not stretched. The row is capped below, and on a short wide
+       window (1024x768, where this site's fluid root is 9.5px) the cap
+       leaves ~85px over. Stretching put all of it under the cards as a
+       band of white against the bottom of the pin; centring splits it
+       above and below, which reads as a row placed in a frame. */
+    align-items: center;
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0,
-      #000 calc(var(--ax-fade-l, 0) * 2.5rem),
+      #000 calc(var(--ax-fade-l, 0) * 1.5rem),
       #000 calc(100% - var(--ax-fade-r, 0) * 6rem),
       transparent 100%
     );
     mask-image: linear-gradient(
       to right,
       transparent 0,
-      #000 calc(var(--ax-fade-l, 0) * 2.5rem),
+      #000 calc(var(--ax-fade-l, 0) * 1.5rem),
       #000 calc(100% - var(--ax-fade-r, 0) * 6rem),
       transparent 100%
     );
   }
   #whyus .horizontal-list {
     align-items: stretch;
+    width: 100%;
     height: 100%;
+    /* A card is a poster, not a panel. Past this the row would keep
+       growing with the window and the six cards would end up half again
+       taller than they are wide. The cap is on the row rather than on its
+       wrapper so the wrapper can still take the full flex height and
+       centre what it holds. */
+    max-height: 44rem;
   }
   #whyus .horizontal-list .whyus-box_item,
   #whyus .horizontal-list .whyus_item {
@@ -1371,7 +1399,7 @@ html.ax-reduced .ax-thread {
   z-index: 2;
   border-radius: inherit;
   pointer-events: none;
-  background: rgba(6, 8, 12, calc((1 - var(--ax-focus, 1)) * 0.55));
+  background: rgba(6, 8, 12, calc((1 - var(--ax-focus, 1)) * 0.45));
 }
 
 /* ---- card: the metadata line ---- */
@@ -1480,8 +1508,67 @@ html.ax-reduced .ax-thread {
    driven by `scrollLeft` at this width without knowing it — and loses the
    slider, which has nothing to do on a surface you can swipe. */
 @media (max-width: 991px) {
+  /* The Webflow sheet takes `.horizontal-section` and
+     `.horizontal-list-wrapper` to `display: none` below this width — the
+     original template carried a separate phone-only block in their place,
+     which this component does not render. The result was that the entire
+     "What we're good at" section rendered on a phone as a 64px strip of
+     empty white between the hero and the featured band: no heading, no
+     cards, nothing. globals.css already has the scroll-snap rail written
+     for this width; it only ever needed something to lay out. */
+  #whyus .horizontal-section,
+  #whyus .horizontal-sticky,
+  #whyus .horizontal-list-wrapper {
+    display: block !important;
+  }
+
   .ax-caps__bar {
     padding: var(--sp-4) 0 var(--sp-5);
+  }
+
+  /* The scroll container at this width is `.horizontal-list`, not its
+     wrapper: the Webflow sheet gives the list `overflow-x: auto` and a
+     `100vw` width, so it was 40px wider than the padded column it sits in
+     and its right-hand cards ran under the edge of the screen — clipped by
+     `body { overflow-x: hidden }` rather than reachable by a swipe. Fitting
+     the list to its column and putting the snap on the element that
+     actually scrolls is the whole fix. */
+  #whyus .horizontal-list-wrapper {
+    overflow: visible;
+    scroll-snap-type: none;
+    /* The Webflow sheet puts 48px of top padding here, which landed on top
+       of the control bar's own bottom padding and opened a 117px band of
+       empty white between the readout and the first card. The bar owns
+       that gap now. */
+    padding: 0;
+    margin: 0;
+  }
+  #whyus .horizontal-list {
+    width: 100%;
+    max-width: 100%;
+    /* Trailing room for the last card; vertical room for the shadows. */
+    padding: 0.75rem 1.25rem 0.75rem 0;
+    gap: 0.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 0;
+    scrollbar-width: none;
+  }
+  #whyus .horizontal-list::-webkit-scrollbar {
+    display: none;
+  }
+  /* Narrower than the viewport so the next card's edge is visible. A rail
+     whose first card exactly fills the screen gives a reader no reason to
+     try swiping it. */
+  #whyus .horizontal-list .whyus-box_item {
+    width: min(74vw, 25rem);
+    padding-right: 0;
+    /* `start`, not the inherited `center`: this is a left-ranged rail that
+       begins flush with the section's own gutter, and centre-snapping the
+       first card would indent it past every other left edge on the page. */
+    scroll-snap-align: start;
   }
   #whyus .whyus_item {
     min-height: 26rem;
@@ -1504,10 +1591,7 @@ html.ax-reduced .ax-thread {
   }
 }
 
-/* Under reduced motion nothing measures and nothing moves: every card is
-   fully resolved, which is what `--ax-focus`'s initial value already
-   says. This only makes sure a stale inline value written before the
-   setting changed can't leave a card veiled. */
-html.ax-reduced #whyus .whyus-box_item {
-  --ax-focus: 1;
-}
+/* Under reduced motion every card stays fully resolved. The measuring loop
+   in components/WhyUs.jsx pins the value at source — an inline style beats
+   any rule that could be written here — and `--ax-focus`'s initial value
+   covers the case where the loop never runs at all. */
