@@ -106,15 +106,28 @@ export default function Hero() {
 
   const active = heroModes[mode];
 
-  // All three clips play from first paint rather than mounting on demand —
-  // the hero is the one place on the page this is worth the extra
-  // bandwidth. Waiting for a click meant the first switch always had a
-  // beat of buffering before the crossfade could start, which read as a
-  // stutter on the one screen a visitor forms an opinion from in the first
-  // few seconds. Every section further down the page still arms lazily —
-  // this trade only applies above the fold, and Fintech/HealthTech are the
-  // same files WhyUs and Cases fetch anyway, so nothing here is wasted if
-  // the reader scrolls on without touching a tab.
+  // The other two hero clips used to arm alongside the active one from
+  // first paint — reasoned out below at `select`, to keep the 6.5s
+  // auto-rotate from ever stuttering on a cold buffer. The cost was the
+  // opposite stutter: three same-sized clips sharing the reader's actual
+  // bandwidth on the very first paint, so the one they're looking at took
+  // visibly longer to appear than a single hero clip should. Staggering
+  // it keeps both true — the active clip has the connection to itself for
+  // the first beat, and the other two are still well-loaded before DWELL
+  // (6.5s) ever reaches them, because 1.2s of head start is nothing next
+  // to a multi-second video fetch.
+  const [preloadRest, setPreloadRest] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setPreloadRest(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
+
+  // All three clips are still armed above the fold rather than mounting on
+  // demand — see `preloadRest` above for why that arming is staggered now.
+  // Every section further down the page still arms lazily on scroll; this
+  // trade only applies above the fold, and Fintech/HealthTech are the same
+  // files WhyUs and Cases fetch anyway, so nothing here is wasted if the
+  // reader scrolls on without touching a tab.
   const select = useCallback((i, byReader = true) => {
     modeRef.current = i;
     setMode(i);
@@ -197,6 +210,16 @@ export default function Hero() {
               data-on={m.id === active.id}
               className="ax-hero__film"
               rootMargin="0px"
+              /* Three clips sit here, all above the fold, so the default
+                 `arm="visible"` armed all three the instant the page
+                 loaded — the one the reader is actually looking at was
+                 sharing bandwidth with two they weren't, which is why it
+                 took visibly longer to appear than a single hero clip
+                 should. `arm` only ever latches true (see AmbientVideo), so
+                 the active clip gets the connection to itself at first
+                 paint; the rest arm 1.2s later (`preloadRest`), well ahead
+                 of the 6.5s auto-rotate. */
+              arm={m.id === active.id || preloadRest}
             />
         ))}
       </div>

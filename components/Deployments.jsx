@@ -86,6 +86,10 @@ export default function Deployments() {
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [failed, setFailed] = useState(false);
+  /* How many of the monitor stack's own clips are allowed to start
+     downloading. See the staggering effect below — the same "everything
+     arms the instant it's on screen" bug the hero had, four times over. */
+  const [queueReady, setQueueReady] = useState(0);
 
   const videoRef = useRef(null);
   const stageRef = useRef(null);
@@ -327,6 +331,40 @@ export default function Deployments() {
     io.observe(el);
     return () => io.disconnect();
   }, [play, failed]);
+
+  /* Stagger the monitor stack's own downloads.
+     Each of the four monitors runs its own AmbientVideo, and all four sit
+     inside the same `rootMargin` band as the main screen — so the instant
+     this section came on screen, five clips (the main reel plus all four
+     thumbnails) started downloading at once, and the one the reader is
+     actually watching had to share the connection with three they weren't
+     looking at. This is the same bug the hero had, just multiplied by
+     four. One-shot: it only needs to fire the first time the section is
+     genuinely on screen, not on every scroll in and out. */
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    let interval;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        let n = 0;
+        setQueueReady(n);
+        interval = setInterval(() => {
+          n += 1;
+          setQueueReady(n);
+          if (n >= deployments.length) clearInterval(interval);
+        }, 350);
+      },
+      { threshold: 0.2 }
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      clearInterval(interval);
+    };
+  }, []);
 
   // A backgrounded tab keeps decoding video on every platform.
   useEffect(() => {
@@ -817,6 +855,11 @@ export default function Deployments() {
                             className="ax-reels__monitor-film"
                             vignette={false}
                             rootMargin="50% 0px"
+                            /* Gated by the staggering effect above — `arm`
+                               only ever latches true, so once this
+                               monitor's turn comes up it keeps loading
+                               even if `queueReady` moves on. */
+                            arm={i < queueReady ? "visible" : false}
                           />
                           <span className="ax-reels__monitor-n">{pad2(i + 1)}</span>
                           {on && (

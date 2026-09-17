@@ -569,10 +569,19 @@
   .ax-proof__figure {
     font-size: 1.625rem;
   }
-  /* No hover on touch, so the context line is simply always there. */
+  .ax-proof__btn {
+    gap: 0.3rem;
+  }
+  /* No hover on touch, so the context line is simply always there — which
+     means it can't stay as faint as the hover-reveal version was. At
+     11px/55% it read as illegible fine print stacked under two much
+     louder lines; readable at rest needs more size and contrast than
+     "readable on approach" did. */
   .ax-proof__where {
     opacity: 1;
     transform: none;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.72);
   }
 }
 @media (max-width: 599px) {
