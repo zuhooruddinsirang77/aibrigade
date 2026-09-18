@@ -165,7 +165,12 @@
   justify-content: center;
   overflow: hidden;
   isolation: isolate;
-  padding: clamp(1.75rem, 3.5vw, 3.5rem);
+  /* Was clamp(1.75rem, 3.5vw, 3.5rem) — at the low end of that range
+     (a laptop window, not a full-width display) the console sat close
+     enough to the edge that the footage behind it read as a border
+     colour rather than as a picture. A larger floor keeps a real margin
+     of visible film on every side regardless of window width. */
+  padding: clamp(2.5rem, 5vw, 4.5rem);
   /* Tall enough to be the subject of the composition rather than an
      illustration beside the text. Capped against the viewport so a short
      laptop screen never has to scroll past one panel to reach its own
@@ -336,7 +341,14 @@
   .ax-act__media {
     order: -1;
     min-height: 0;
-    aspect-ratio: 4 / 3;
+    /* Taller than the old 4/3: at that ratio the console's own content
+       (the chrome bar plus its 15rem-minimum body) was taller than the
+       box, so it touched the top and bottom edges and clipped the film
+       to nothing above and below it — the panel read as a console with a
+       thin coloured border, not as footage with a console over it. 3/4
+       leaves real room on every side at the width this cap now gives the
+       console in sysv.css. */
+    aspect-ratio: 3 / 4;
     margin-inline: calc(-1 * var(--ax-bleed, 0px));
     border-radius: 0;
   }

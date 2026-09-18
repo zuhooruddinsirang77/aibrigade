@@ -108,7 +108,7 @@ export default function Footer() {
             </div>
 
             <div className="footer_navigation_item">
-              <div className="d1 text-weight-medium margin text-align-center-mob">Contacts</div>
+              <div className="d1 text-weight-medium margin">Contacts</div>
               <div className="div-block-7 contacts">
                 <a href="mailto:contact@aibrigade.ai" className="body18 hover footer new">
                   contact@aibrigade.ai

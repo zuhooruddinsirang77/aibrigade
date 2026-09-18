@@ -373,6 +373,11 @@ html.ax-motion:not(.ax-reduced) .ax-sysv__caret {
 }
 @media (max-width: 991px) {
   .ax-sysv {
-    max-width: none;
+    /* Not `none`: at full panel width the console had nothing left around
+       it, and the footage behind it — the actual evidence for the claim
+       each card makes — read as a sliver of colour at the very edge
+       instead of a picture. Capping it here is what keeps the film
+       visible on a phone the same way it already is on a laptop. */
+    max-width: min(22rem, 78%);
   }
 }

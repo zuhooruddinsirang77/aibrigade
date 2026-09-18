@@ -4,8 +4,7 @@
 import "./system.css";
 import "./globals.css";
 import "./motion.css";
-import "./hero.css";
-import "./deployments.css";
+import "./projects.css";
 import "./casestudy.css";
 import "./path.css";
 import "./sysv.css";
@@ -25,6 +24,14 @@ import "./immersive.css";
    rhythm and the Cases sequence — and it deliberately outranks the
    Webflow section padding it replaces. */
 import "./compose.css";
+/* hero.css last of all: the hero has been rebuilt more than once and
+   film.css, refine.css and compose.css each still carry rules for its
+   earlier forms under the same class names. This is its final word. */
+import "./hero.css";
+/* nav.css after hero.css: the navigation sits over every section and
+   its own rules must outrank the Webflow navbar rules still carried in
+   globals.css and refine.css. */
+import "./nav.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";

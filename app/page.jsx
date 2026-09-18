@@ -4,7 +4,7 @@ import WhyUs from "@/components/WhyUs";
 import Featured from "@/components/Featured";
 import DecisionPath from "@/components/motion/DecisionPath";
 import Cases from "@/components/Cases";
-import Deployments from "@/components/Deployments";
+import ProjectShowcase from "@/components/projects/ProjectShowcase";
 import Environments from "@/components/Environments";
 import SectionSeam from "@/components/motion/SectionSeam";
 import Services from "@/components/Services";
@@ -26,7 +26,7 @@ export default function Home() {
         <Featured />
         <DecisionPath />
         <Cases />
-        <Deployments />
+        <ProjectShowcase />
         {/* The work, then the rooms it runs in — a prospect who has just
             watched the reels is asking "where does this actually land?"
             before they are ready to read a service list.

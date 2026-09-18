@@ -53,9 +53,52 @@ components/motion/Parallax         scroll-scrubbed drift for decorations
 components/motion/ScrollProgress   hairline page-progress bar
 components/motion/Counter          count-up figures
 components/motion/gsapLoader       one shared GSAP + ScrollTrigger instance
-components/Deployments             the video section
-components/deployments.data.js     its content — all placeholder
+components/Deployments             the video section (no longer mounted — see below)
+components/deployments.data.js     its content — all placeholder; still read by ProofStrip
 ```
+
+### Navigation
+
+```
+app/nav.css                        the bar, the case-study menu, the drawer
+components/Navbar.jsx              rebuilt on `ax-nav-*`; no Webflow navbar markup left
+```
+
+Two states: transparent with white labels over a dark hero, light glass
+with dark labels once the page turns white underneath. 78px at the top,
+62px scrolled — the top height is unchanged, so every section's
+`scroll-margin-top: 5.5rem` (app/refine.css) still clears it.
+
+`#nav` and `data-menu="open"` are kept as hooks because refine.css locks
+body scroll off `body:has(#nav[data-menu="open"])`. The Webflow navbar
+rules in globals.css and refine.css (`.nav-menu-white`, `.navbar_link_p`,
+`.menu_box-btn`, `.nav-up`/`.nav-down`) are now inert — no element carries
+those class names — and were left in place rather than deleted.
+
+Two things the old bar got wrong, both fixed here: every link pointed at a
+bare `#id`, so on `/icu`, `/halyk` and `/uub` — which mount this same
+navigation — `getElementById` returned null and the whole nav silently did
+nothing; and those three case-study pages were reachable only by finding
+the Cases section on the home page. They are in the "use cases" menu now.
+
+### Project showcase (replaces the reels console in the same band)
+
+```
+app/projects.css                   the showcase — featured project, grid, stage, switcher
+components/projects.data.js        one entry per PRODUCT; language cuts + documents under it
+components/projects/ProjectShowcase   the `#reels` section
+components/projects/ProjectCard       one project: brief, stage, languages, resources
+components/projects/ProjectMedia      adaptive stage — portrait/landscape per cut, preload none
+components/projects/LanguageSwitcher  "Watch demo in" — only the languages that exist
+components/projects/ProjectResources  attached PDFs
+public/projecs/posters/            one frame per cut, so nothing downloads before play
+```
+
+The demo files live in `public/projecs/` (sic). Add a project by adding an
+entry to `projects.data.js` — never by rendering the directory. `width`,
+`height` and `duration` per cut were read from the files; the stage uses them
+to lay out before metadata arrives and corrects itself from the element.
+`components/Deployments.jsx` and `app/deployments.css` are kept but unused.
 
 No new dependencies. GSAP and ScrollTrigger were already in `package.json`.
 
@@ -323,9 +366,14 @@ either get real quotes or drop the reviews section. The reels are a better
 answer to "prove it" than nine invented quotes — which is part of why they sit
 where they do.
 
-**3. Placeholder content in the reels.** Every client name, outcome and metric
-in `components/deployments.data.js` is marked `PLACEHOLDER`. Replace with work
-you actually shipped, or cut the entry.
+**3. Placeholder metrics in the hero.** The reels console is gone — the
+`#reels` band now shows real product demos from `components/projects.data.js`
+— but the hero's evidence row (`ProofStrip`) still prints the placeholder
+metrics from `components/deployments.data.js`. Replace them or cut the row.
+
+**3b. Demo file sizes.** `Call Center ENG.mp4` is 609MB and the Fitzy cuts run
+150–290MB. Nothing downloads until play, but a visitor who presses play on a
+phone will wait. Re-encode to ~1080p H.264, target under ~40MB each.
 
 **4. Favicons** still point at Auxility's Webflow CDN (`app/layout.jsx`).
 

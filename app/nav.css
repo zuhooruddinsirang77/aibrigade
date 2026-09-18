@@ -1,0 +1,863 @@
+/* ================================================================
+   AIBrigade — primary navigation
+
+   Loaded LAST in app/layout.jsx. app/globals.css and app/refine.css both
+   still carry the Webflow navbar's own rules (`.nav-menu-white`,
+   `.navbar_link_p`, `.menu_box-btn`, `.nav-up` / `.nav-down`); none of
+   those class names are used by components/Navbar.jsx any more, so those
+   rules are inert rather than fought. Two hooks are deliberately kept:
+   `#nav` and `[data-menu="open"]`, because refine.css locks body scroll
+   off `body:has(#nav[data-menu="open"])`.
+
+   Nothing here introduces a colour, a typeface or a shadow that is not
+   already a token in app/system.css. Two states, one idea: over a dark
+   hero the bar is not there at all, and once the page turns white
+   underneath it, it becomes a light glass rail with a hairline. The
+   compaction between them is ~13px of height — enough to feel like the
+   bar settling, small enough that nothing below it visibly moves.
+   ================================================================ */
+
+.ax-nav {
+  --ax-nav-h: 7.25rem;
+  --ax-nav-logo: 6.9rem;
+  --ax-nav-fg: #fff;
+  --ax-nav-muted: rgba(255, 255, 255, 0.82);
+  --ax-nav-line: rgba(255, 255, 255, 0.26);
+  /* The rail the links sit in, and the pill that marks the one you are
+     reading. Declared per state so one set of rules covers both. */
+  --ax-nav-rail: rgba(255, 255, 255, 0.07);
+  --ax-nav-rail-line: rgba(255, 255, 255, 0.18);
+  --ax-nav-rail-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --ax-nav-hover: rgba(255, 255, 255, 0.1);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  color: var(--ax-nav-fg);
+  transition: transform var(--dur-3) var(--ease), background-color var(--dur-3) var(--ease),
+    box-shadow var(--dur-3) var(--ease), backdrop-filter var(--dur-3) var(--ease);
+}
+
+/* Over the hero, prominence without a slab.
+
+   Two earlier attempts were wrong in opposite directions. Pure
+   transparency gave white labels floating on a dark picture with no bar
+   to belong to. A translucent fill with a blur and a hairline under it
+   gave the opposite problem: `backdrop-filter` and a bottom edge both
+   stop at a rectangle, so the first screen gained a grey strip pasted
+   across it with a seam along the bottom — the one thing a dark hero
+   cannot carry.
+
+   What works is a scrim that never ends in an edge, with the prominence
+   moved into the objects instead: the rail holding the links and the
+   action beside it are both contained, rounded, lifted shapes, and a
+   shape with its own border and shadow reads as a navigation far more
+   strongly than a band of slightly different black ever did. */
+.ax-nav[data-scrolled="false"] {
+  background-image: linear-gradient(
+    180deg,
+    rgba(5, 7, 10, 0.88) 0%,
+    rgba(5, 7, 10, 0.6) 46%,
+    rgba(5, 7, 10, 0.22) 78%,
+    rgba(5, 7, 10, 0) 100%
+  );
+}
+
+/* The lit edge every framed surface on this site carries — the capability
+   cards, the project cards, the showcase screen. On the bar it is the
+   hairline that separates it from the page once it becomes a surface. */
+.ax-nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: var(--grad-rail);
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease);
+}
+.ax-nav[data-scrolled="true"]::after {
+  opacity: 0.55;
+}
+/* Deliberately none on the dark state — see above. */
+.ax-nav[data-scrolled="false"]::after {
+  opacity: 0;
+}
+.ax-nav[data-menu="open"]::after {
+  opacity: 0;
+}
+
+.ax-nav[data-scrolled="true"] {
+  --ax-nav-h: 5.5rem;
+  --ax-nav-logo: 5.1rem;
+  --ax-nav-fg: var(--ink);
+  --ax-nav-muted: rgba(22, 29, 37, 0.72);
+  --ax-nav-line: var(--line-strong);
+  --ax-nav-rail: rgba(22, 29, 37, 0.04);
+  --ax-nav-rail-line: rgba(22, 29, 37, 0.09);
+  --ax-nav-rail-shadow: none;
+  --ax-nav-hover: rgba(146, 72, 228, 0.09);
+  /* Opaque enough that a violet section heading passing underneath cannot
+     be read through the bar. Blur in px: the root font size on this site
+     is a viewport-derived calc(), so a rem radius would change with the
+     window width. */
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  box-shadow: 0 0.0625rem 0 rgba(22, 29, 37, 0.07), 0 0.75rem 2rem rgba(63, 22, 110, 0.06);
+}
+
+/* While the drawer is open the bar sits on the drawer's own dark ground,
+   whatever the scroll position underneath it. */
+.ax-nav[data-menu="open"] {
+  --ax-nav-fg: #fff;
+  --ax-nav-muted: rgba(255, 255, 255, 0.62);
+  --ax-nav-line: rgba(255, 255, 255, 0.22);
+  background-color: transparent;
+  background-image: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  transform: none;
+}
+
+.ax-nav__bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.4vw, 2.25rem);
+  height: var(--ax-nav-h);
+  transition: height var(--dur-3) var(--ease);
+}
+
+/* ---------------------------------------------------------------
+   1. Brand
+   --------------------------------------------------------------- */
+
+.ax-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  flex: none;
+  min-width: 0;
+}
+.ax-nav__logo {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: var(--r-sm);
+}
+.ax-nav__logo img {
+  transition: height var(--dur-3) var(--ease), filter var(--dur-3) var(--ease);
+}
+
+/* The two domains this company builds for. They are a descriptor of the
+   brand, not a third rank of navigation, so they sit at detail weight
+   beside the logo behind a divider rather than as two more buttons. */
+.ax-nav__domains {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--ax-nav-line);
+  transition: border-color var(--dur-3) var(--ease);
+}
+.ax-nav__domains a {
+  padding: 0.34rem 0.8rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--ax-nav-line);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  text-decoration: none;
+  color: var(--ax-nav-muted);
+  white-space: nowrap;
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__domains a:hover {
+    color: var(--ax-nav-fg);
+    border-color: currentColor;
+  }
+}
+
+/* ---------------------------------------------------------------
+   2. The links
+
+   The angle brackets are the site's own motif — the footer writes its
+   links the same way — so they stay. They are decorative spans rather
+   than text, so a screen reader announces "platform", not
+   "less than platform greater than".
+   --------------------------------------------------------------- */
+
+.ax-nav__nav {
+  margin-left: auto;
+  margin-right: clamp(0.25rem, 1.2vw, 1rem);
+  min-width: 0;
+}
+ /* One rail holding the four links, rather than four labels loose on the
+    page. It is what gives the navigation a shape to be seen as — and it
+    is the same pill-and-hairline idiom the domain chips, the language
+    switcher in the showcase and the resource links all use. */
+.ax-nav__list {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--ax-nav-rail-line);
+  background: var(--ax-nav-rail);
+  box-shadow: var(--ax-nav-rail-shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background-color var(--dur-3) var(--ease), border-color var(--dur-3) var(--ease),
+    box-shadow var(--dur-3) var(--ease);
+}
+.ax-nav__item {
+  position: relative;
+}
+
+.ax-nav__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.55rem 0.95rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: none;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--ax-nav-muted);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
+}
+/* The brackets are quieter than the word they hold, at both states. */
+.ax-nav__link > span[aria-hidden] {
+  opacity: 0.45;
+  transition: opacity var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__link:hover {
+    color: var(--ax-nav-fg);
+    background: var(--ax-nav-hover);
+  }
+  .ax-nav__link:hover > span[aria-hidden] {
+    opacity: 0.8;
+  }
+}
+.ax-nav__link[aria-expanded="true"] {
+  color: var(--ax-nav-fg);
+  background: var(--ax-nav-hover);
+}
+
+/* The section being read is filled, not underlined. Inside a rail an
+   underline is a second, competing line; a filled pill says "you are
+   here" at a glance from across the screen, which is the whole job. */
+.ax-nav__link[data-active="true"] {
+  color: #fff;
+  background: var(--violet-500);
+  box-shadow: 0 0.35rem 1rem rgba(146, 72, 228, 0.35);
+}
+.ax-nav__link[data-active="true"] > span[aria-hidden] {
+  opacity: 0.6;
+}
+
+.ax-nav__chev {
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-left: 0.15rem;
+  opacity: 0.55;
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-nav__link[aria-expanded="true"] .ax-nav__chev {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------
+   3. The case-study menu
+
+   /icu, /halyk and /uub are real pages that were reachable only from the
+   Cases section. This is a short list of three, with one line each — not
+   a mega menu, because there are not enough destinations on this site to
+   justify one, and an oversized panel over three links is exactly the
+   template look this bar is getting away from.
+   --------------------------------------------------------------- */
+
+.ax-nav__panel {
+  position: absolute;
+  top: calc(100% + 0.65rem);
+  right: 0;
+  z-index: 2;
+  width: 25rem;
+  max-width: calc(100vw - 2.5rem);
+  padding: 1.15rem;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: saturate(180%) blur(18px);
+  -webkit-backdrop-filter: saturate(180%) blur(18px);
+  box-shadow: var(--shadow-3);
+  color: var(--ink);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-0.4rem);
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    visibility var(--dur-2) step-end;
+}
+.ax-nav__panel[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    visibility 0s;
+}
+/* The gap between the trigger and the panel is bridged so a pointer
+   travelling into the panel never leaves the item on the way. */
+.ax-nav__item--has-menu:has(.ax-nav__panel[data-open="true"])::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 25rem;
+  max-width: 60vw;
+  height: 0.8rem;
+}
+
+.ax-nav__panel-label {
+  margin: 0 0 0.6rem;
+  padding: 0 0.6rem;
+  font-size: var(--t-detail, 0.6875rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-nav__cases {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-nav__case {
+  display: block;
+  padding: 0.6rem;
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__case:hover {
+    background: var(--surface-violet);
+  }
+}
+.ax-nav__case-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.ax-nav__case-client {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.ax-nav__case-sector {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet-500);
+}
+.ax-nav__case-title {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--ink-60);
+}
+
+.ax-nav__panel-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+  padding: 0.75rem 0.6rem 0.25rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--ink);
+}
+.ax-nav__panel-foot small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--ink-60);
+}
+.ax-nav__panel-foot svg {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--violet-500);
+  transition: transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__panel-foot:hover svg {
+    transform: translateX(0.25rem);
+  }
+}
+
+/* Over the hero the bar is transparent and the page behind it is ink, so
+   a bright white card here is the one thing on the first screen loud
+   enough to compete with the headline. The panel takes the bar's state:
+   dark while the bar is dark, light once the bar is light. Same tokens as
+   the drawer, which is the site's other floating dark surface. */
+.ax-nav[data-scrolled="false"] .ax-nav__panel {
+  border-color: var(--line-invert);
+  background: rgba(13, 17, 22, 0.92);
+  box-shadow: var(--shadow-4);
+  color: #fff;
+}
+.ax-nav[data-scrolled="false"] .ax-nav__panel-label {
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-nav[data-scrolled="false"] .ax-nav__case-client,
+.ax-nav[data-scrolled="false"] .ax-nav__panel-foot {
+  color: #fff;
+}
+.ax-nav[data-scrolled="false"] .ax-nav__case-sector {
+  color: var(--violet-300);
+}
+.ax-nav[data-scrolled="false"] .ax-nav__case-title,
+.ax-nav[data-scrolled="false"] .ax-nav__panel-foot small {
+  color: rgba(255, 255, 255, 0.6);
+}
+.ax-nav[data-scrolled="false"] .ax-nav__panel-foot {
+  border-top-color: var(--line-invert);
+}
+.ax-nav[data-scrolled="false"] .ax-nav__panel-foot svg {
+  color: var(--violet-300);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav[data-scrolled="false"] .ax-nav__case:hover {
+    background: rgba(146, 72, 228, 0.16);
+  }
+}
+
+/* ---------------------------------------------------------------
+   4. The one action
+   --------------------------------------------------------------- */
+
+.ax-nav__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: none;
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--r-pill);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* The brand violet with light coming off its top edge, rather than a
+     flat fill — the same treatment the dark bands give their raised
+     surfaces. The inset highlight is what makes it read as a physical
+     control instead of a coloured rectangle. */
+  background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-500) 55%, var(--violet-600) 100%);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 0.65rem 1.5rem rgba(146, 72, 228, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-nav__cta svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__cta:hover {
+    background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-400) 55%, var(--violet-500) 100%);
+    box-shadow: 0 0.85rem 2.25rem rgba(146, 72, 228, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transform: translateY(-0.0625rem);
+  }
+  .ax-nav__cta:hover svg {
+    transform: translateX(0.2rem);
+  }
+}
+.ax-nav__cta:active {
+  transform: translateY(0.0625rem);
+}
+
+/* ---------------------------------------------------------------
+   5. Focus
+
+   system.css gives the site one violet ring. On the transparent state
+   the bar sits on a near-black hero, where violet on black is not enough
+   separation, so the ring goes white there — the same swap `.ax-reels`
+   already makes for the dark bands.
+   --------------------------------------------------------------- */
+
+.ax-nav :where(a, button):focus-visible {
+  outline: 0.125rem solid var(--violet-500);
+  outline-offset: 0.25rem;
+  border-radius: var(--r-sm);
+}
+.ax-nav[data-scrolled="false"] :where(a, button):focus-visible,
+.ax-nav[data-menu="open"] :where(a, button):focus-visible,
+.ax-nav__drawer :where(a, button):focus-visible {
+  outline-color: #fff;
+}
+
+/* ---------------------------------------------------------------
+   6. The drawer control
+   --------------------------------------------------------------- */
+
+.ax-nav__burger {
+  display: none;
+  flex: none;
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ax-nav-fg);
+  cursor: pointer;
+  transition: color var(--dur-3) var(--ease);
+}
+.ax-nav__burger span {
+  position: absolute;
+  left: 50%;
+  width: 1.375rem;
+  height: 0.09375rem;
+  margin-left: -0.6875rem;
+  border-radius: var(--r-pill);
+  background: currentColor;
+  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
+}
+.ax-nav__burger span:nth-child(1) {
+  top: calc(50% - 0.3rem);
+}
+.ax-nav__burger span:nth-child(2) {
+  top: calc(50% + 0.2rem);
+}
+.ax-nav[data-menu="open"] .ax-nav__burger span:nth-child(1) {
+  transform: translateY(0.25rem) rotate(45deg);
+}
+.ax-nav[data-menu="open"] .ax-nav__burger span:nth-child(2) {
+  transform: translateY(-0.25rem) rotate(-45deg);
+}
+
+/* ---------------------------------------------------------------
+   7. The drawer
+
+   Dark ink with a violet wash and the engineering grid — the same room
+   the hero and the project showcase are in, rather than the flat
+   #9248e4 panel Webflow shipped. Same palette, same texture, so opening
+   the menu stays inside the site instead of cutting to a colour that
+   appears nowhere else at full strength.
+   --------------------------------------------------------------- */
+
+.ax-nav__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(5, 7, 10, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur-3) var(--ease), visibility var(--dur-3) step-end;
+}
+.ax-nav__scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur-3) var(--ease), visibility 0s;
+}
+
+.ax-nav__drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  width: min(26rem, 100vw);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--ink-canvas);
+  border-left: 1px solid var(--line-invert);
+  box-shadow: var(--shadow-4);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateX(2rem);
+  transition: opacity var(--dur-3) var(--ease), transform var(--dur-3) var(--ease),
+    visibility var(--dur-3) step-end;
+}
+.ax-nav__drawer[data-open="true"] {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--dur-3) var(--ease), transform var(--dur-3) var(--ease),
+    visibility 0s;
+}
+.ax-nav__drawer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(60% 40% at 80% 8%, rgba(146, 72, 228, 0.3) 0%, rgba(146, 72, 228, 0) 70%),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: auto, 3.5rem 3.5rem, 3.5rem 3.5rem;
+}
+
+.ax-nav__drawer-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  min-height: 100%;
+  /* Clears the bar, which stays on top of the drawer so the logo and the
+     close control never move when the menu opens. */
+  padding: calc(var(--ax-nav-h) + 1.25rem) 1.75rem 2.25rem;
+  color: #fff;
+}
+
+/* Centred in whatever the logo and the foot leave, rather than stacked
+   under the logo with the slack all in one place at the bottom. */
+.ax-nav__drawer-inner > nav {
+  margin-block: auto;
+}
+
+.ax-nav__drawer-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.ax-nav__drawer-list > li {
+  border-bottom: 1px solid var(--line-invert);
+}
+.ax-nav__drawer-list > li:first-child {
+  border-top: 1px solid var(--line-invert);
+}
+.ax-nav__drawer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.ax-nav__drawer-link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  flex: 1 1 auto;
+  padding: 1.15rem 0;
+  font-size: 1.625rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+  color: #fff;
+  transition: color var(--dur-2) var(--ease);
+}
+/* The same numbering `Kicker` prints at the head of every section. */
+.ax-nav__drawer-n {
+  flex: none;
+  font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--violet-300);
+}
+.ax-nav__drawer-toggle {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--line-invert);
+  border-radius: 50%;
+  background: none;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: transform var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease);
+}
+.ax-nav__drawer-toggle svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.ax-nav__drawer-toggle[aria-expanded="true"] {
+  transform: rotate(180deg);
+  border-color: rgba(199, 155, 245, 0.5);
+  color: #fff;
+}
+
+.ax-nav__drawer-sub {
+  margin: 0 0 0.75rem;
+  padding: 0.25rem 0 0.25rem 2.4rem;
+  list-style: none;
+  border-left: 1px solid var(--line-invert);
+}
+.ax-nav__drawer-sub a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  font-size: 0.9375rem;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.78);
+}
+.ax-nav__drawer-sub small {
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet-300);
+}
+
+.ax-nav__drawer-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding-top: 1.5rem;
+}
+.ax-nav__drawer-domains {
+  display: flex;
+  gap: 0.5rem;
+}
+.ax-nav__drawer-domains span {
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-invert);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+.ax-nav__drawer-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.9rem 1.25rem;
+  border-radius: var(--r-pill);
+  background: #fff;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.ax-nav__drawer-cta:active {
+  background: var(--violet-500);
+  color: #fff;
+}
+.ax-nav__drawer-mail {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-invert);
+  padding-bottom: 0.15rem;
+}
+
+/* ---------------------------------------------------------------
+   8. Responsive
+   --------------------------------------------------------------- */
+
+/* The domain chips are the first thing to go: they are a descriptor, and
+   the links and the action need the room before they do. */
+@media (max-width: 1279px) {
+  .ax-nav__domains {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .ax-nav {
+    --ax-nav-h: 5.75rem;
+    --ax-nav-logo: 5.3rem;
+  }
+  .ax-nav[data-scrolled="true"] {
+    --ax-nav-h: 5rem;
+    --ax-nav-logo: 4.6rem;
+  }
+  .ax-nav__nav,
+  .ax-nav__cta {
+    display: none;
+  }
+  .ax-nav__burger {
+    display: block;
+    margin-left: auto;
+  }
+  /* Above the drawer, so the logo and the close control stay put. */
+  .ax-nav__bar {
+    position: relative;
+    z-index: 2;
+  }
+  .ax-nav__scrim,
+  .ax-nav__drawer {
+    z-index: 1;
+  }
+}
+
+@media (max-width: 479px) {
+  .ax-nav__drawer {
+    width: 100vw;
+    border-left: 0;
+  }
+  .ax-nav__drawer-inner {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .ax-nav__drawer-link {
+    font-size: 1.375rem;
+  }
+}
+
+/* ---------------------------------------------------------------
+   9. Reduced motion
+   --------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-nav,
+  .ax-nav__bar,
+  .ax-nav__logo img,
+  .ax-nav__panel,
+  .ax-nav__drawer,
+  .ax-nav__scrim,
+  .ax-nav__burger span,
+  .ax-nav__link::after,
+  .ax-nav__chev {
+    transition-duration: 0.001ms !important;
+  }
+  .ax-nav__drawer,
+  .ax-nav__panel {
+    transform: none !important;
+  }
+}
