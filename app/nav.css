@@ -99,7 +99,10 @@
   --ax-nav-line: var(--line-strong);
   --ax-nav-rail: rgba(22, 29, 37, 0.04);
   --ax-nav-rail-line: rgba(22, 29, 37, 0.09);
-  --ax-nav-rail-shadow: none;
+  /* Not the literal keyword `none`: .ax-nav__list appends its own inset
+     highlight layers after this variable, and `none` cannot sit in a
+     comma-separated shadow list with real shadows. */
+  --ax-nav-rail-shadow: 0 0 0 rgba(0, 0, 0, 0);
   --ax-nav-hover: rgba(146, 72, 228, 0.09);
   /* Opaque enough that a violet section heading passing underneath cannot
      be read through the bar. Blur in px: the root font size on this site
@@ -131,6 +134,9 @@
   gap: clamp(1rem, 2.4vw, 2.25rem);
   height: var(--ax-nav-h);
   transition: height var(--dur-3) var(--ease);
+  /* Every tilt below (the rail, the links, the action, the dropdown)
+     shares one vanishing point rather than each faking its own depth. */
+  perspective: 1400px;
 }
 
 /* ---------------------------------------------------------------
@@ -149,9 +155,16 @@
   align-items: center;
   text-decoration: none;
   border-radius: var(--r-sm);
+  transform-style: preserve-3d;
+  transition: transform var(--dur-2) var(--ease);
 }
 .ax-nav__logo img {
   transition: height var(--dur-3) var(--ease), filter var(--dur-3) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__logo:hover {
+    transform: rotateY(-6deg) rotateX(2deg) scale(1.04) translateZ(0.5rem);
+  }
 }
 
 /* The two domains this company builds for. They are a descriptor of the
@@ -177,12 +190,16 @@
   color: var(--ax-nav-muted);
   white-space: nowrap;
   transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
-    background-color var(--dur-2) var(--ease);
+    background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
 }
 @media (hover: hover) and (pointer: fine) {
   .ax-nav__domains a:hover {
     color: var(--ax-nav-fg);
     border-color: currentColor;
+    background-color: var(--ax-nav-hover);
+    transform: translateY(-0.1rem);
+    box-shadow: 0 0.35rem 0.75rem rgba(0, 0, 0, 0.14);
   }
 }
 
@@ -205,6 +222,7 @@
     is the same pill-and-hairline idiom the domain chips, the language
     switcher in the showcase and the resource links all use. */
 .ax-nav__list {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.15rem;
@@ -214,14 +232,24 @@
   border-radius: var(--r-pill);
   border: 1px solid var(--ax-nav-rail-line);
   background: var(--ax-nav-rail);
-  box-shadow: var(--ax-nav-rail-shadow);
+  /* Ambient contact shadow + a direct one for lift + an inset top-edge
+     catch-light: the same three-layer recipe a physical bevel reads by,
+     rather than one flat drop-shadow. */
+  box-shadow: var(--ax-nav-rail-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transform-style: preserve-3d;
   transition: background-color var(--dur-3) var(--ease), border-color var(--dur-3) var(--ease),
     box-shadow var(--dur-3) var(--ease);
 }
 .ax-nav__item {
   position: relative;
+}
+/* Its own vanishing point, close to the flap itself, so the panel's
+   hinge-open reads as a fold in space rather than a flattened skew. */
+.ax-nav__item--has-menu {
+  perspective: 1000px;
 }
 
 .ax-nav__link {
@@ -242,7 +270,25 @@
   white-space: nowrap;
   color: var(--ax-nav-muted);
   cursor: pointer;
-  transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+/* A thin diagonal sheen that lives off-screen until hover walks it across
+   the pill — the same catch-light a pressed metal button gives back. */
+.ax-nav__link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.22) 48%,
+    transparent 66%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
 }
 /* The brackets are quieter than the word they hold, at both states. */
 .ax-nav__link > span[aria-hidden] {
@@ -253,10 +299,18 @@
   .ax-nav__link:hover {
     color: var(--ax-nav-fg);
     background: var(--ax-nav-hover);
+    transform: translateY(-0.0625rem) translateZ(0.25rem) rotateX(6deg);
+  }
+  .ax-nav__link:hover::before {
+    transition: transform 0.65s var(--ease);
+    transform: translateX(120%);
   }
   .ax-nav__link:hover > span[aria-hidden] {
     opacity: 0.8;
   }
+}
+.ax-nav__link:active {
+  transform: translateY(0.0625rem) scale(0.98);
 }
 .ax-nav__link[aria-expanded="true"] {
   color: var(--ax-nav-fg);
@@ -268,11 +322,19 @@
    here" at a glance from across the screen, which is the whole job. */
 .ax-nav__link[data-active="true"] {
   color: #fff;
-  background: var(--violet-500);
-  box-shadow: 0 0.35rem 1rem rgba(146, 72, 228, 0.35);
+  background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-500) 55%, var(--violet-600) 100%);
+  box-shadow: 0 0.35rem 1rem rgba(146, 72, 228, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.18);
 }
 .ax-nav__link[data-active="true"] > span[aria-hidden] {
   opacity: 0.6;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__link[data-active="true"]:hover {
+    transform: translateY(-0.0625rem) translateZ(0.35rem) rotateX(6deg);
+    box-shadow: 0 0.5rem 1.35rem rgba(146, 72, 228, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.18);
+  }
 }
 
 .ax-nav__chev {
@@ -314,7 +376,10 @@
   color: var(--ink);
   visibility: hidden;
   opacity: 0;
-  transform: translateY(-0.4rem);
+  /* A flap hinged at the top edge, not a card sliding up — it rotates
+     open toward the pointer instead of merely fading and drifting. */
+  transform-origin: top center;
+  transform: translateY(-0.4rem) rotateX(-18deg) scale(0.96);
   transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
     visibility var(--dur-2) step-end;
 }
@@ -356,11 +421,13 @@
   border-radius: var(--r-md);
   text-decoration: none;
   color: inherit;
-  transition: background-color var(--dur-2) var(--ease);
+  transform: translateZ(0);
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
 }
 @media (hover: hover) and (pointer: fine) {
   .ax-nav__case:hover {
     background: var(--surface-violet);
+    transform: translateX(0.15rem);
   }
 }
 .ax-nav__case-head {
@@ -462,6 +529,7 @@
    --------------------------------------------------------------- */
 
 .ax-nav__cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -481,10 +549,27 @@
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
+  overflow: hidden;
   box-shadow: 0 0.65rem 1.5rem rgba(146, 72, 228, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.2);
+  transform: perspective(600px) translateZ(0);
   transition: background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
     transform var(--dur-2) var(--ease);
+}
+/* The same travelling catch-light as the rail's links, scaled up: a
+   pill this size and this saturated reads flat without one. */
+.ax-nav__cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+  pointer-events: none;
 }
 .ax-nav__cta svg {
   width: 0.9rem;
@@ -494,16 +579,20 @@
 @media (hover: hover) and (pointer: fine) {
   .ax-nav__cta:hover {
     background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-400) 55%, var(--violet-500) 100%);
-    box-shadow: 0 0.85rem 2.25rem rgba(146, 72, 228, 0.6),
-      inset 0 1px 0 rgba(255, 255, 255, 0.35);
-    transform: translateY(-0.0625rem);
+    box-shadow: 0 1rem 2.5rem rgba(146, 72, 228, 0.62),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.2);
+    transform: perspective(600px) translateY(-0.1rem) rotateX(4deg) translateZ(0.3rem);
+  }
+  .ax-nav__cta:hover::before {
+    transition: transform 0.7s var(--ease);
+    transform: translateX(130%);
   }
   .ax-nav__cta:hover svg {
     transform: translateX(0.2rem);
   }
 }
 .ax-nav__cta:active {
-  transform: translateY(0.0625rem);
+  transform: perspective(600px) translateY(0.0625rem) scale(0.98);
 }
 
 /* ---------------------------------------------------------------
@@ -538,10 +627,21 @@
   height: 2.75rem;
   padding: 0;
   border: 0;
+  border-radius: 50%;
   background: none;
   color: var(--ax-nav-fg);
   cursor: pointer;
-  transition: color var(--dur-3) var(--ease);
+  transition: color var(--dur-3) var(--ease), background-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__burger:hover {
+    background: var(--ax-nav-hover);
+    transform: scale(1.06);
+  }
+}
+.ax-nav__burger:active {
+  transform: scale(0.94);
 }
 .ax-nav__burger span {
   position: absolute;
@@ -680,7 +780,7 @@
   line-height: 1.2;
   text-decoration: none;
   color: #fff;
-  transition: color var(--dur-2) var(--ease);
+  transition: color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
 }
 /* The same numbering `Kicker` prints at the head of every section. */
 .ax-nav__drawer-n {
@@ -772,11 +872,27 @@
   font-weight: 600;
   text-align: center;
   text-decoration: none;
-  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+  box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.28), inset 0 -0.125rem 0 rgba(0, 0, 0, 0.06);
+  transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__drawer-cta:hover {
+    transform: translateY(-0.0625rem);
+    box-shadow: 0 1rem 2.25rem rgba(0, 0, 0, 0.32), inset 0 -0.125rem 0 rgba(0, 0, 0, 0.06);
+  }
 }
 .ax-nav__drawer-cta:active {
   background: var(--violet-500);
   color: #fff;
+  transform: translateY(0.0625rem) scale(0.99);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ax-nav__drawer-link:hover {
+    color: var(--violet-300);
+    transform: translateX(0.3rem);
+  }
 }
 .ax-nav__drawer-mail {
   font-size: 0.875rem;
@@ -847,15 +963,38 @@
 @media (prefers-reduced-motion: reduce) {
   .ax-nav,
   .ax-nav__bar,
+  .ax-nav__logo,
   .ax-nav__logo img,
+  .ax-nav__domains a,
+  .ax-nav__list,
+  .ax-nav__link,
+  .ax-nav__link::before,
+  .ax-nav__cta,
+  .ax-nav__cta::before,
+  .ax-nav__case,
   .ax-nav__panel,
   .ax-nav__drawer,
+  .ax-nav__drawer-link,
+  .ax-nav__drawer-cta,
   .ax-nav__scrim,
+  .ax-nav__burger,
   .ax-nav__burger span,
   .ax-nav__link::after,
   .ax-nav__chev {
     transition-duration: 0.001ms !important;
   }
+  .ax-nav__logo:hover,
+  .ax-nav__domains a:hover,
+  .ax-nav__link:hover,
+  .ax-nav__link:active,
+  .ax-nav__cta:hover,
+  .ax-nav__cta:active,
+  .ax-nav__case:hover,
+  .ax-nav__burger:hover,
+  .ax-nav__burger:active,
+  .ax-nav__drawer-link:hover,
+  .ax-nav__drawer-cta:hover,
+  .ax-nav__drawer-cta:active,
   .ax-nav__drawer,
   .ax-nav__panel {
     transform: none !important;

@@ -21,7 +21,7 @@ const navItems = [
   { label: "about", target: "whyus" },
   { label: "services", target: "services" },
   { label: "case studies", target: "cases" },
-  { label: "pricing", target: "reviews" },
+  { label: "reviews", target: "reviews" },
 ];
 
 export default function Footer() {

@@ -1,0 +1,1362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Brigade — Hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   AI BRIGADE — hero
+   ------------------------------------------------------------
+   One accent hue. It exists as the light the WebGL graph emits,
+   and it touches the page in exactly one other place: the
+   primary CTA, which is lit *by* the system rather than sitting
+   beside it. Everything else is a neutral ramp.
+
+   Spacing is a 4px scale (--s-*). No arbitrary pixel values.
+   ============================================================ */
+
+:root {
+  /* --- neutral ramp (dark is the design; light is honoured below) --- */
+  --bg:        #07070B;
+  --ink:       #EDEDF2;
+  --ink-2:     #A7A7B4;
+  --ink-3:     #4A4A55;
+  --line:      rgba(237, 237, 242, 0.10);
+  --line-2:    rgba(237, 237, 242, 0.16);
+  --surface:   rgba(237, 237, 242, 0.04);
+
+  /* --- the one accent --- */
+  --accent:    #7C5CFF;
+  --accent-ink:#FFFFFF;
+
+  /* --- what the WebGL layer reads (see reKey() in the script) --- */
+  --gl-beam:   #6E6E7E;
+  --gl-flow:   #C9BEFF;
+  --gl-node:   #7C5CFF;
+  --gl-core:   #EDEDF2;
+  --gl-blend:  add;
+
+  /* --- 4px scale --- */
+  --s-1: 4px;   --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 20px;  --s-6: 24px;  --s-7: 28px;  --s-8: 32px;
+  --s-10:40px;  --s-12:48px;  --s-14:56px;  --s-16:64px;
+  --s-20:80px;  --s-24:96px;  --s-30:120px;
+
+  --gutter: max(6vw, var(--s-6));
+  --ease:   cubic-bezier(0.22, 0.61, 0.36, 1);
+  --t-fast: 150ms;
+
+  color-scheme: dark;
+}
+
+@media (min-width: 999999px) {
+  :root {
+    --bg:        #F6F6F9;
+    --ink:       #121217;
+    --ink-2:     #4A4A55;
+    --ink-3:     #8E8E9B;
+    --line:      rgba(18, 18, 23, 0.11);
+    --line-2:    rgba(18, 18, 23, 0.18);
+    --surface:   rgba(18, 18, 23, 0.03);
+
+    --accent:    #6A46FF;
+
+    --gl-beam:   #BDBDC9;
+    --gl-flow:   #6A46FF;
+    --gl-node:   #6A46FF;
+    --gl-core:   #26262F;
+    --gl-blend:  normal;
+
+    color-scheme: light;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Depth in the ground: three very low-opacity radials rather than a flat
+   fill, none of them centred on the graph — a radial centred behind the
+   subject is what produces "glowing purple blob". */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 48% at 76% 6%,  rgba(124, 92, 255, 0.10), transparent 70%),
+    radial-gradient(44% 40% at 4% 0%,   rgba(90, 130, 190, 0.06), transparent 72%),
+    radial-gradient(90% 70% at 50% 108%, rgba(124, 92, 255, 0.05), transparent 68%);
+}
+@media (min-width: 999999px) {
+  body::before {
+    background:
+      radial-gradient(58% 48% at 76% 6%,  rgba(106, 70, 255, 0.07), transparent 70%),
+      radial-gradient(44% 40% at 4% 0%,   rgba(90, 130, 190, 0.05), transparent 72%);
+  }
+}
+
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+:where(a, button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--s-1);
+}
+
+.sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ============================================================
+   NAV — slim bar, gains a blurred plate on scroll
+   ============================================================ */
+
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-6);
+  height: var(--s-20);
+  padding-inline: var(--gutter);
+  border-bottom: 1px solid transparent;
+  transition: background var(--t-fast) var(--ease),
+              border-color var(--t-fast) var(--ease),
+              backdrop-filter var(--t-fast) var(--ease);
+}
+.nav[data-stuck] {
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-bottom-color: var(--line);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav__brand i {
+  width: var(--s-2);
+  height: var(--s-2);
+  border-radius: 1px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+.nav__links { display: flex; align-items: center; gap: var(--s-8); }
+.nav__links a {
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  transition: color var(--t-fast) var(--ease);
+}
+.nav__links a:hover { color: var(--ink); }
+
+.nav__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  height: var(--s-10);
+  padding-inline: var(--s-5);
+  border: 1px solid var(--line-2);
+  border-radius: var(--s-2);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color var(--t-fast) var(--ease),
+              background var(--t-fast) var(--ease);
+}
+.nav__cta:hover { border-color: var(--ink-3); background: var(--surface); }
+
+@media (max-width: 900px) { .nav__links { display: none; } }
+
+/* ============================================================
+   HERO — 12 columns, content vertically centred,
+   stats pinned to the bottom edge as their own band
+   ============================================================ */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: var(--s-24);
+  padding-bottom: var(--s-30);   /* clears the pinned stats band */
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-6);
+  align-items: center;
+  width: 100%;
+  padding-inline: var(--gutter);
+}
+
+.copy {
+  position: relative;
+  z-index: 2;              /* above the graph's leftward falloff */
+  grid-column: 1 / span 6;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin: 0 0 var(--s-8);
+  color: var(--ink-2);
+}
+.eyebrow i {
+  width: var(--s-1);
+  height: var(--s-1);
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* The headline.
+   The brief asked for clamp(3rem, 6vw, 5.5rem). At 1440 a six-column
+   measure is ~620px, and "engineered for" at 88px is ~700px — it would
+   overflow into the graph, which is the "headline and card compete"
+   failure restated in type. Capped at 4.75rem so the line breaks the
+   copy is written for hold at every width. */
+.h1 {
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(3rem, 5vw, 4.75rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+.h1__line { display: block; overflow: hidden; }
+.h1__line > span { display: block; }
+
+.sub {
+  margin: var(--s-7) 0 0;
+  max-width: 46ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-10);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  height: var(--s-14);
+  padding-inline: var(--s-7);
+  border: 1px solid transparent;
+  border-radius: var(--s-2);
+  font-family: "Inter", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform var(--t-fast) ease-out,
+              box-shadow var(--t-fast) ease-out,
+              background var(--t-fast) ease-out,
+              border-color var(--t-fast) ease-out,
+              color var(--t-fast) ease-out;
+}
+.btn svg { width: 1em; height: 1em; }
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent),
+              0 var(--s-2) var(--s-6) color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 var(--s-5) color-mix(in srgb, var(--accent) 40%, transparent),
+              0 var(--s-3) var(--s-8) color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.btn--ghost {
+  border-color: var(--line-2);
+  color: var(--ink);
+}
+.btn--ghost:hover {
+  transform: translateY(-2px);
+  border-color: var(--ink-3);
+  background: var(--surface);
+}
+
+/* ---- the stage -------------------------------------------------------
+   Cols 7-12, bled one step to the left so the graph's outermost edge and
+   its falloff run *under* the copy. That is what closes the dead gutter:
+   there is no empty column because the field does not have an edge there,
+   it has a falloff. The canvas never takes the pointer; the node buttons
+   layered over it do. */
+.stage {
+  position: relative;
+  z-index: 1;
+  grid-column: 7 / span 6;
+  margin-left: calc(-1 * var(--s-16));
+  aspect-ratio: 11 / 9;
+  min-height: 0;
+}
+.stage__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms var(--ease);
+}
+.stage[data-ready] .stage__canvas { opacity: 1; }
+
+/* Real buttons, tracked to the projected position of each node every
+   frame. They are the hit target, the focus target and the touch target,
+   which is how the graph gets keyboard access without a parallel
+   interaction model. */
+.node {
+  position: absolute;
+  top: 0; left: 0;
+  width: var(--s-14);
+  height: var(--s-14);
+  margin: calc(var(--s-14) / -2) 0 0 calc(var(--s-14) / -2);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 400ms var(--ease);
+}
+.stage[data-ready] .node { opacity: 1; }
+.node__tag {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + var(--s-2));
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--ink-2);
+  transition: color var(--t-fast) var(--ease);
+}
+.node[data-on] .node__tag { color: var(--ink); }
+/* The gate node carries a ring at ~55px on screen; its label has to clear
+   that, not sit inside it. */
+.node[data-gate] .node__tag { top: calc(100% + var(--s-8)); }
+
+/* One shared label card, repositioned and refilled per node. */
+.card {
+  position: absolute;
+  top: 0; left: 0;
+  width: 248px;
+  max-width: 62vw;
+  padding: var(--s-5);
+  border: 1px solid var(--line-2);
+  border-radius: var(--s-3);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 var(--s-5) var(--s-12) rgba(0, 0, 0, 0.36);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(var(--s-2));
+  transition: opacity var(--t-fast) var(--ease),
+              transform var(--t-fast) var(--ease),
+              visibility 0s linear var(--t-fast);
+  pointer-events: none;
+}
+.card[data-on] {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+  color: var(--ink-3);
+}
+.card__name {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-transform: none;
+}
+/* The card root carries `mono` for its head and gate line, so the body has
+   to opt back out of all four of those inherited properties — not just the
+   size. Left as inherit, the description renders as uppercase monospace. */
+.card__body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink-2);
+}
+.card__gate {
+  display: none;
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+  color: var(--accent);
+}
+.card[data-gate] .card__gate { display: block; }
+
+/* Below 600px the WebGL layer is replaced by this — same graph, no
+   runtime. It is not a placeholder; it is the small-screen drawing. */
+.stage__svg { display: none; width: 100%; height: auto; }
+.stage__svg .s-edge  { fill: none; stroke: var(--gl-beam); stroke-width: 1; opacity: 0.55; }
+.stage__svg .s-back  { stroke-dasharray: 3 5; opacity: 0.3; }
+.stage__svg .s-glow  { fill: var(--accent); opacity: 0.16; }
+.stage__svg .s-core  { fill: var(--gl-core); }
+.stage__svg .s-ring  { fill: none; stroke: var(--accent); stroke-width: 1.2; }
+.stage__svg .s-label { fill: var(--ink-2); font-family: "JetBrains Mono", monospace; font-size: 7px; letter-spacing: 0.12em; }
+
+/* ============================================================
+   STATS — its own band on the bottom edge
+   ============================================================ */
+
+.stats {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+  border-top: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.stats__row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-6);
+  padding: var(--s-8) var(--gutter);
+  margin: 0;
+  list-style: none;
+}
+.stat { grid-column: span 3; min-width: 0; }
+.stat__fig {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-1);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(1.75rem, 2.4vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.stat__fig span { font-size: 0.5em; font-weight: 400; color: var(--ink-3); letter-spacing: 0; }
+.stat__label { display: block; margin-top: var(--s-3); color: var(--ink-3); }
+
+/* ============================================================
+   ENTRANCE — staggered, and the only bouncy thing here is nothing
+   ============================================================ */
+
+@keyframes rise   { from { opacity: 0; transform: translateY(var(--s-3)); } to { opacity: 1; transform: none; } }
+@keyframes unmask { from { transform: translateY(105%); }                  to { transform: none; } }
+
+.anim { opacity: 0; animation: rise 700ms var(--ease) forwards; }
+.h1__line > span { transform: translateY(105%); animation: unmask 900ms var(--ease) forwards; }
+
+.d0 { animation-delay:   0ms; }
+.d1 { animation-delay:  80ms; }
+.d2 { animation-delay: 160ms; }
+.d3 { animation-delay: 240ms; }
+.d4 { animation-delay: 380ms; }
+.d5 { animation-delay: 480ms; }
+.d6 { animation-delay: 620ms; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .hero {
+    padding-top: var(--s-24);
+    padding-bottom: var(--s-30);
+  }
+  .hero__grid { gap: var(--s-10); }
+  .copy  { grid-column: 1 / -1; }
+  .stage {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .sub { max-width: none; }
+
+  /* 3-up scroll strip */
+  .stats__row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - var(--s-6) * 2) / 3);
+    grid-template-columns: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    padding-block: var(--s-6);
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .stats__row::-webkit-scrollbar { display: none; }
+  .stat { grid-column: auto; scroll-snap-align: start; }
+}
+
+@media (max-width: 600px) {
+  .hero { padding-bottom: 152px; }
+  .stage { aspect-ratio: 8 / 5; }
+  .stage__canvas, .node, .card { display: none !important; }
+  .stage__svg { display: block; }
+  .acts { gap: var(--s-2); }
+  .btn { flex: 1 1 auto; }
+}
+
+/* ============================================================
+   REDUCED MOTION — the orbit and the particles freeze, the graph
+   stays. Nothing here is load-bearing for legibility.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .anim { opacity: 1; animation: none; }
+  .h1__line > span { transform: none; animation: none; }
+  .stage__canvas, .node { transition: none; }
+  .btn:hover { transform: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* A short run-out so the nav's scrolled state is reachable. */
+.after {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--line);
+  padding: var(--s-20) var(--gutter);
+  color: var(--ink-3);
+}
+
+.anim{opacity:1!important;animation:none!important}
+.h1__line>span{transform:none!important;animation:none!important}
+.stage__canvas,.node{opacity:1!important}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="#"><i aria-hidden="true"></i>ai brigade</a>
+  <div class="nav__links">
+    <a href="#">Platform</a>
+    <a href="#">Work</a>
+    <a href="#">Company</a>
+    <a href="#">Contact</a>
+  </div>
+  <a class="nav__cta" href="#">Let's talk</a>
+</nav>
+
+<header class="hero" id="hero">
+  <div class="hero__grid">
+
+    <div class="copy">
+      <p class="eyebrow mono anim d0"><i aria-hidden="true"></i>AI systems in production</p>
+
+      <h1 class="h1">
+        <span class="h1__line"><span class="d1">Intelligence,</span></span>
+        <span class="h1__line"><span class="d2">engineered for</span></span>
+        <span class="h1__line"><span class="d3">production.</span></span>
+      </h1>
+
+      <p class="sub anim d4">
+        We build copilots, agents and decision systems inside core banking and
+        EHR stacks — shipped behind a kill switch, with an evidence trail your
+        regulator can read.
+      </p>
+
+      <div class="acts anim d5">
+        <a class="btn btn--primary" href="#">
+          Request a strategy session
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn--ghost" href="#">
+          See the work
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="stage anim d6" id="stage">
+      <canvas class="stage__canvas" id="gl"></canvas>
+
+      <p class="sr" id="stageDesc">
+        A four-stage pipeline: ingest, reason, decide, act, with a feedback loop
+        from act back to reason. Each stage is a button; open one for its description.
+      </p>
+
+      <!-- Small-screen drawing: the same graph, no runtime. -->
+      <svg class="stage__svg" viewBox="0 0 320 200" role="img"
+           aria-label="Pipeline diagram: ingest to reason to decide to act, with a feedback loop from act back to reason.">
+        <path class="s-edge" d="M40 68 C 86 50, 92 126, 128 132"/>
+        <path class="s-edge" d="M128 132 C 164 138, 170 62, 204 64"/>
+        <path class="s-edge" d="M204 64 C 238 66, 248 122, 282 126"/>
+        <path class="s-edge s-back" d="M282 126 C 250 190, 150 194, 128 132"/>
+        <circle class="s-glow" cx="40"  cy="68"  r="15"/><circle class="s-core" cx="40"  cy="68"  r="4"/>
+        <circle class="s-glow" cx="128" cy="132" r="15"/><circle class="s-core" cx="128" cy="132" r="4"/>
+        <circle class="s-glow" cx="204" cy="64"  r="18"/><circle class="s-core" cx="204" cy="64"  r="4"/>
+        <circle class="s-ring" cx="204" cy="64"  r="12"/>
+        <circle class="s-glow" cx="282" cy="126" r="15"/><circle class="s-core" cx="282" cy="126" r="4"/>
+        <text class="s-label" x="40"  y="92"  text-anchor="middle">INGEST</text>
+        <text class="s-label" x="128" y="156" text-anchor="middle">REASON</text>
+        <text class="s-label" x="204" y="94"  text-anchor="middle">DECIDE</text>
+        <text class="s-label" x="282" y="150" text-anchor="middle">ACT</text>
+      </svg>
+
+      <div class="card mono" id="card" role="status" aria-live="polite">
+        <div class="card__head">
+          <span id="cardNum">01</span>
+          <span class="card__name" id="cardName">Ingest</span>
+        </div>
+        <p class="card__body" id="cardBody"></p>
+        <div class="card__gate mono">Human approval gate</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="stats">
+    <ul class="stats__row">
+      <li class="stat">
+        <div class="stat__fig"><b data-count="38">0</b><span>ms</span></div>
+        <span class="stat__label mono">p99 scoring latency</span>
+      </li>
+      <li class="stat">
+        <div class="stat__fig"><b data-count="11">0</b><span>min</span></div>
+        <span class="stat__label mono">charting returned / encounter</span>
+      </li>
+      <li class="stat">
+        <div class="stat__fig"><b data-count="3">0</b><span>&times;</span></div>
+        <span class="stat__label mono">files cleared per underwriter</span>
+      </li>
+      <li class="stat">
+        <div class="stat__fig"><b data-count="0">0</b></div>
+        <span class="stat__label mono">releases without an audit record</span>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<section class="after mono">Next section</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var css    = getComputedStyle(document.documentElement);
+  var readVar = function (n) { return css.getPropertyValue(n).trim(); };
+
+  /* ==========================================================
+     1. NAV
+     ========================================================== */
+  var nav = document.getElementById("nav");
+  var onScroll = function () {
+    if (window.scrollY > 8) nav.setAttribute("data-stuck", "");
+    else nav.removeAttribute("data-stuck");
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ==========================================================
+     2. STAT COUNT-UP — once, on load
+     ========================================================== */
+  (function () {
+    var els = document.querySelectorAll("[data-count]");
+    for (var i = 0; i < els.length; i++) {
+      (function (el) {
+        var to = parseFloat(el.getAttribute("data-count"));
+        if (REDUCE || to === 0) { el.textContent = String(to); return; }
+        var t0 = 0, DUR = 1100;
+        var tick = function (now) {
+          if (!t0) t0 = now;
+          var p = Math.min((now - t0) / DUR, 1);
+          var e = 1 - Math.pow(1 - p, 3);
+          el.textContent = String(Math.round(to * e));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      })(els[i]);
+    }
+  })();
+
+  /* ==========================================================
+     3. THE GRAPH
+     ========================================================== */
+
+  var NODES = [
+    { n: "01", name: "Ingest", pos: [-3.18,  1.50, -1.50],
+      desc: "Core banking, Epic via HL7 FHIR, documents, event feeds. Read-only until you say otherwise." },
+    { n: "02", name: "Reason", pos: [-1.02, -1.25,  1.50],
+      desc: "Retrieval and models, bounded by the policy your risk team already defends." },
+    { n: "03", name: "Decide", pos: [ 1.12,  1.35, -1.10], gate: true,
+      desc: "Clear cases go straight through. Anything material stops here, at a person." },
+    { n: "04", name: "Act",    pos: [ 3.18, -1.05,  1.00],
+      desc: "Written back into the system of record, with the evidence trail attached." }
+  ];
+
+  /* Three forward edges plus one feedback edge, Act back to Reason. The
+     loop is not decoration: retraining on reviewer decisions is how these
+     systems actually stay in production, and it is what makes the graph
+     read as a system rather than a funnel. */
+  var EDGES = [
+    { a: 0, b: 1, lift: [0,  1.05,  0.65], w: 1.00 },
+    { a: 1, b: 2, lift: [0, -0.95,  0.55], w: 1.00 },
+    { a: 2, b: 3, lift: [0,  0.95, -0.55], w: 1.00 },
+    { a: 3, b: 1, lift: [0, -2.45, -1.70], w: 0.40, back: true }
+  ];
+
+  /* Edges lit when a node is hovered or focused. Padded to four so the
+     shader can compare against a single vec4. */
+  var ADJ = [ [0, -1, -1, -1], [0, 1, 3, -1], [1, 2, -1, -1], [2, 3, -1, -1] ];
+
+  var BEAM_MAX = 150;   /* samples per edge, desktop */
+  var BEAM_MIN = 80;    /* under 900px */
+  var TRAV     = 14;    /* travellers on the forward chain */
+  var TRAV_B   = 5;     /* travellers on the feedback loop */
+  var TAIL     = 3;     /* trailing points per traveller */
+
+  var stage  = document.getElementById("stage");
+  var canvas = document.getElementById("gl");
+  var card   = document.getElementById("card");
+  var cardNum = document.getElementById("cardNum");
+  var cardName = document.getElementById("cardName");
+  var cardBody = document.getElementById("cardBody");
+
+  var mqSmall = window.matchMedia("(max-width: 600px)");
+  var three = null;          /* everything WebGL, built lazily */
+  var buttons = [];
+
+  /* ---- node buttons: the hit, focus and touch targets ---- */
+  (function buildButtons() {
+    for (var i = 0; i < NODES.length; i++) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "node";
+      b.setAttribute("aria-describedby", "stageDesc");
+      if (NODES[i].gate) b.setAttribute("data-gate", "");
+      b.innerHTML = '<span class="sr">' + NODES[i].name + ". " + NODES[i].desc +
+                    '</span><span class="node__tag mono" aria-hidden="true">' +
+                    NODES[i].name + "</span>";
+      (function (idx, el) {
+        var on  = function () { setActive(idx); };
+        var off = function () { setActive(-1); };
+        el.addEventListener("pointerenter", on);
+        el.addEventListener("pointerleave", off);
+        el.addEventListener("focus", on);
+        el.addEventListener("blur", off);
+        el.addEventListener("click", function (e) { e.preventDefault(); setActive(idx); });
+      })(i, b);
+      stage.appendChild(b);
+      buttons.push(b);
+    }
+  })();
+
+  var active = -1;
+  function setActive(i) {
+    if (active === i) return;
+    active = i;
+    for (var k = 0; k < buttons.length; k++) {
+      if (k === i) buttons[k].setAttribute("data-on", "");
+      else buttons[k].removeAttribute("data-on");
+    }
+    if (i < 0) { card.removeAttribute("data-on"); return; }
+    var n = NODES[i];
+    cardNum.textContent = n.n;
+    cardName.textContent = n.name;
+    cardBody.textContent = n.desc;
+    if (n.gate) card.setAttribute("data-gate", ""); else card.removeAttribute("data-gate");
+    card.setAttribute("data-on", "");
+  }
+
+  /* ---- shaders --------------------------------------------------------
+     Depth falloff is done here rather than with a post pass: point size
+     and alpha both fall off with view-space distance, which is all the
+     depth-of-field a point cloud needs and costs nothing. */
+
+  var VERT = [
+    "attribute float aSize;",
+    "attribute float aAlpha;",
+    "attribute float aEdge;",
+    "attribute float aTone;",
+    "uniform vec4  uHot;",
+    "uniform float uHotMix;",
+    "uniform float uPR;",
+    "varying float vAlpha;",
+    "varying float vTone;",
+    "varying float vHot;",
+    "void main() {",
+    "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
+    "  float d = max(-mv.z, 0.001);",
+    "  float depth = clamp((16.0 - d) / 12.0, 0.0, 1.0);",
+    "  float hot = 0.0;",
+    "  hot += 1.0 - step(0.5, abs(aEdge - uHot.x));",
+    "  hot += 1.0 - step(0.5, abs(aEdge - uHot.y));",
+    "  hot += 1.0 - step(0.5, abs(aEdge - uHot.z));",
+    "  hot += 1.0 - step(0.5, abs(aEdge - uHot.w));",
+    "  hot = clamp(hot, 0.0, 1.0) * uHotMix;",
+    "  vHot = hot;",
+    "  vTone = aTone;",
+    "  vAlpha = aAlpha * (0.30 + depth * 0.70) * (1.0 + hot * 1.10);",
+    "  gl_PointSize = aSize * uPR * (250.0 / d) * (1.0 + hot * 0.30);",
+    "  gl_Position = projectionMatrix * mv;",
+    "}"
+  ].join("\n");
+
+  var FRAG = [
+    "uniform vec3 uBeam;",
+    "uniform vec3 uFlow;",
+    "varying float vAlpha;",
+    "varying float vTone;",
+    "varying float vHot;",
+    "void main() {",
+    "  vec2 c = gl_PointCoord - 0.5;",
+    "  float r = length(c);",
+    "  if (r > 0.5) discard;",
+    "  float a = pow(smoothstep(0.5, 0.0, r), 1.7);",
+    "  vec3 col = mix(uBeam, uFlow, clamp(vTone + vHot * 0.55, 0.0, 1.0));",
+    "  gl_FragColor = vec4(col, a * vAlpha);",
+    "}"
+  ].join("\n");
+
+  var HALO_VERT = [
+    "attribute float aSize;",
+    "attribute float aGlow;",
+    "uniform float uPR;",
+    "uniform float uScale;",
+    "varying float vGlow;",
+    "void main() {",
+    "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
+    "  float d = max(-mv.z, 0.001);",
+    "  vGlow = aGlow;",
+    "  gl_PointSize = aSize * uScale * uPR * (250.0 / d);",
+    "  gl_Position = projectionMatrix * mv;",
+    "}"
+  ].join("\n");
+
+  var HALO_FRAG = [
+    "uniform vec3 uColor;",
+    "uniform float uMul;",
+    "uniform float uSoft;",
+    "varying float vGlow;",
+    "void main() {",
+    "  vec2 c = gl_PointCoord - 0.5;",
+    "  float r = length(c);",
+    "  if (r > 0.5) discard;",
+    "  float a = pow(smoothstep(0.5, 0.0, r), uSoft);",
+    "  gl_FragColor = vec4(uColor, a * vGlow * uMul);",
+    "}"
+  ].join("\n");
+
+  /* Van der Corput: any prefix of this sequence is spread evenly over
+     [0,1). Beam samples are stored in this order and interleaved across
+     edges, so dropping the draw range at narrow widths thins the beam
+     uniformly instead of chopping the ends off the curves. */
+  function vdc(i) {
+    var r = 0, d = 0.5;
+    while (i > 0) { r += (i & 1) * d; i >>= 1; d *= 0.5; }
+    return r;
+  }
+
+  function init() {
+    if (three || mqSmall.matches || !window.THREE) return;
+
+    var renderer = new THREE.WebGLRenderer({
+      canvas: canvas, antialias: true, alpha: true, powerPreference: "high-performance"
+    });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    var graph = new THREE.Group();
+    scene.add(graph);
+
+    var additive = readVar("--gl-blend") === "add";
+    var C = {
+      beam: new THREE.Color(readVar("--gl-beam")),
+      flow: new THREE.Color(readVar("--gl-flow")),
+      node: new THREE.Color(readVar("--gl-node")),
+      core: new THREE.Color(readVar("--gl-core"))
+    };
+    var BLEND = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+
+    /* ---- node meshes + lift state ---- */
+    var base = NODES.map(function (n) { return new THREE.Vector3(n.pos[0], n.pos[1], n.pos[2]); });
+    var live = base.map(function (v) { return v.clone(); });
+    var lift = [0, 0, 0, 0];
+    var liftTarget = [0, 0, 0, 0];
+
+    var cores = [];
+    var coreGeo = new THREE.SphereGeometry(0.15, 20, 16);
+    for (var i = 0; i < NODES.length; i++) {
+      var m = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({
+        color: C.core.clone(), transparent: true, opacity: 0.95
+      }));
+      m.position.copy(base[i]);
+      graph.add(m);
+      cores.push(m);
+    }
+
+    /* The gate. A ring around Decide, because "who signs this off" is the
+       first question anyone in a regulated shop asks, and it is the one
+       thing on the graph worth annotating in geometry rather than text. */
+    var gateIdx = 2;
+    var gate = new THREE.Group();
+    var ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.52, 0.012, 8, 72),
+      new THREE.MeshBasicMaterial({ color: C.node.clone(), transparent: true, opacity: 0.95, blending: BLEND, depthWrite: false })
+    );
+    gate.add(ring);
+    var tickGeo = new THREE.BufferGeometry();
+    var tickPos = new Float32Array(24 * 3);
+    for (var g = 0; g < 24; g++) {
+      var ang = (g / 24) * Math.PI * 2;
+      tickPos[g * 3]     = Math.cos(ang) * 0.74;
+      tickPos[g * 3 + 1] = Math.sin(ang) * 0.74;
+      tickPos[g * 3 + 2] = 0;
+    }
+    tickGeo.setAttribute("position", new THREE.BufferAttribute(tickPos, 3));
+    var ticks = new THREE.Points(tickGeo, new THREE.PointsMaterial({
+      color: C.node.clone(), size: 0.045, transparent: true, opacity: 0.6,
+      blending: BLEND, depthWrite: false, sizeAttenuation: true
+    }));
+    gate.add(ticks);
+    gate.position.copy(base[gateIdx]);
+    graph.add(gate);
+
+    /* ---- halos: one Points, four vertices. Points always face the
+       camera, so no billboard maths and no per-frame quaternion work. */
+    var haloGeo = new THREE.BufferGeometry();
+    var haloPos = new Float32Array(NODES.length * 3);
+    var haloSize = new Float32Array(NODES.length);
+    var haloGlow = new Float32Array(NODES.length);
+    for (var h = 0; h < NODES.length; h++) {
+      haloSize[h] = 3.6;
+      haloGlow[h] = additive ? 0.85 : 0.32;
+    }
+    haloGeo.setAttribute("position", new THREE.BufferAttribute(haloPos, 3));
+    haloGeo.setAttribute("aSize", new THREE.BufferAttribute(haloSize, 1));
+    haloGeo.setAttribute("aGlow", new THREE.BufferAttribute(haloGlow, 1));
+    var halos = new THREE.Points(haloGeo, new THREE.ShaderMaterial({
+      uniforms: {
+        uColor: { value: C.node.clone() }, uPR: { value: renderer.getPixelRatio() },
+        uScale: { value: 1.0 }, uMul: { value: 1.0 }, uSoft: { value: 3.0 }
+      },
+      vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
+      transparent: true, depthWrite: false, blending: BLEND
+    }));
+    graph.add(halos);
+
+    /* The atmosphere: the same four points, drawn very wide and very soft.
+       This is what makes the section *lit* rather than decorated — the
+       violet spills left past the graph and under the copy, which is both
+       what closes the gutter and what stops the primary CTA from being the
+       only saturated thing on an otherwise grey page. It shares the halo
+       geometry, so it costs one extra draw call and nothing else. */
+    var ambient = new THREE.Points(haloGeo, new THREE.ShaderMaterial({
+      uniforms: {
+        uColor: { value: C.node.clone() }, uPR: { value: renderer.getPixelRatio() },
+        uScale: { value: 3.0 }, uMul: { value: additive ? 0.16 : 0.07 }, uSoft: { value: 1.4 }
+      },
+      vertexShader: HALO_VERT, fragmentShader: HALO_FRAG,
+      transparent: true, depthWrite: false, blending: BLEND
+    }));
+    graph.add(ambient);
+
+    /* ---- edge cores: one faint continuous line per edge ---- */
+    var LINE_SEG = 64;
+    var lines = EDGES.map(function (e) {
+      var g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(new Float32Array((LINE_SEG + 1) * 3), 3));
+      var l = new THREE.Line(g, new THREE.LineBasicMaterial({
+        color: C.beam.clone(),
+        transparent: true,
+        opacity: (additive ? 0.62 : 0.8) * e.w,
+        blending: BLEND,
+        depthWrite: false
+      }));
+      graph.add(l);
+      return l;
+    });
+
+    /* ---- beam: static points along every edge ---- */
+    var EN = EDGES.length;
+    var beamCount = BEAM_MAX * EN;
+    var beamT = new Float32Array(beamCount);
+    var beamE = new Float32Array(beamCount);
+    var bPos = new Float32Array(beamCount * 3);
+    var bSize = new Float32Array(beamCount);
+    var bAlpha = new Float32Array(beamCount);
+    var bTone = new Float32Array(beamCount);
+    for (var s = 0; s < BEAM_MAX; s++) {
+      for (var e2 = 0; e2 < EN; e2++) {
+        var idx = s * EN + e2;
+        beamT[idx] = vdc(s + 1);
+        beamE[idx] = e2;
+        bSize[idx] = 0.085 + (s % 5 === 0 ? 0.055 : 0);
+        bAlpha[idx] = (additive ? 0.92 : 0.70) * EDGES[e2].w;
+        bTone[idx] = 0;
+      }
+    }
+    var beamGeo = new THREE.BufferGeometry();
+    beamGeo.setAttribute("position", new THREE.BufferAttribute(bPos, 3));
+    beamGeo.setAttribute("aSize",  new THREE.BufferAttribute(bSize, 1));
+    beamGeo.setAttribute("aAlpha", new THREE.BufferAttribute(bAlpha, 1));
+    beamGeo.setAttribute("aEdge",  new THREE.BufferAttribute(beamE, 1));
+    beamGeo.setAttribute("aTone",  new THREE.BufferAttribute(bTone, 1));
+
+    var uniforms = {
+      uBeam:   { value: C.beam.clone() },
+      uFlow:   { value: C.flow.clone() },
+      uHot:    { value: new THREE.Vector4(-1, -1, -1, -1) },
+      uHotMix: { value: 0 },
+      uPR:     { value: renderer.getPixelRatio() }
+    };
+    var pointMat = new THREE.ShaderMaterial({
+      uniforms: uniforms, vertexShader: VERT, fragmentShader: FRAG,
+      transparent: true, depthWrite: false, blending: BLEND
+    });
+    var beam = new THREE.Points(beamGeo, pointMat);
+    graph.add(beam);
+
+    /* ---- travellers: head plus a short tail, so a moving point reads as
+       a packet with direction rather than a dot that has been relocated.
+       Forward travellers walk the whole chain (u across edges 0..2), so a
+       particle is visibly seen going Ingest -> Act. */
+    var travelers = [];
+    for (var t1 = 0; t1 < TRAV; t1++) {
+      travelers.push({ back: false, u: (t1 / TRAV) * 3, speed: 0.34 + (t1 % 3) * 0.045 });
+    }
+    for (var t2 = 0; t2 < TRAV_B; t2++) {
+      travelers.push({ back: true, u: t2 / TRAV_B, speed: 0.17 + (t2 % 2) * 0.02 });
+    }
+    var travCount = travelers.length * TAIL;
+    var tPos = new Float32Array(travCount * 3);
+    var tSize = new Float32Array(travCount);
+    var tAlpha = new Float32Array(travCount);
+    var tEdge = new Float32Array(travCount);
+    var tTone = new Float32Array(travCount);
+    for (var ti = 0; ti < travelers.length; ti++) {
+      for (var k = 0; k < TAIL; k++) {
+        var j = ti * TAIL + k;
+        var fall = 1 - k / TAIL;
+        tSize[j] = (travelers[ti].back ? 0.24 : 0.42) * (0.40 + fall * 0.60);
+        tAlpha[j] = (travelers[ti].back ? 0.45 : 1.0) * fall * fall;
+        tTone[j] = 1;
+        tEdge[j] = -1;
+      }
+    }
+    var travGeo = new THREE.BufferGeometry();
+    travGeo.setAttribute("position", new THREE.BufferAttribute(tPos, 3));
+    travGeo.setAttribute("aSize",  new THREE.BufferAttribute(tSize, 1));
+    travGeo.setAttribute("aAlpha", new THREE.BufferAttribute(tAlpha, 1));
+    travGeo.setAttribute("aEdge",  new THREE.BufferAttribute(tEdge, 1));
+    travGeo.setAttribute("aTone",  new THREE.BufferAttribute(tTone, 1));
+    var trav = new THREE.Points(travGeo, pointMat);
+    graph.add(trav);
+
+    /* ---- geometry rebuild ----------------------------------------------
+       Every curve is evaluated from the nodes' *current* positions, so a
+       node lifting toward the camera on hover carries its edges with it
+       and the graph never comes apart. Allocation-free: the bezier is
+       evaluated inline into the existing buffers. */
+    var c0 = new THREE.Vector3(), c1 = new THREE.Vector3(), d = new THREE.Vector3();
+
+    function ctrl(e, A, B) {
+      d.subVectors(B, A);
+      c0.copy(A).addScaledVector(d, 0.30);
+      c1.copy(B).addScaledVector(d, -0.30);
+      c0.x += e.lift[0]; c0.y += e.lift[1]; c0.z += e.lift[2];
+      c1.x += e.lift[0]; c1.y += e.lift[1]; c1.z += e.lift[2];
+    }
+    function bez(A, B, t, out) {
+      var mt = 1 - t, a = mt * mt * mt, b = 3 * mt * mt * t, c = 3 * mt * t * t, dd = t * t * t;
+      out.x = a * A.x + b * c0.x + c * c1.x + dd * B.x;
+      out.y = a * A.y + b * c0.y + c * c1.y + dd * B.y;
+      out.z = a * A.z + b * c0.z + c * c1.z + dd * B.z;
+      return out;
+    }
+    var tmp = new THREE.Vector3();
+
+    function rebuild() {
+      for (var i = 0; i < NODES.length; i++) {
+        live[i].copy(base[i]);
+        live[i].z += lift[i] * 0.34;
+        cores[i].position.copy(live[i]);
+        cores[i].scale.setScalar(1 + lift[i] * 0.55);
+        haloPos[i * 3] = live[i].x; haloPos[i * 3 + 1] = live[i].y; haloPos[i * 3 + 2] = live[i].z;
+        haloSize[i] = 3.6 * (1 + lift[i] * 0.50);
+        haloGlow[i] = (additive ? 0.85 : 0.32) * (1 + lift[i] * 1.1);
+      }
+      haloGeo.attributes.position.needsUpdate = true;
+      haloGeo.attributes.aSize.needsUpdate = true;
+      haloGeo.attributes.aGlow.needsUpdate = true;
+      gate.position.copy(live[gateIdx]);
+      gate.scale.setScalar(1 + lift[gateIdx] * 0.35);
+
+      for (var e = 0; e < EN; e++) {
+        var E = EDGES[e], A = live[E.a], B = live[E.b];
+        ctrl(E, A, B);
+        var lp = lines[e].geometry.attributes.position.array;
+        for (var q = 0; q <= LINE_SEG; q++) {
+          bez(A, B, q / LINE_SEG, tmp);
+          lp[q * 3] = tmp.x; lp[q * 3 + 1] = tmp.y; lp[q * 3 + 2] = tmp.z;
+        }
+        lines[e].geometry.attributes.position.needsUpdate = true;
+      }
+      for (var s2 = 0; s2 < BEAM_MAX; s2++) {
+        for (var e3 = 0; e3 < EN; e3++) {
+          var id = s2 * EN + e3, E3 = EDGES[e3];
+          ctrl(E3, live[E3.a], live[E3.b]);
+          bez(live[E3.a], live[E3.b], beamT[id], tmp);
+          bPos[id * 3] = tmp.x; bPos[id * 3 + 1] = tmp.y; bPos[id * 3 + 2] = tmp.z;
+        }
+      }
+      beamGeo.attributes.position.needsUpdate = true;
+    }
+
+    function moveTravelers() {
+      for (var i = 0; i < travelers.length; i++) {
+        var T = travelers[i];
+        for (var k = 0; k < TAIL; k++) {
+          var u = T.u - k * (T.back ? 0.030 : 0.042);
+          var span = T.back ? 1 : 3;
+          while (u < 0) u += span;
+          var ei = T.back ? 3 : Math.min(Math.floor(u), 2);
+          var lt = T.back ? u : u - ei;
+          var E = EDGES[ei];
+          ctrl(E, live[E.a], live[E.b]);
+          bez(live[E.a], live[E.b], lt, tmp);
+          var j = i * TAIL + k;
+          tPos[j * 3] = tmp.x; tPos[j * 3 + 1] = tmp.y; tPos[j * 3 + 2] = tmp.z;
+          tEdge[j] = ei;
+        }
+      }
+      travGeo.attributes.position.needsUpdate = true;
+      travGeo.attributes.aEdge.needsUpdate = true;
+    }
+
+    /* ---- sizing ---- */
+    function resize() {
+      var r = stage.getBoundingClientRect();
+      var w = Math.max(r.width, 1), h = Math.max(r.height, 1);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(w, h, false);
+      uniforms.uPR.value = renderer.getPixelRatio();
+      halos.material.uniforms.uPR.value = renderer.getPixelRatio();
+      ambient.material.uniforms.uPR.value = renderer.getPixelRatio();
+      camera.aspect = w / h;
+      /* Frame the graph rather than trusting a fixed z: solve the distance
+         that fits both the half-width and the half-height with margin. */
+      var tan = Math.tan((camera.fov * Math.PI / 180) / 2);
+      camera.position.z = Math.max(4.35 / (tan * camera.aspect), 3.05 / tan);
+      camera.updateProjectionMatrix();
+      var per = window.innerWidth < 900 ? BEAM_MIN : BEAM_MAX;
+      beamGeo.setDrawRange(0, per * EN);
+    }
+
+    /* ---- pointer tilt, damped, capped at 8 degrees ---- */
+    var MAX_TILT = 8 * Math.PI / 180;
+    var pt = { x: 0, y: 0 }, cur = { x: 0, y: 0 };
+    if (!REDUCE) {
+      window.addEventListener("pointermove", function (ev) {
+        var r = stage.getBoundingClientRect();
+        pt.x = Math.max(-1, Math.min(1, ((ev.clientX - r.left) / r.width - 0.5) * 2));
+        pt.y = Math.max(-1, Math.min(1, ((ev.clientY - r.top) / r.height - 0.5) * 2));
+      }, { passive: true });
+    }
+
+    /* ---- the loop ---- */
+    var running = false, raf = 0, clock = new THREE.Clock(), elapsed = 0;
+    var hotMix = 0, screen = new THREE.Vector3();
+
+    function frame() {
+      raf = 0;
+      var dt = Math.min(clock.getDelta(), 0.05);
+      if (!REDUCE) elapsed += dt;
+
+      /* Idle drift rather than a full revolution: a 360 spin sends the
+         gate ring edge-on and reverses the left-to-right reading of the
+         pipeline twice a cycle. This never stops moving and never stops
+         being legible. */
+      var baseY = REDUCE ? 0.10 : Math.sin(elapsed * 0.16) * 0.20;
+      var baseX = REDUCE ? 0.05 : Math.sin(elapsed * 0.11 + 1.1) * 0.07;
+      cur.x += (pt.x - cur.x) * 0.055;
+      cur.y += (pt.y - cur.y) * 0.055;
+      graph.rotation.y = baseY + cur.x * MAX_TILT;
+      graph.rotation.x = baseX + cur.y * MAX_TILT * 0.7;
+      if (!REDUCE) ring.rotation.z += dt * 0.35;
+
+      /* hover / focus state */
+      var moving = false;
+      for (var i = 0; i < 4; i++) {
+        liftTarget[i] = (i === active) ? 1 : 0;
+        var diff = liftTarget[i] - lift[i];
+        if (Math.abs(diff) > 0.0015) { lift[i] += diff * 0.16; moving = true; }
+        else if (lift[i] !== liftTarget[i]) { lift[i] = liftTarget[i]; moving = true; }
+      }
+      var hotTarget = active >= 0 ? 1 : 0;
+      if (Math.abs(hotTarget - hotMix) > 0.002) { hotMix += (hotTarget - hotMix) * 0.16; moving = true; }
+      else hotMix = hotTarget;
+      uniforms.uHotMix.value = hotMix;
+      if (active >= 0) uniforms.uHot.value.set(ADJ[active][0], ADJ[active][1], ADJ[active][2], ADJ[active][3]);
+
+      if (moving || elapsed === 0) rebuild();
+      if (!REDUCE) {
+        for (var t = 0; t < travelers.length; t++) {
+          var T = travelers[t], span = T.back ? 1 : 3;
+          T.u += T.speed * dt;
+          while (T.u >= span) T.u -= span;
+        }
+      }
+      moveTravelers();
+
+      /* Track the DOM buttons and the label card to the projected nodes. */
+      var r = stage.getBoundingClientRect();
+      for (var b = 0; b < 4; b++) {
+        cores[b].getWorldPosition(screen);
+        screen.project(camera);
+        var px = (screen.x * 0.5 + 0.5) * r.width;
+        var py = (-screen.y * 0.5 + 0.5) * r.height;
+        buttons[b].style.transform = "translate(" + px.toFixed(1) + "px," + py.toFixed(1) + "px)";
+        if (b === active) {
+          var left = px > r.width * 0.55;
+          var cw = 248, gap = 28;
+          var cx = left ? px - cw - gap : px + gap;
+          cx = Math.max(4, Math.min(cx, r.width - cw - 4));
+          var cy = Math.max(4, Math.min(py + 36, r.height - 180));
+          card.style.transform = "translate(" + cx.toFixed(1) + "px," + cy.toFixed(1) + "px)";
+        }
+      }
+
+      renderer.render(scene, camera);
+      if (running) raf = requestAnimationFrame(frame);
+    }
+
+    function start() { if (!running) { running = true; clock.getDelta(); raf = requestAnimationFrame(frame); } }
+    function stop()  { running = false; if (raf) cancelAnimationFrame(raf); raf = 0; }
+
+    /* Never render a canvas nobody can see. */
+    var io = new IntersectionObserver(function (es) {
+      if (es[0].isIntersecting && !document.hidden) start(); else stop();
+    }, { threshold: 0.01 });
+    io.observe(stage);
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) stop(); else io.takeRecords(), start();
+    });
+
+    window.addEventListener("resize", resize, { passive: true });
+
+    three = {
+      resize: resize,
+      rekey: function () {
+        var add2 = readVar("--gl-blend") === "add";
+        var bl = add2 ? THREE.AdditiveBlending : THREE.NormalBlending;
+        C.beam.set(readVar("--gl-beam")); C.flow.set(readVar("--gl-flow"));
+        C.node.set(readVar("--gl-node")); C.core.set(readVar("--gl-core"));
+        uniforms.uBeam.value.copy(C.beam);
+        uniforms.uFlow.value.copy(C.flow);
+        halos.material.uniforms.uColor.value.copy(C.node);
+        ambient.material.uniforms.uColor.value.copy(C.node);
+        ambient.material.uniforms.uMul.value = add2 ? 0.16 : 0.07;
+        pointMat.blending = bl; halos.material.blending = bl; ambient.material.blending = bl;
+        ring.material.color.copy(C.node); ring.material.blending = bl;
+        ticks.material.color.copy(C.node); ticks.material.blending = bl;
+        for (var i = 0; i < 4; i++) cores[i].material.color.copy(C.core);
+        for (var e = 0; e < EN; e++) {
+          lines[e].material.color.copy(C.beam);
+          lines[e].material.opacity = (add2 ? 0.62 : 0.8) * EDGES[e].w;
+          lines[e].material.blending = bl;
+        }
+        additive = add2;
+        rebuild();
+      }
+    };
+
+    resize();
+    rebuild();
+    stage.setAttribute("data-ready", "");
+    start();
+  }
+
+  /* Build only when the WebGL layer is the one on screen, and build it if
+     the window grows past the small-screen breakpoint later. */
+  if (!mqSmall.matches) init();
+  var onMQ = function () { if (!mqSmall.matches) { init(); if (three) three.resize(); } };
+  if (mqSmall.addEventListener) mqSmall.addEventListener("change", onMQ);
+  else mqSmall.addListener(onMQ);
+
+  var dark = window.matchMedia("(prefers-color-scheme: dark)");
+  var onScheme = function () { css = getComputedStyle(document.documentElement); if (three) three.rekey(); };
+  if (dark.addEventListener) dark.addEventListener("change", onScheme);
+  else if (dark.addListener) dark.addListener(onScheme);
+
+  /* Escape closes the label when a node has keyboard focus. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && active >= 0) { setActive(-1); if (document.activeElement) document.activeElement.blur(); }
+  });
+})();
+</script>
+</body>
+</html>
