@@ -1,8 +1,8 @@
 /**
  * The project showcase — one entry per PRODUCT, not per file.
  *
- * /public/projecs holds seventeen videos and three PDFs, and every one of
- * them is a language cut or a document belonging to one of seven projects. The
+ * /public/projecs holds eighteen videos and three PDFs, and every one of
+ * them is a language cut or a document belonging to one of eight projects. The
  * section is built from this table, never from the directory listing, so
  * "Fitzy Arabic / Fitzy English / Fitzy Urdu" is one project with three
  * demos and one overview document, and a visitor never sees a filename.
@@ -156,6 +156,18 @@ export const projects = [
       "A Zakat calculator that works the way a scholar would: pick a school of thought, enter cash, gold and short-term liabilities, and it works out what's owed. An AI guide sits alongside it for the Islamic finance questions a plain number can't answer.",
     videos: {
       en: { src: video("zakat.mp4"), poster: poster("zakat-en"), width: 1920, height: 1080, duration: 117 },
+    },
+    resources: [],
+  },
+  {
+    id: "foodpanda",
+    name: "Foodpanda",
+    type: "Mobile Application · Voice AI",
+    tagline: "Order food by voice, hands-free",
+    description:
+      "A voice assistant inside a food-delivery app. Say what you want — a specific meal, a deal, a drink added to the order, the nearest store — and it listens, understands and acts, no typing required.",
+    videos: {
+      en: { src: video("Foodpanda_Eng app.mp4"), poster: poster("foodpanda-en"), width: 720, height: 1600, duration: 131 },
     },
     resources: [],
   },

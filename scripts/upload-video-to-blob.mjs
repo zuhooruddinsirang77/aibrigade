@@ -2,9 +2,14 @@ import { put } from "@vercel/blob";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-// One-off upload for a single new file, so adding one video doesn't mean
-// re-uploading the other sixteen through upload-videos-to-blob.mjs.
-const NAME = "zakat.mp4";
+// Upload for a single new file — `node scripts/upload-video-to-blob.mjs "name.mp4"`
+// (run with --env-file=.env.local) — so adding one video doesn't mean
+// re-uploading everything else through upload-videos-to-blob.mjs.
+const NAME = process.argv[2];
+if (!NAME) {
+  console.error("Usage: node scripts/upload-video-to-blob.mjs \"<filename>.mp4\"");
+  process.exit(1);
+}
 const filePath = path.join(process.cwd(), "public", "projecs", NAME);
 
 async function main() {
