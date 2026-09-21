@@ -30,3 +30,10 @@ next-env.d.ts
 # editor
 .vscode/
 .idea/
+
+# large source videos — served from Vercel Blob, not /public (see
+# scripts/upload-videos-to-blob.mjs and components/projects.data.js).
+# public/projecs-originals holds the uncompressed masters that
+# scripts/compress-videos.sh reads from.
+public/projecs/*.mp4
+public/projecs-originals/
