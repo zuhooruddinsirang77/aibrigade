@@ -19,13 +19,16 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
  *   is stretched or cropped, and when a language change alters the shape
  *   the stage animates between the two heights rather than jumping.
  *
- *   Weight. These files run from 8MB to 600MB. Nothing downloads until a
- *   visitor presses play: `preload="none"` behind a poster frame, and only
- *   the selected cut is in the DOM at all. Pressing a language after
- *   playback has started carries the intent over — the new cut starts
- *   itself — but a language change on an unstarted card just swaps the
- *   poster. Only one demo plays at a time across the section, and a demo
- *   that scrolls fully out of view pauses rather than playing to nobody.
+ *   Weight. Only the selected cut is in the DOM at all, and nothing
+ *   downloads until the card is within 600px of the viewport (see the
+ *   IntersectionObserver below) — `preload="none"` behind a poster frame
+ *   until then, `"auto"` once seen, so playback starts instantly instead
+ *   of after a buffering wait but a visitor who never scrolls to a card
+ *   never fetches its video. Pressing a language after playback has
+ *   started carries the intent over — the new cut starts itself — but a
+ *   language change on an unstarted card just swaps the poster. Only one
+ *   demo plays at a time across the section, and a demo that scrolls
+ *   fully out of view pauses rather than playing to nobody.
  */
 
 /** Section-wide "one at a time". Every stage listens; the one that just
@@ -50,6 +53,11 @@ export default function ProjectMedia({
   const [started, setStarted] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [dims, setDims] = useState(() => ({ width: video?.width, height: video?.height }));
+  // Nothing downloads until a card has been seen at least once — after
+  // that it stays eager, so playback starts instantly instead of after a
+  // buffering wait. Sticky rather than tied to `isIntersecting` directly,
+  // so scrolling a card back off-screen doesn't discard what it fetched.
+  const [seen, setSeen] = useState(false);
 
   const lang = LANGUAGES[code] || { english: code };
   const orientation = orientationOf(dims);
@@ -143,9 +151,10 @@ export default function ProjectMedia({
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) videoRef.current?.pause();
+        if (entry.isIntersecting) setSeen(true);
+        else videoRef.current?.pause();
       },
-      { threshold: 0 }
+      { threshold: 0, rootMargin: "600px 0px" }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -158,6 +167,15 @@ export default function ProjectMedia({
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
+
+  // Browsers only consult `preload` when the resource-selection algorithm
+  // runs — on mount, or after an explicit load() call. Flipping the attribute
+  // on an already-mounted element (none -> auto, first time a card is seen)
+  // doesn't retroactively start buffering on its own, so kick it here.
+  useEffect(() => {
+    if (!seen || started) return;
+    videoRef.current?.load();
+  }, [seen, started]);
 
   /* ---- handlers -------------------------------------------------------- */
 
@@ -208,7 +226,7 @@ export default function ProjectMedia({
           className="ax-proj__video"
           src={video.src}
           poster={video.poster || undefined}
-          preload="none"
+          preload={seen ? "auto" : "none"}
           playsInline
           controls={started}
           controlsList="nodownload"
