@@ -18,6 +18,7 @@ async function main() {
   const blob = await put(`projecs/${NAME}`, buffer, {
     access: "public",
     addRandomSuffix: false,
+    allowOverwrite: true,
     multipart: true,
   });
   console.log(blob.url);

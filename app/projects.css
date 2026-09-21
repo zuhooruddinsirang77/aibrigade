@@ -203,10 +203,20 @@
 .ax-proj__stage--featured {
   --ax-stage-h: clamp(28rem, 40vw, 38rem);
 }
-.ax-proj__stage[data-orientation="landscape"] {
+.ax-proj__stage--featured[data-orientation="landscape"] {
   aspect-ratio: var(--ax-ratio, 16 / 9);
 }
-.ax-proj__stage[data-orientation="portrait"] {
+.ax-proj__stage[data-orientation="portrait"],
+/* A landscape cut in the grid is framed the same way a portrait one is —
+   inset with a margin, centred, glowing behind it — rather than bled to
+   the card's own edge. Full-bleed only worked while every screenshot in
+   the row happened to be dark footage of its own accord (InCall, Fraud
+   Detection); the Zakat Engine's cut is a light, white-background web
+   page, and at true edge-to-edge size it reads as a stray browser tab
+   dropped into an otherwise all-ink section rather than a product shot
+   that belongs there. A visible dark margin fixes that for ANY screenshot,
+   bright or dark, instead of fighting each one's own colour with a scrim. */
+.ax-proj__stage--card[data-orientation="landscape"] {
   height: var(--ax-stage-h);
   display: flex;
   align-items: center;
@@ -224,7 +234,8 @@
   opacity: 0.4;
   pointer-events: none;
 }
-.ax-proj__stage[data-orientation="portrait"]::after {
+.ax-proj__stage[data-orientation="portrait"]::after,
+.ax-proj__stage--card[data-orientation="landscape"]::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -236,6 +247,35 @@
 .ax-proj__frame {
   position: relative;
   z-index: 1;
+}
+/* A permanent, gentle scrim over every demo — not just the moment before
+   play. The footage here is a mix of dim office photography and pure
+   white app screenshots (the Zakat calculator, a light-themed web page)
+   sitting in an otherwise all-ink section; without this, that one card
+   reads as a stray browser tab pasted into a dark room. The wash is
+   light enough that a screenshot's own text stays legible — it's doing
+   the same job as the "lit from a gallery wall" treatment a case-study
+   site gives every product shot, so the whole row reads as one system
+   of dark cards rather than each product's own background colour. */
+.ax-proj__frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+      180deg,
+      rgba(6, 8, 12, 0.22) 0%,
+      rgba(6, 8, 12, 0.08) 22%,
+      rgba(6, 8, 12, 0.1) 70%,
+      rgba(6, 8, 12, 0.32) 100%
+    ),
+    radial-gradient(120% 95% at 50% 45%, rgba(6, 8, 12, 0) 45%, rgba(6, 8, 12, 0.26) 100%);
+  mix-blend-mode: multiply;
+}
+.ax-proj__stage[data-orientation="portrait"] .ax-proj__frame::after,
+.ax-proj__stage--card[data-orientation="landscape"] .ax-proj__frame::after {
+  border-radius: inherit;
 }
 html.ax-motion:not(.ax-reduced) .ax-proj__frame {
   animation: ax-proj-in 0.6s var(--ease) both;
@@ -250,11 +290,16 @@ html.ax-motion:not(.ax-reduced) .ax-proj__frame {
     transform: none;
   }
 }
-.ax-proj__stage[data-orientation="landscape"] .ax-proj__frame {
+.ax-proj__stage--featured[data-orientation="landscape"] .ax-proj__frame {
   position: absolute;
   inset: 0;
 }
-.ax-proj__stage[data-orientation="portrait"] .ax-proj__frame {
+/* The device frame: a portrait cut always gets one, and now so does a
+   landscape cut in the grid — same margin, same lit edge, see the note
+   on `.ax-proj__stage--card[data-orientation="landscape"]` above. Only
+   `--ax-ratio` differs, so both fall through to the video's own shape. */
+.ax-proj__stage[data-orientation="portrait"] .ax-proj__frame,
+.ax-proj__stage--card[data-orientation="landscape"] .ax-proj__frame {
   height: 100%;
   max-width: 100%;
   aspect-ratio: var(--ax-ratio, 9 / 16);
@@ -588,7 +633,8 @@ html.ax-motion:not(.ax-reduced) .ax-proj__frame {
   .ax-proj__stage--featured {
     --ax-stage-h: clamp(24rem, 100vw, 30rem);
   }
-  .ax-proj__stage[data-orientation="portrait"] {
+  .ax-proj__stage[data-orientation="portrait"],
+  .ax-proj__stage--card[data-orientation="landscape"] {
     padding: 1rem;
   }
   .ax-proj__play-ring {

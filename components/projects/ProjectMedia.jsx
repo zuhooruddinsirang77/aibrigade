@@ -209,10 +209,15 @@ export default function ProjectMedia({
       data-started={started || undefined}
       style={{ "--ax-ratio": ratio }}
     >
-      {/* A blurred copy of the poster lights the space around a portrait
-          cut, so the phone stands in its own product's colour rather than
-          on a flat black slab. Decorative only. */}
-      {orientation === "portrait" && video.poster && (
+      {/* A blurred copy of the poster lights the space around a cut that
+          sits inset from its own frame — every portrait cut, and a
+          landscape one in the grid (see `.ax-proj__stage--card` in
+          projects.css: a landscape screenshot there is framed with a
+          margin rather than bled to the edge, the same reasoning as the
+          device frame below). The featured slot's landscape cut still
+          runs full-bleed, so it gets no glow — there's no margin for one
+          to light. Decorative only. */}
+      {(orientation === "portrait" || variant === "card") && video.poster && (
         <span
           className="ax-proj__stage-glow"
           aria-hidden="true"

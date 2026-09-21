@@ -155,7 +155,7 @@ export const projects = [
     description:
       "A Zakat calculator that works the way a scholar would: pick a school of thought, enter cash, gold and short-term liabilities, and it works out what's owed. An AI guide sits alongside it for the Islamic finance questions a plain number can't answer.",
     videos: {
-      en: { src: video("zakat.mp4"), poster: poster("zakat-en"), width: 1920, height: 1080, duration: 117 },
+      en: { src: video("zakat.mp4"), poster: poster("zakat-en"), width: 1920, height: 912, duration: 117 },
     },
     resources: [],
   },
