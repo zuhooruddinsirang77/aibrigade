@@ -1,8 +1,8 @@
 /**
  * The project showcase — one entry per PRODUCT, not per file.
  *
- * /public/projecs holds fifteen videos and two PDFs, and every one of them
- * is a language cut or a document belonging to one of six projects. The
+ * /public/projecs holds seventeen videos and three PDFs, and every one of
+ * them is a language cut or a document belonging to one of seven projects. The
  * section is built from this table, never from the directory listing, so
  * "Fitzy Arabic / Fitzy English / Fitzy Urdu" is one project with three
  * demos and one overview document, and a visitor never sees a filename.
@@ -144,6 +144,18 @@ export const projects = [
       "Ask your retail database anything by voice or text — top sellers last week, the branch with the highest fuel sales yesterday — and get spoken and written answers in seconds.",
     videos: {
       en: { src: video("RM2 video app.mp4"), poster: poster("rm2-en"), width: 720, height: 1280, duration: 67 },
+    },
+    resources: [],
+  },
+  {
+    id: "zakat",
+    name: "AI Zakat Engine",
+    type: "Web Application · Islamic Finance",
+    tagline: "Zakat, calculated by school of thought — with an AI guide",
+    description:
+      "A Zakat calculator that works the way a scholar would: pick a school of thought, enter cash, gold and short-term liabilities, and it works out what's owed. An AI guide sits alongside it for the Islamic finance questions a plain number can't answer.",
+    videos: {
+      en: { src: video("zakat.mp4"), poster: poster("zakat-en"), width: 1920, height: 1080, duration: 117 },
     },
     resources: [],
   },
