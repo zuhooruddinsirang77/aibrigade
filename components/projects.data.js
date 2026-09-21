@@ -116,6 +116,7 @@ export const projects = [
       "A car shopping assistant you talk to. Describe the budget, body style and mileage you want, and it narrows the listings, answers questions and remembers what you asked for.",
     videos: {
       en: { src: video("AutoVista English app.mp4"), poster: poster("autovista-en"), width: 720, height: 1502, duration: 98 },
+      ar: { src: video("AutoVista Arabic.mp4"), poster: poster("autovista-ar"), width: 720, height: 1502, duration: 74 },
       ur: { src: video("AutoVista Urdu app.mp4"), poster: poster("autovista-ur"), width: 720, height: 1502, duration: 69 },
     },
     resources: [],
