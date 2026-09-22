@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { loadGsap, prefersReducedMotion } from "@/components/motion/gsapLoader";
 import AmbientVideo from "@/components/motion/AmbientVideo";
-import { filmFor } from "@/components/video.data";
+import { films, filmFor } from "@/components/video.data";
 
 /**
  * "How we run it" — the five stages of an engagement, as a line being drawn
@@ -66,6 +66,30 @@ export default function Pipeline({ stages }) {
     setSeen((prev) => (prev.has(lit) ? prev : new Set(prev).add(lit)));
   }, [lit]);
 
+  /* Autoplay: cycle the screen through Discover → Design → Build → Deploy →
+     Scale on its own, looping back to Discover after. Each stage's dwell is
+     that stage's own clip's runtime, so the screen holds Discover only as
+     long as its footage actually plays before Design takes over.
+     Hovering/focusing a stage wins immediately (the effect just re-schedules
+     from wherever the pointer leaves it), and scrolling still wins too —
+     ScrollTrigger's onUpdate sets `active` on every scroll tick, and this
+     timer simply resumes cycling from that position. */
+  useEffect(() => {
+    if (hovered !== null) return;
+    if (prefersReducedMotion()) return;
+
+    const filmKey = filmFor.stages[stages[active]?.title];
+    const ms = (films[filmKey]?.duration || 5) * 1000;
+
+    const t = setTimeout(() => {
+      const next = (active + 1) % stages.length;
+      setActive(next);
+      setDrawn((next + 1) / stages.length);
+    }, ms);
+
+    return () => clearTimeout(t);
+  }, [active, hovered, stages]);
+
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -98,11 +122,23 @@ export default function Pipeline({ stages }) {
       const st = ScrollTrigger.create({
         trigger: section,
         // The line starts drawing as the stages clear the lower third of
-        // the screen and finishes while the last one is still well above
-        // the fold — so the diagram is complete at the moment you are
-        // actually looking at the end of it, not after it has left.
+        // the screen. `end` was "bottom 62%", which on this section's own
+        // height (~630px on a 900px viewport) resolves to roughly 720px of
+        // scroll for all five stages combined — two or three wheel ticks,
+        // so the line reached Scale before a reader had read any one stage.
+        // This section is deliberately not pinned (see the class doc), so
+        // the animation can't just be given more scroll distance outright —
+        // it has to finish before the section itself scrolls past the top
+        // of the viewport, or the line would still be catching up on
+        // content already off-screen. "bottom 5%" is close to that ceiling
+        // (finishing just before the section fully exits) rather than
+        // "bottom 62%"'s wide buffer, which is what stretches the usable
+        // distance from ~720px to ~1250px without breaking that invariant.
+        // Kept as a percentage, not a fixed pixel count, so it still scales
+        // correctly at any viewport height or if the stage copy changes the
+        // section's own height later.
         start: "top 72%",
-        end: "bottom 62%",
+        end: "bottom 5%",
         scrub: 0.8,
         invalidateOnRefresh: true,
         onRefresh: () => {
@@ -171,6 +207,7 @@ export default function Pipeline({ stages }) {
             onPointerLeave={() => setHovered((h) => (h === i ? null : h))}
             onFocusCapture={() => setHovered(i)}
             onBlurCapture={() => setHovered((h) => (h === i ? null : h))}
+            onClick={() => setHovered(i)}
           >
             <span className="ax-pipe__node" aria-hidden="true">
               <span className="ax-pipe__node-dot" />

@@ -362,7 +362,12 @@ html.ax-motion:not(.ax-reduced) .ax-sysv__caret {
    ================================================================ */
 
 #cases .ax-sysv {
-  margin: 0 auto;
+  /* Was `margin: 0 auto` — an auto margin on a flex item absorbs all the
+     free space on its axis, which centres the panel no matter what
+     `justify-content` says on `.ax-act__media` (app/compose.css). That
+     canceled out the flex-end that's meant to float this to the right
+     and leave the footage open on the left. */
+  margin: 0;
   transition: box-shadow var(--dur-3) var(--ease), transform var(--dur-3) var(--ease);
 }
 @media (hover: hover) and (pointer: fine) {

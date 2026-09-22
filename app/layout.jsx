@@ -9,6 +9,20 @@ import "./casestudy.css";
 import "./path.css";
 import "./sysv.css";
 import "./svc.css";
+/* contact.css — /contact only. Every selector in it is new (`.ax-contact*`)
+   and it restyles nothing, so its position in this sequence is not
+   load-bearing; it sits here with the other section stylesheets rather
+   than among the three below that deliberately correct the finished
+   cascade. */
+import "./contact.css";
+/* console.css — the stylesheet components/motion/AgentConsole.jsx was
+   written against and never got. Not page-scoped; /contact is only where
+   it is mounted first. */
+import "./console.css";
+/* footer.css — one file for the footer, which used to be styled from
+   system.css, refine.css and motion.css at once. Those blocks are gone;
+   see the header here. */
+import "./footer.css";
 /* film.css after the sections it layers into — it positions backdrops
    against rules in hero.css and deployments.css. */
 import "./film.css";

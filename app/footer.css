@@ -1,0 +1,498 @@
+/* ================================================================
+   AIBrigade — footer
+
+   Replaces the footer rules that used to live in three files at once:
+   the grid in system.css (section 3), the restyle in refine.css
+   (section 16) plus its corrections in section 11, and two hover rules
+   in motion.css. All of those were written against the Webflow class
+   names the old markup carried (`.footer-grid`, `.footer_social-new`,
+   `.footer-copy`, `.navbar_link._2.footer`); components/Footer.jsx no
+   longer emits any of them, and those blocks have been removed rather
+   than left to rot.
+
+   Four bands — brand and links, offices, the wordmark, the small print
+   — separated by hairlines on one light surface. Tokens only.
+   ================================================================ */
+
+.ax-foot {
+  position: relative;
+  isolation: isolate;
+  /* The page closes on an ink band. A hairline plus a lift from white to
+     the sunken tint is enough separation under it; a second dark surface
+     would read as one continuous black footer. */
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-sunken) 100%);
+  border-top: 1px solid var(--line);
+  padding-top: clamp(3.5rem, 5vw + 1.5rem, 5.5rem);
+  padding-bottom: clamp(1.25rem, 2vw, 2rem);
+  color: var(--ink);
+  overflow: hidden;
+}
+/* The same engineering grid the dark bands carry, at the strength a
+   light surface can hold — it gives the largest expanse of flat colour
+   on the site something to be made of. */
+.ax-foot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(rgba(22, 29, 37, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(22, 29, 37, 0.028) 1px, transparent 1px);
+  background-size: 5.5rem 5.5rem;
+  -webkit-mask-image: radial-gradient(80% 60% at 50% 0%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(80% 60% at 50% 0%, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ================================================================
+   1 + 2 — brand and the three columns
+   ================================================================ */
+.ax-foot__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: start;
+}
+
+.ax-foot__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+.ax-foot__logo {
+  display: inline-flex;
+}
+.ax-foot__line {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink-60);
+}
+.ax-foot__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: var(--sp-2);
+  padding: 0.85rem 1.4rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  background: var(--grad-violet);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  border-radius: var(--r-pill);
+  transition: background-position var(--dur-3) var(--ease-out), box-shadow var(--dur-2) var(--ease);
+}
+.ax-foot__cta:hover {
+  background-position: 0 0;
+  box-shadow: var(--shadow-3);
+}
+.ax-foot__cta svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__cta:hover svg {
+  transform: translateX(0.25rem);
+}
+
+/* The reply time as a status line rather than a sentence in a
+   paragraph. It is the one commitment this page makes to someone who
+   has not written yet. */
+.ax-foot__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: var(--sp-2) 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-45);
+}
+.ax-foot__status-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #35b46b;
+  box-shadow: 0 0 0 0.2rem rgba(53, 180, 107, 0.14);
+  animation: ax-foot-pulse 2.6s var(--ease) infinite;
+}
+@keyframes ax-foot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.ax-foot__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+/* The same small-caps-and-rule label the contact page and `.ax-kicker`
+   use, so a column heading here is recognisably the same object as a
+   section label anywhere else on the site. */
+.ax-foot__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-foot__head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.ax-foot__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+}
+.ax-foot__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  color: var(--ink-60);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-foot__link:hover {
+  color: var(--violet-600);
+  transform: translateX(0.2rem);
+}
+.ax-foot__link--em {
+  color: var(--ink);
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.ax-foot__inline {
+  color: var(--violet-600);
+  font-weight: 500;
+}
+.ax-foot__inline svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__inline:hover svg {
+  transform: translateX(0.2rem);
+}
+.ax-foot__hours {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-45);
+}
+
+/* A case study is a client and a sector, not a slug — the sector is what
+   tells a reader which of the three is theirs. The left rule is the
+   "you are here" mark the nav and the capability explorer both draw. */
+.ax-foot__case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-left: 0.85rem;
+  text-decoration: none;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__case::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 0.125rem;
+  border-radius: var(--r-pill);
+  background: var(--line-strong);
+  transition: background var(--dur-2) var(--ease);
+}
+.ax-foot__case:hover {
+  transform: translateX(0.2rem);
+}
+.ax-foot__case:hover::before {
+  background: var(--violet-500);
+}
+.ax-foot__case-client {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink);
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-foot__case:hover .ax-foot__case-client {
+  color: var(--violet-600);
+}
+.ax-foot__case-sector {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+/* ================================================================
+   3 — where we are
+   ================================================================ */
+.ax-foot__offices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-6);
+  margin-top: clamp(2.5rem, 4vw, 3.5rem);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+.ax-foot__office {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.ax-foot__office-city {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.ax-foot__office-region {
+  font-size: 0.875rem;
+  color: var(--ink-60);
+}
+.ax-foot__office-role {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+/* The clock. Tabular figures so a minute ticking over cannot shift the
+   line it sits on. */
+.ax-foot__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-45);
+}
+.ax-foot__time-dot {
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--violet-400);
+}
+
+/* ================================================================
+   The signature
+
+   An oversized wordmark, clipped by the section, at the weight of a
+   watermark. It is the one thing that makes the bottom of the page feel
+   like the end of something rather than the point where the content ran
+   out — and it costs no image: it is the page's own typeface with the
+   brand gradient clipped to it.
+   ================================================================ */
+.ax-foot__mark {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  /* The descender-free capitals sit on the baseline; the negative bottom
+     margin lets the last few pixels of the letterforms run under the
+     rule below, which is what stops it reading as just another line of
+     type. */
+  margin-bottom: -0.6rem;
+  line-height: 0.78;
+  overflow: hidden;
+  user-select: none;
+}
+.ax-foot__mark span {
+  display: block;
+  font-size: clamp(3rem, 13.2vw, 13rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  white-space: nowrap;
+  background: linear-gradient(
+    96deg,
+    rgba(146, 72, 228, 0.18) 0%,
+    rgba(248, 119, 86, 0.16) 52%,
+    rgba(22, 29, 37, 0.07) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ================================================================
+   4 — the small print
+   ================================================================ */
+.ax-foot__base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4) var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-45);
+}
+.ax-foot__base-left,
+.ax-foot__base-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4) var(--sp-5);
+}
+.ax-foot__copy {
+  margin: 0;
+}
+.ax-foot__base a {
+  font-size: 0.8125rem;
+  color: var(--ink-45);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-foot__base a:hover {
+  color: var(--violet-600);
+}
+
+/* Six outbound links on one rule. They were chips with an arrow glyph
+   fetched from the Webflow CDN; plain text with a hairline that draws on
+   hover is quieter, costs no requests, and does not turn the bottom of
+   the page into a row of grey lozenges. */
+.ax-foot__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+}
+.ax-foot__social {
+  position: relative;
+}
+.ax-foot__social::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.15rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__social:hover::after {
+  transform: scaleX(1);
+}
+
+.ax-foot__totop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-60);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    background var(--dur-2) var(--ease);
+}
+.ax-foot__totop svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__totop:hover {
+  color: var(--violet-600);
+  border-color: var(--violet-300);
+  background: #fff;
+}
+.ax-foot__totop:hover svg {
+  transform: translateY(-0.15rem);
+}
+
+/* ================================================================
+   Responsive
+   ================================================================ */
+@media screen and (max-width: 991px) {
+  /* The brand block takes the full width and the three link columns sit
+     under it — at this width four columns put "Inside the system" in a
+     120px track. */
+  .ax-foot__top {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-7) var(--sp-6);
+  }
+  .ax-foot__brand {
+    grid-column: 1 / -1;
+  }
+  .ax-foot__line {
+    max-width: 44ch;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .ax-foot__top,
+  .ax-foot__offices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ax-foot__base {
+    justify-content: flex-start;
+  }
+  /* At this width the wordmark is the only thing on the page set in
+     three-inch type; half the section's height for a decoration is a
+     trade a phone cannot afford. */
+  .ax-foot__mark {
+    margin-top: var(--sp-6);
+  }
+  .ax-foot__mark span {
+    font-size: 14vw;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .ax-foot__top,
+  .ax-foot__offices {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ax-foot__cta {
+    width: 100%;
+    justify-content: center;
+  }
+  .ax-foot__base-left,
+  .ax-foot__base-right {
+    gap: var(--sp-3) var(--sp-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-foot__status-dot {
+    animation: none;
+  }
+  .ax-foot__link:hover,
+  .ax-foot__case:hover,
+  .ax-foot__cta:hover svg,
+  .ax-foot__inline:hover svg,
+  .ax-foot__totop:hover svg {
+    transform: none;
+  }
+}

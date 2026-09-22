@@ -10,29 +10,28 @@ import Magnetic from "@/components/motion/Magnetic";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
 import Counter from "@/components/motion/Counter";
-import HeroNetwork from "@/components/motion/HeroNetwork";
 import TerminalFeed from "@/components/motion/TerminalFeed";
 import { caseStudies, getCaseStudy } from "@/components/casestudies.data";
+import { films, filmFor } from "@/components/video.data";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
-
-// Same document glyph WhyUs.jsx uses for "Clinical documentation" — reused
-// rather than commissioning new art for the one case with no product
-// screenshot of its own (see casestudies.data.js: uub.heroImg is null).
-const DOC_ICON = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7.2 3.3h6.4l3.6 3.6v13.4a.4.4 0 01-.4.4H7.2a.4.4 0 01-.4-.4V3.7a.4.4 0 01.4-.4z" />
-    <path d="M13.4 3.3v3.6a.4.4 0 00.4.4h3.6" />
-    <path d="M9 12h6M9 15.4h6M9 8.6h2" />
-  </svg>
-);
 
 // Mirrors the reel empty-state in Deployments.jsx: a specific case's own
 // chapter captions typed out as a terminal log stand in for footage that
 // doesn't exist yet, so a broken/missing video reads as "this case is
 // running" instead of "this page is unfinished."
+/* The source resolution below is Deployments.jsx's `sourceFor`, and it is
+   here because this component asked for `deployment.src` alone. No entry in
+   deployments.data.js carries `src` — the /public/reels files they used to
+   point at were never added, which is written up at the top of that file —
+   so every case study rendered `<video src={undefined}>`: an element that
+   loads nothing, fires no `error`, and paints a black 16:9 rectangle where
+   the outcome footage should be. `films[...]` is the reference clip the
+   rest of the site falls back to, and a real capture in `src` still wins. */
 function ReelEmbed({ deployment, client }) {
-  const [failed, setFailed] = useState(false);
+  const src =
+    deployment.src || films[deployment.film || filmFor.reels?.[deployment.id]]?.src || null;
+  const [failed, setFailed] = useState(!src);
   const terminalLines = useMemo(
     () =>
       deployment.chapters.flatMap((c) => [
@@ -55,7 +54,7 @@ function ReelEmbed({ deployment, client }) {
       ) : (
         <video
           className="ax-case__video"
-          src={deployment.src}
+          src={src}
           poster={deployment.poster}
           muted
           loop
@@ -82,12 +81,28 @@ export default function CaseStudy({ slug }) {
   const { deployment } = study;
   const others = Object.values(caseStudies).filter((c) => c.slug !== slug);
 
+  /* Only read when this case has no product shot — see the hero's second
+     branch. `undefined` leaves TerminalFeed on its own generic pipeline
+     log, which is the right fallback for a case with no chapters either. */
+  const heroLog = deployment?.chapters?.flatMap((c) => [
+    { prompt: true, text: `aibrigade run ${c.stage.toLowerCase()}` },
+    { text: `> ${c.caption}` },
+  ]);
+
   return (
     <>
       <Navbar />
       <main className="ax-case">
         <section className="ax-case__hero">
-          <HeroNetwork dark position={[0, 0.3, -3]} scale={1.05} />
+          {/* The `HeroNetwork` canvas that used to sit here is gone. Two
+              reasons: full-bleed it drew forty hairlines and a dozen lit
+              nodes straight through the headline, and the drawing itself —
+              the textbook four-layer node diagram — is the one picture
+              every AI company's landing page already has. It said nothing
+              about this work. The band now carries a violet bloom and a
+              faint grid (app/casestudy.css), and the visual on the right is
+              the thing that is actually specific to the case: the system
+              that shipped. */}
           <div className="padding-global">
             <div className="container-large">
               <div className="ax-case__hero-grid">
@@ -96,7 +111,14 @@ export default function CaseStudy({ slug }) {
                     <span aria-hidden="true">←</span> All case studies
                   </a>
                   <span className="ax-case__eyebrow">{study.sector} case study</span>
-                  <h1 className={`heading-style-h1 grad ${study.gradClass}`}>
+                  {/* Not `.heading-style-h1.grad`. That is the home page's
+                      display size on white — about 6rem here — and these
+                      titles are seven and eight words long, so it produced a
+                      five-line headline that overflowed the hero and ran
+                      through both the network and the device shot. The class
+                      below sizes for the sentence; `data-accent` keeps
+                      Halyk's green identity in the gradient's far stop. */}
+                  <h1 className="ax-case__title" data-accent={study.gradClass || undefined}>
                     <MaskHeading text={study.title} />
                   </h1>
                   <Reveal variant="rise" delay={0.2} className="ax-case__dek">
@@ -146,10 +168,18 @@ export default function CaseStudy({ slug }) {
                     </Parallax>
                   </Reveal>
                 ) : (
-                  <Reveal variant="clip" className="ax-case__hero-visual ax-case__hero-visual--icon">
-                    <div className="ax-case__hero-icon" aria-hidden="true">
-                      {DOC_ICON}
-                    </div>
+                  /* The one case with no product shot used to draw a
+                     document glyph on a violet square — a piece of clip
+                     art standing in for the work, next to a headline about
+                     a clinical system. This case's own five stages, typed
+                     out as a build log, is both specific to it and the
+                     thing an engineer reading the page recognises. Same
+                     panel `Deployments` uses when a reel has no footage. */
+                  <Reveal variant="clip" className="ax-case__hero-visual ax-case__hero-visual--log">
+                    <TerminalFeed
+                      lines={heroLog}
+                      title={`${study.client.toLowerCase()} — ${deployment?.id || slug}`}
+                    />
                   </Reveal>
                 )}
               </div>

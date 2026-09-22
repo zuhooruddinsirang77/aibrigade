@@ -169,6 +169,32 @@ export default function Reviews() {
     tabsRef.current[active]?.focus();
   }, [active]);
 
+  /* Autoplay: one testimonial every AUTOPLAY_MS. A manual pick — click or
+     keyboard — pauses it rather than fighting the reader's own choice, and
+     it resumes on its own once they've been idle for the same interval, so
+     the stage doesn't just stall for the rest of the visit. */
+  const AUTOPLAY_MS = 20000;
+  const [paused, setPaused] = useState(false);
+  const resumeTimer = useRef(null);
+
+  const pauseThenResume = useCallback(() => {
+    setPaused(true);
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(() => setPaused(false), AUTOPLAY_MS);
+  }, []);
+
+  useEffect(() => () => {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+  }, []);
+
+  useEffect(() => {
+    if (paused) return;
+    const id = setInterval(() => {
+      setActive((i) => (i + 1) % reviews.length);
+    }, AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [paused]);
+
   const onKeyDown = (e) => {
     const map = {
       ArrowDown: 1,
@@ -178,12 +204,15 @@ export default function Reviews() {
     };
     if (map[e.key]) {
       e.preventDefault();
+      pauseThenResume();
       select(active + map[e.key], true);
     } else if (e.key === "Home") {
       e.preventDefault();
+      pauseThenResume();
       select(0, true);
     } else if (e.key === "End") {
       e.preventDefault();
+      pauseThenResume();
       select(reviews.length - 1, true);
     }
   };
@@ -278,7 +307,10 @@ export default function Reviews() {
                               tabsRef.current[i] = el;
                             }}
                             className={`ax-voices__tab${on ? " is-on" : ""}`}
-                            onClick={() => select(i)}
+                            onClick={() => {
+                              pauseThenResume();
+                              select(i);
+                            }}
                           >
                             {r.img ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -319,7 +351,10 @@ export default function Reviews() {
                       type="button"
                       className="whyus-slider-arrow"
                       aria-label="Previous testimonial"
-                      onClick={() => select(active - 1)}
+                      onClick={() => {
+                        pauseThenResume();
+                        select(active - 1);
+                      }}
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M15 5l-7 7 7 7" />
@@ -329,7 +364,10 @@ export default function Reviews() {
                       type="button"
                       className="whyus-slider-arrow"
                       aria-label="Next testimonial"
-                      onClick={() => select(active + 1)}
+                      onClick={() => {
+                        pauseThenResume();
+                        select(active + 1);
+                      }}
                     >
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M9 5l7 7-7 7" />

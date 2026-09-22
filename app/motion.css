@@ -227,13 +227,21 @@ html.ax-motion:not(.ax-reduced) .ax-rail__count {
 }
 .ax-stack__tag {
   font-size: 0.8125rem;
-  font-weight: 500;
+  /* Was 500 on a border/background this faint — at that weight the tag
+     read as outline-only, with nothing to give it presence next to the
+     bolder chips the rest of the page uses (`.ax-hero__trust`, the
+     kicker). 600 plus a violet-tinted border (was the flat ink colour
+     everything else on the page borders with, which is why this row read
+     as a generic tag cloud rather than this site's own component) and a
+     hairline shadow are what let it sit at the same weight as those. */
+  font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--ax-ink);
-  padding: 0.5rem 0.9rem;
+  padding: 0.55rem 1rem;
   border-radius: 999px;
-  border: 1px solid rgba(22, 29, 37, 0.12);
-  background: rgba(146, 72, 228, 0.06);
+  border: 1px solid rgba(146, 72, 228, 0.22);
+  background: rgba(146, 72, 228, 0.07);
+  box-shadow: 0 1px 2px rgba(22, 29, 37, 0.05);
   font-variant-numeric: tabular-nums;
 }
 
@@ -571,18 +579,16 @@ html.ax-motion:not(.ax-reduced) .header_dec-1 {
     transform: translateY(-0.4rem);
   }
 
-  /* Footer and nav links draw their underline on approach. */
-  html.ax-motion:not(.ax-reduced) .navbar_link,
-  html.ax-motion:not(.ax-reduced) .footer_social-new,
-  html.ax-motion:not(.ax-reduced) .is-special-text-footer.is--link {
+  /* Nav links fade on approach. The two footer selectors that used to
+     ride along here (`.footer_social-new`,
+     `.is-special-text-footer.is--link`) are gone: components/Footer.jsx
+     emits none of the Webflow footer classes any more, and its own
+     hovers live in app/footer.css. */
+  html.ax-motion:not(.ax-reduced) .navbar_link {
     transition: opacity 0.25s var(--ax-ease), transform 0.25s var(--ax-ease);
   }
-  html.ax-motion:not(.ax-reduced) .navbar_link:hover,
-  html.ax-motion:not(.ax-reduced) .is-special-text-footer.is--link:hover {
+  html.ax-motion:not(.ax-reduced) .navbar_link:hover {
     opacity: 0.65;
-  }
-  html.ax-motion:not(.ax-reduced) .footer_social-new:hover {
-    transform: translateX(0.25rem);
   }
 }
 

@@ -82,8 +82,11 @@ export default function Cursor() {
           gsap.to(el, {
             /* The two labelled states have to hold a word, so they are
                sized to the word rather than to a scale that happens to
-               look right. */
-            scale: state === "play" ? 2.6 : state === "view" ? 2.3 : state ? 1.7 : 1,
+               look right. "view" sits over live console content (Cases.jsx)
+               rather than a plain image — a badge sized like "play"'s (or
+               even most of the way there) blots out the transaction row
+               under it, so this stays as small as the word still fits. */
+            scale: state === "play" ? 2.6 : state === "view" ? 1.2 : state ? 1.7 : 1,
             duration: 0.35,
             ease: "power3.out",
             overwrite: "auto",

@@ -70,6 +70,18 @@ export const films = {
     alt: "Particles of light moving through fibre-optic channels.",
   },
 
+  /* ---- WhyUs: real footage for the fraud detection card --------------
+     Re-encoded from a 90MB ProRes-style export (yuvj420p, ~52 Mbps) down
+     to libx264 CRF 18 with audio stripped (the card plays muted anyway) —
+     same 1920x1080 resolution and 13.84s length, ~9x smaller with no
+     visible quality loss. Original kept out of the repo; see the
+     scratchpad backup if the source is ever needed again. */
+  fraudReal: {
+    src: `${V}/fraud-detection-real.mp4`,
+    duration: 13.84,
+    alt: "A person reviewing a credit card and paperwork at a desk while flagging a transaction.",
+  },
+
   /* ---- the closing beat --------------------------------------------- */
   energy: {
     src: `${V}/circuit-energy-loop.mp4`,
@@ -253,9 +265,13 @@ export const filmFor = {
      footage, clinical cards get real footage each — "Diagnostics support"
      has a clip purpose-shot for it rather than sharing Clinical
      documentation's; the two that are neither (Compliance & trading, EHR
-     integration) keep the abstract loops that were already carrying them. */
+     integration) keep the abstract loops that were already carrying them.
+     "Fraud detection" now runs `fraudReal` — real footage instead of stock
+     B-roll — which also settles the earlier clash with "Autonomous
+     underwriting" right beside it in this row: the two no longer share a
+     clip. */
   whyUs: {
-    "Fraud detection": "fintechGrowth",
+    "Fraud detection": "fraudReal",
     "Autonomous underwriting": "fintechGrowth",
     "Clinical documentation": "geneEditing",
     "Diagnostics support": "diagnosticSupport",
@@ -263,10 +279,12 @@ export const filmFor = {
     "EHR integration": "energy",
   },
 
-  /* Cases — the three media tiles. Matched to the system each case study is
-     actually about: ICU and Halyk are both fintech, UUB is clinical. */
+  /* Cases — the three media tiles. ICU's card is literally titled "Real-time
+     fraud detection", so it gets the real fraud-detection footage rather
+     than the generic coins/chip clip; Halyk (underwriting) keeps that clip,
+     UUB (clinical) stays on the real lab footage. */
   cases: {
-    icu: "fintechGrowth",
+    icu: "fraudReal",
     halyk: "fintechGrowth",
     uub: "geneEditing",
   },
@@ -298,9 +316,15 @@ export const filmFor = {
      Matched to the system each reel is about: coins and live market data for
      fraud scoring, the lab bench for the clinical copilot, a person working
      an agent interface for autonomous underwriting, and the racks a
-     multi-venue feed runs on for compliance monitoring. */
+     multi-venue feed runs on for compliance monitoring.
+
+     `fraud-realtime` is now the exception to the "reference footage, not
+     capture" note above — deployments.data.js sets its own `film:
+     "fraudReal"` directly (real footage, not stock), which wins over this
+     entry. Kept in sync here anyway so this table stays accurate as a
+     fallback rather than describing a clip this reel no longer shows. */
   reels: {
-    "fraud-realtime": "fintechGrowth",
+    "fraud-realtime": "fraudReal",
     "clinical-copilot": "geneEditing",
     "underwriting-agent": "agentsInterface",
     "compliance-monitor": "infrastructure",

@@ -1,5 +1,6 @@
 import { CDN } from "@/components/data";
 import Reveal from "@/components/motion/Reveal";
+import Kicker from "@/components/motion/Kicker";
 import ServiceExplorer from "@/components/motion/ServiceExplorer";
 
 // Every phrase here already appears in this site's own copy (Hero,
@@ -59,6 +60,12 @@ export default function Services() {
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-services">
+            {/* Every other section on the page opens on this numbered
+                eyebrow (WhyUs, Cases, Environments, ...) — Services was the
+                one exception, missing from CHAPTERS entirely, so it read as
+                a section that forgot to introduce itself right after a page
+                full of sections that do. */}
+            <Kicker id="services" label="The offer" />
             <Reveal variant="rise" className="_3-columns-grid">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
                 What we can <br />

@@ -1,0 +1,21 @@
+<svg width="76" height="31" viewBox="0 0 76 31" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M44.6972 19.8599H22.1157V16.5371H44.7194L44.6972 19.8599Z" fill="#A179D1"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M2.13961 10.376L0.422852 13.6988H22.0957L22.1138 10.376H2.13961Z" fill="#A179D1"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.1157 13.6968H44.7073V10.374H22.1157V13.6968Z" fill="#A179D1"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M55.5953 30.2687C49.5907 30.2687 44.7061 25.383 44.7061 19.3794V2.37284L50.0898 0.760742V19.3794C50.0898 22.4134 52.5593 24.8849 55.5953 24.8849C58.6303 24.8849 61.0988 22.4134 61.0988 19.3794V2.37284L66.4825 0.760742V19.3794C66.4825 25.383 61.5979 30.2687 55.5953 30.2687" fill="#A179D1"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M73.3596 13.6988H50.0938V10.376H75.0421L73.3596 13.6988Z" fill="#A179D1"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.0957 19.8599H0.422852L2.13961 16.5371H22.1148L22.0957 19.8599Z" fill="#A179D1"/>
+<mask id="mask0_381_3056" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="50" y="16" width="26" height="4">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M50.0884 16.5371H75.0415V19.8599H50.0884V16.5371Z" fill="white"/>
+</mask>
+<g mask="url(#mask0_381_3056)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M73.3612 19.8599H50.0884V16.5371H75.0418L73.3612 19.8599Z" fill="#A179D1"/>
+</g>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M9.57373 29.9092V2.41487L14.9575 0.801758V29.9092H9.57373Z" fill="#A179D1"/>
+<mask id="mask1_381_3056" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="20" y="0" width="23" height="31">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M20.4375 0.276367H42.3015V30.2764H20.4375V0.276367Z" fill="white"/>
+</mask>
+<g mask="url(#mask1_381_3056)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M32.6953 30.2764C32.4105 30.2764 32.1237 30.2674 31.8319 30.2482C26.3234 29.8769 20.4375 25.748 20.4375 15.2734C20.4375 4.79876 26.3234 0.670893 31.8299 0.29856C36.7517 -0.0294958 40.0826 3.36478 41.2862 4.84002L37.1351 8.22725C36.2919 7.19478 34.5288 5.48406 32.1902 5.64506C28.1277 5.91878 25.7971 9.42777 25.7971 15.2734C25.7971 21.118 28.1257 24.628 32.1902 24.9017C35.8189 25.1433 38.7784 22.6949 38.8056 22.6698L42.3015 26.7312C42.1244 26.8832 38.1153 30.2764 32.6953 30.2764" fill="#A179D1"/>
+</g>
+</svg>

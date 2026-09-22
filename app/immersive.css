@@ -639,9 +639,25 @@ html.ax-motion:not(.ax-reduced) .ax-seam__line {
 .ax-cursor[data-state="view"] .ax-cursor__label--view {
   opacity: 1;
 }
+/* Was a near-opaque 0.9 fill — fine over a plain image, but "view" also
+   sits on Cases.jsx's live console tiles, where it blotted out the
+   transaction rows underneath while someone hovered to click. Lower
+   opacity plus a blur keeps the console legible (if softened) through the
+   ring, and the text-shadow on the label is what keeps "View" itself
+   readable now that the fill behind it isn't doing that job alone. */
 .ax-cursor[data-state="view"] {
-  background: rgba(146, 72, 228, 0.9);
+  background: rgba(146, 72, 228, 0.5);
   border-color: var(--violet-500);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.ax-cursor[data-state="view"] .ax-cursor__label--view {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+  /* The ring itself is much smaller now (1.2x, not 2.3x) so the word gets
+     its own tighter sizing rather than the one shared with "play"'s much
+     larger badge. */
+  font-size: 0.4375rem;
+  letter-spacing: 0.02em;
 }
 
 /* ================================================================

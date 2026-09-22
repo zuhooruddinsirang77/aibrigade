@@ -888,6 +888,19 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
   opacity: 1;
 }
 
+/* Client names with no logo file yet — a plain wordmark at the same
+   visual weight the SVG marks above held on this strip. */
+.ticker_wordmark {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  font-family: var(--font-family, inherit);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #161d25;
+}
+
 @media (max-width: 991px) {
   .ax-hero__body {
     padding-top: 7.5rem;
@@ -985,6 +998,22 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
    and puts the film under the network canvas at -1. */
 .section_cta_dark .ax-cta__film {
   z-index: -2;
+}
+
+/* Webflow lays `.cta_dark_component`'s two children (the heading, the
+   button) out with `justify-content: space-between` — fine for a row
+   with content filling both ends, but this row only has those two items,
+   so all the container's leftover width became dead space between them.
+   The button ended up stranded near the middle of the frame, answering
+   to nothing beside it, instead of reading as the one thing this sentence
+   is asking you to do. Stacking them instead, tight against each other,
+   is the grouping every other CTA on this page already uses (see
+   `.ax-hero__actions` right under the hero's own heading). */
+.section_cta_dark .cta_dark_component {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
 }
 
 /* ---- WhyUs capability cards ----

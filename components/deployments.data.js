@@ -39,7 +39,11 @@ export const deployments = [
     outcome:
       "Transaction scoring in under 40ms, with an explainable trail the compliance team can read.",
     metric: { value: "40", unit: "ms", label: "median scoring latency" },
-    film: "fintechGrowth",
+    // Was "fintechGrowth" (the generic coins/chip stock clip) — the real
+    // fraud-detection footage added for WhyUs and the ICU case study
+    // (components/video.data.js `films.fraudReal`) belongs here too, not
+    // just on those two, now that it exists.
+    film: "fraudReal",
     duration: 48,
     chapters: [
       { t: 0, stage: "Discover", caption: "Mapping two years of settled disputes" },

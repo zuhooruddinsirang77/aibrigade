@@ -1,0 +1,885 @@
+/* ================================================================
+   AIBrigade — /contact
+
+   Nothing new in the palette: the ink band and coral eyebrow are the
+   case-study hero's (app/casestudy.css), the violet ramp, `--sp-*`
+   scale, radii, shadows and `--ease` are system.css's, and the form
+   controls are built from those tokens rather than from the Webflow
+   `.popup_input` rules PopupForm inherited — those are sized for a
+   modal on a violet field and carry a fixed 4rem height that a
+   two-column form cannot use.
+
+   Imported after svc.css in app/layout.jsx. Every selector here is new
+   (`.ax-contact*`), so it neither depends on nor disturbs the cascade
+   order the other stylesheets are so carefully arranged in.
+   ================================================================ */
+
+.ax-contact {
+  overflow: hidden;
+}
+
+/* ---------- hero ----------
+   An ink band that owns its stacking context, so the panel's network
+   canvas (`z-index: -1`) paints above the background and below its own
+   frame rather than escaping across the whole section. */
+.ax-contact__hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--ink-canvas);
+  color: #fff;
+  padding-top: clamp(8rem, 6vw + 5rem, 11rem);
+  padding-bottom: clamp(2.5rem, 2vw + 1.5rem, 3.5rem);
+  overflow: hidden;
+}
+
+/* Two washes, both additive and both very quiet: a violet one from the
+   upper left and the faintest engineering grid over the whole band. The
+   grid is what stops a full-width ink rectangle reading as a blank void
+   on a wide screen, and at 1.5% white it is felt rather than seen. */
+.ax-contact__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: radial-gradient(
+      52% 70% at 8% -10%,
+      rgba(146, 72, 228, 0.3) 0%,
+      rgba(146, 72, 228, 0) 68%
+    ),
+    radial-gradient(40% 60% at 100% 0%, rgba(248, 119, 86, 0.1) 0%, rgba(248, 119, 86, 0) 70%);
+  pointer-events: none;
+}
+.ax-contact__hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 5.5rem 5.5rem;
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 40%, #000 0%, transparent 100%);
+  mask-image: radial-gradient(70% 70% at 50% 40%, #000 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.ax-contact__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  align-items: center;
+}
+
+/* The eyebrow carries a rule out to its right — the same hairline-and-
+   label idiom `.ax-kicker` uses on the home page, so this page opens in
+   the site's own voice rather than with a lone orange word. */
+.ax-contact__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.ax-contact__eyebrow::after {
+  content: "";
+  height: 1px;
+  width: 3.5rem;
+  background: linear-gradient(90deg, var(--coral), rgba(248, 119, 86, 0));
+}
+
+/* Deliberately NOT `.heading-style-h1`. That class is the home page's
+   display size — around 6rem at this viewport — and it is written for a
+   three-word line on white. Here it produced a four-line headline taller
+   than the rest of the hero put together, set in a coral-to-magenta
+   gradient that on ink reads as a highlighter pen. This is the size the
+   sentence is actually readable at, in white with the violet only
+   arriving at the end of the line. */
+.ax-contact__title {
+  margin: 0;
+  max-width: 15ch;
+  font-size: clamp(2.5rem, 2.6vw + 1.5rem, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  background: linear-gradient(104deg, #ffffff 42%, var(--violet-300) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.ax-contact__dek {
+  margin-top: 1.75rem;
+  max-width: 48ch;
+}
+.ax-contact__dek p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.66);
+}
+
+.ax-contact__hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2.25rem;
+}
+.ax-contact__hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  background: var(--grad-violet);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  border-radius: var(--r-pill);
+  transition: background-position var(--dur-3) var(--ease-out), box-shadow var(--dur-2) var(--ease);
+}
+.ax-contact__hero-link:hover {
+  background-position: 0 0;
+  box-shadow: 0 1rem 2.5rem rgba(103, 44, 169, 0.45);
+}
+.ax-contact__hero-link svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-contact__hero-link:hover svg {
+  transform: translateY(0.2rem);
+}
+.ax-contact__hero-mail {
+  font-size: 0.9375rem;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+  padding-bottom: 0.15rem;
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+}
+.ax-contact__hero-mail:hover {
+  color: #fff;
+  border-color: #fff;
+}
+
+/* ---------- the inference console ----------
+   The panel is `AgentConsole`, which brings its own chrome and its own
+   stylesheet (app/console.css). All this does is place it and light the
+   band behind it. */
+.ax-contact__hero-panel {
+  position: relative;
+}
+.ax-contact__hero-panel::before {
+  content: "";
+  position: absolute;
+  inset: 12% -6% -8%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(146, 72, 228, 0.4), transparent 70%);
+  filter: blur(3rem);
+  pointer-events: none;
+}
+
+/* ---------- the facts rule ---------- */
+.ax-contact__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-6);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line-invert);
+}
+.ax-contact__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.ax-contact__fact-value {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.ax-contact__fact-label {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---------- body ---------- */
+.ax-contact__body {
+  position: relative;
+  background: var(--surface);
+  padding-top: clamp(3.5rem, 5vw + 1.5rem, 6rem);
+  padding-bottom: clamp(4rem, 6vw + 2rem, 7.5rem);
+}
+
+.ax-contact__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* ---------- the form panel ---------- */
+.ax-contact__panel {
+  position: relative;
+  padding: clamp(1.75rem, 2.5vw + 1rem, 3rem);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+}
+/* The one piece of brand on an otherwise quiet card — the same
+   coral→violet rail the section seams and kickers draw. */
+.ax-contact__panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: clamp(1.75rem, 2.5vw + 1rem, 3rem);
+  right: clamp(1.75rem, 2.5vw + 1rem, 3rem);
+  height: 0.125rem;
+  border-radius: var(--r-pill);
+  background: var(--grad-rail);
+}
+
+.ax-contact__panel-head h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.2vw + 1.1rem, 1.875rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.ax-contact__panel-head p {
+  margin: 0.65rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--ink-45);
+  max-width: 52ch;
+}
+
+.ax-contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  margin-top: var(--sp-6);
+}
+
+.ax-contact__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-5);
+}
+
+.ax-contact__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.ax-contact__field > label,
+.ax-contact__fieldset legend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
+.ax-contact__field > label span {
+  color: var(--coral);
+}
+
+.ax-contact__field input,
+.ax-contact__field textarea,
+.ax-contact__select select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--surface-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ax-contact__field textarea {
+  resize: vertical;
+  min-height: 9rem;
+}
+.ax-contact__field input::placeholder,
+.ax-contact__field textarea::placeholder {
+  color: var(--ink-45);
+}
+.ax-contact__field input:hover,
+.ax-contact__field textarea:hover,
+.ax-contact__select select:hover {
+  border-color: var(--line-strong);
+}
+.ax-contact__field input:focus,
+.ax-contact__field textarea:focus,
+.ax-contact__select select:focus {
+  outline: none;
+  background: var(--surface);
+  border-color: var(--violet-500);
+  box-shadow: 0 0 0 0.1875rem rgba(146, 72, 228, 0.14);
+}
+/* The invalid state has to survive focus — a red field that turns
+   violet the moment the caret lands in it stops saying anything at
+   the exact point the visitor is looking at it. */
+.ax-contact__field input[aria-invalid="true"],
+.ax-contact__field textarea[aria-invalid="true"] {
+  border-color: #d94b3d;
+  background: rgba(217, 75, 61, 0.04);
+}
+.ax-contact__field input[aria-invalid="true"]:focus,
+.ax-contact__field textarea[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 0.1875rem rgba(217, 75, 61, 0.14);
+}
+
+.ax-contact__select {
+  position: relative;
+  display: flex;
+}
+.ax-contact__select select {
+  padding-right: 2.75rem;
+  cursor: pointer;
+}
+.ax-contact__select svg {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  width: 1.125rem;
+  height: 1.125rem;
+  transform: translateY(-50%);
+  color: var(--ink-45);
+  pointer-events: none;
+}
+
+/* ---------- topic chips ---------- */
+.ax-contact__fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.ax-contact__fieldset legend {
+  padding: 0;
+  margin-bottom: 0.75rem;
+}
+.ax-contact__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ax-contact__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: var(--ink-60);
+  background: var(--surface-sunken);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: color var(--dur-2) var(--ease), background var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease), transform var(--dur-1) var(--ease);
+}
+.ax-contact__chip:hover {
+  border-color: var(--violet-300);
+  color: var(--ink);
+}
+.ax-contact__chip:active {
+  transform: scale(0.98);
+}
+/* The radio itself is the accessible control and stays in the tab
+   order; it is only visually replaced by the chip around it. */
+.ax-contact__chip input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.ax-contact__chip[data-on="true"] {
+  background: var(--violet-500);
+  border-color: var(--violet-500);
+  color: #fff;
+}
+.ax-contact__chip:has(input:focus-visible) {
+  outline: 0.125rem solid var(--violet-500);
+  outline-offset: 0.1875rem;
+}
+
+/* ---------- honeypot ----------
+   Off-screen rather than `display: none`, so a bot parsing the markup
+   sees an ordinary field. */
+.ax-contact__pot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- consent ---------- */
+.ax-contact__consent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ax-contact__check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  cursor: pointer;
+}
+.ax-contact__check input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+.ax-contact__check-box {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.375rem;
+  background: var(--surface);
+  color: #fff;
+  transition: background var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+}
+.ax-contact__check-box svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--dur-1) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-contact__check input:checked + .ax-contact__check-box {
+  background: var(--violet-500);
+  border-color: var(--violet-500);
+}
+.ax-contact__check input:checked + .ax-contact__check-box svg {
+  opacity: 1;
+  transform: scale(1);
+}
+.ax-contact__check input:focus-visible + .ax-contact__check-box {
+  outline: 0.125rem solid var(--violet-500);
+  outline-offset: 0.1875rem;
+}
+.ax-contact__check[data-invalid="true"] .ax-contact__check-box {
+  border-color: #d94b3d;
+}
+.ax-contact__check-text {
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ink-60);
+}
+/* The Webflow stylesheet styles bare `a` at its own size and weight, so
+   the policy link came out larger and heavier than the sentence holding
+   it. Everything about this link is inherited except the colour. */
+.ax-contact__check-text a,
+.ax-contact__sent-note a {
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--violet-600);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-contact__check-text a:hover,
+.ax-contact__sent-note a:hover {
+  color: var(--violet-500);
+}
+
+/* ---------- messages ---------- */
+.ax-contact__error {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #c93b2d;
+}
+/* A failure the visitor cannot fix by editing a field — SMTP down, the
+   network gone. It carries the fallback address, so the page never
+   becomes a dead end. */
+.ax-contact__failure {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #8e2a1e;
+  background: rgba(217, 75, 61, 0.07);
+  border: 1px solid rgba(217, 75, 61, 0.24);
+  border-radius: var(--r-md);
+}
+
+/* ---------- submit ---------- */
+.ax-contact__submit-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-5);
+}
+.ax-contact__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.6rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--grad-violet);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: background-position var(--dur-3) var(--ease-out), box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-contact__submit:hover:not(:disabled) {
+  background-position: 0 0;
+  box-shadow: var(--shadow-3);
+}
+.ax-contact__submit:active:not(:disabled) {
+  transform: translateY(0.0625rem);
+}
+.ax-contact__submit:disabled {
+  opacity: 0.72;
+  cursor: progress;
+}
+.ax-contact__submit svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-contact__submit:hover:not(:disabled) svg {
+  transform: translateX(0.25rem);
+}
+.ax-contact__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 0.125rem solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ax-contact-spin 0.7s linear infinite;
+}
+@keyframes ax-contact-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ax-contact__submit-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ink-45);
+}
+
+/* ---------- sent ----------
+   Replaces the form in place rather than routing anywhere: the aside
+   beside it still holds the phone number and the office list, which is
+   exactly what someone might want next. */
+.ax-contact__sent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: var(--sp-5) 0;
+}
+.ax-contact__sent-mark {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  color: #fff;
+  background: var(--grad-violet);
+  border-radius: 50%;
+  box-shadow: var(--shadow-2);
+}
+.ax-contact__sent-mark svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.ax-contact__sent h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.2vw + 1.1rem, 1.875rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.ax-contact__sent p {
+  margin: 0;
+  max-width: 48ch;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--ink-60);
+}
+.ax-contact__sent-note a {
+  color: var(--violet-600);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.ax-contact__reset {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--ink);
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.ax-contact__reset:hover {
+  border-color: var(--violet-500);
+  color: var(--violet-600);
+}
+
+/* ---------- aside ---------- */
+.ax-contact__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-7);
+  position: sticky;
+  /* Clears the fixed navigation the way every section's
+     `scroll-margin-top` does. */
+  top: 7rem;
+}
+
+.ax-contact__channels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ax-contact__channel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+}
+.ax-contact__channel:hover {
+  background: var(--surface-violet);
+  transform: translateX(0.25rem);
+}
+.ax-contact__channel-icon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--violet-600);
+  background: var(--violet-100);
+  border-radius: var(--r-md);
+}
+.ax-contact__channel-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+.ax-contact__channel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.ax-contact__channel-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-contact__channel-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.ax-contact__channel-note {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--ink-45);
+}
+
+.ax-contact__block {
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+.ax-contact__block-title {
+  margin: 0 0 var(--sp-5);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+}
+
+.ax-contact__steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  margin: 0;
+  padding: 0;
+}
+.ax-contact__steps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.9rem;
+}
+.ax-contact__step-n {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  color: var(--violet-500);
+  padding-top: 0.15rem;
+}
+.ax-contact__step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ax-contact__step-body strong {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.ax-contact__step-body span {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-45);
+}
+
+.ax-contact__offices {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+}
+.ax-contact__offices li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--line-strong);
+}
+.ax-contact__office-city {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.ax-contact__office-country {
+  font-size: 0.875rem;
+  color: var(--ink-60);
+}
+.ax-contact__office-role {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+/* ================================================================
+   Responsive
+   The site's own breakpoints: 991 (tablet), 767 (landscape phone),
+   479 (phone).
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  .ax-contact__hero-grid,
+  .ax-contact__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-7);
+  }
+  .ax-contact__title {
+    max-width: 18ch;
+  }
+  .ax-contact__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-5) var(--sp-6);
+  }
+  /* Sticky is meaningless once the aside is below the form rather than
+     beside it. */
+  .ax-contact__aside {
+    position: static;
+    top: auto;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .ax-contact__row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ax-contact__hero-actions {
+    gap: 1rem;
+  }
+  .ax-contact__panel {
+    padding: 1.5rem 1.25rem;
+    border-radius: var(--r-lg);
+  }
+  .ax-contact__panel::before {
+    left: 1.25rem;
+    right: 1.25rem;
+  }
+  .ax-contact__submit-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .ax-contact__submit {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .ax-contact__facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-5);
+  }
+  .ax-contact__channel {
+    padding: 0.85rem 0.75rem;
+  }
+  .ax-contact__hero-link {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* The spinner and the panel's status dot are the only things here that
+   animate on their own. */
+@media (prefers-reduced-motion: reduce) {
+  .ax-contact__spinner {
+    animation-duration: 2.4s;
+  }
+  .ax-contact__channel:hover,
+  .ax-contact__chip:active {
+    transform: none;
+  }
+}

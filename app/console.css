@@ -1,0 +1,333 @@
+/* ================================================================
+   AIBrigade — the inference console (components/motion/AgentConsole.jsx)
+
+   That component has been in the tree since the hero was rebuilt and has
+   never been rendered: it was written as the hero's right-hand stage,
+   `IntelligenceSystem` took that slot instead, and no stylesheet was ever
+   written for its `.ax-console*` classes. It is the better answer to
+   "what does this company do" than any diagram of a neural network —
+   a request going through a real system, stage by stage, with the latency
+   budget adding up and an auditable verdict at the end, in the firm's own
+   four domains. /contact mounts it; nothing here is scoped to that page.
+
+   Tokens only — the violet ramp, the coral, `--ease`, `--r-*` — from
+   system.css. It is built for a dark band and states so on `.ax-console`
+   itself rather than assuming the section it lands in.
+   ================================================================ */
+
+.ax-console {
+  --console-accent: var(--violet-400, #9f48e4);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-invert, rgba(255, 255, 255, 0.12));
+  border-radius: var(--r-xl, 1.75rem);
+  background: linear-gradient(158deg, rgba(146, 72, 228, 0.16) 0%, rgba(13, 17, 22, 0.92) 46%),
+    var(--ink-deep, #0d1116);
+  box-shadow: var(--shadow-4, 0 2.5rem 5rem rgba(28, 10, 56, 0.28));
+  color: #fff;
+  overflow: hidden;
+  /* Every number in here is a measurement, and measurements that change
+     width as they count are the reason dashboards jitter. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- title bar ---------- */
+.ax-console__chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--line-invert, rgba(255, 255, 255, 0.12));
+  background: rgba(255, 255, 255, 0.02);
+}
+.ax-console__dots {
+  display: flex;
+  gap: 0.3rem;
+}
+.ax-console__dots i {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+}
+.ax-console__dots i:first-child {
+  background: var(--coral, #f87756);
+  opacity: 0.8;
+}
+.ax-console__path {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+.ax-console__live {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-console__live-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0.2rem rgba(74, 222, 128, 0.14);
+  animation: ax-console-pulse 2.4s var(--ease, ease) infinite;
+}
+@keyframes ax-console-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* ---------- the four domains ---------- */
+.ax-console__tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line-invert, rgba(255, 255, 255, 0.12));
+  /* Four labels do not fit a phone-width panel, and wrapping them onto a
+     second line moves the trace down by a row every time. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ax-console__tabs::-webkit-scrollbar {
+  display: none;
+}
+.ax-console__tab {
+  flex: 0 0 auto;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.55);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill, 999px);
+  cursor: pointer;
+  transition: color var(--dur-2, 0.32s) var(--ease, ease),
+    background var(--dur-2, 0.32s) var(--ease, ease),
+    border-color var(--dur-2, 0.32s) var(--ease, ease);
+}
+.ax-console__tab:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.ax-console__tab[aria-selected="true"] {
+  color: #fff;
+  background: rgba(146, 72, 228, 0.22);
+  border-color: rgba(146, 72, 228, 0.55);
+}
+
+/* ---------- the trace ---------- */
+.ax-console__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem;
+}
+.ax-console__request {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-console__request::before {
+  content: "› ";
+  color: var(--console-accent);
+}
+
+.ax-console__steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+}
+/* Every row is in the DOM from the first frame and only its state
+   changes, so a trace advancing never moves anything: a panel that grew
+   by a row every 0.6s would shove the whole hero down four times per
+   cycle. */
+.ax-console__step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0.15rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.8125rem;
+  transition: opacity var(--dur-3, 0.5s) var(--ease, ease);
+}
+.ax-console__step:last-child {
+  border-bottom: 0;
+}
+.ax-console__step[data-state="idle"] {
+  opacity: 0.26;
+}
+.ax-console__step[data-state="running"] {
+  opacity: 0.72;
+}
+.ax-console__step[data-state="done"] {
+  opacity: 1;
+}
+
+.ax-console__step-mark {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  transition: background var(--dur-2, 0.32s) var(--ease, ease),
+    border-color var(--dur-2, 0.32s) var(--ease, ease),
+    box-shadow var(--dur-2, 0.32s) var(--ease, ease);
+}
+.ax-console__step[data-state="running"] .ax-console__step-mark {
+  border-color: var(--console-accent);
+  box-shadow: 0 0 0 0.2rem rgba(159, 72, 228, 0.18);
+  animation: ax-console-pulse 1.1s var(--ease, ease) infinite;
+}
+.ax-console__step[data-state="done"] .ax-console__step-mark {
+  background: var(--console-accent);
+  border-color: var(--console-accent);
+}
+
+.ax-console__step-label {
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ax-console__step-detail {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+}
+.ax-console__step-ms {
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.35);
+  min-width: 2.75rem;
+  text-align: right;
+}
+
+/* ---------- latency budget ---------- */
+.ax-console__foot {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.ax-console__meter {
+  flex: 1;
+  height: 0.1875rem;
+  border-radius: var(--r-pill, 999px);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.ax-console__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--grad-rail, linear-gradient(90deg, #f87756, #9248e4));
+  transition: width var(--dur-3, 0.5s) var(--ease, ease);
+}
+.ax-console__elapsed {
+  font-size: 0.75rem;
+  color: #fff;
+}
+.ax-console__elapsed em {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- verdict ----------
+   Present in the layout from the start and revealed in place, for the
+   same reason the trace rows are: the panel must not change height. */
+.ax-console__verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--r-md, 0.875rem);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  opacity: 0;
+  transform: translateY(0.35rem);
+  transition: opacity var(--dur-3, 0.5s) var(--ease, ease),
+    transform var(--dur-3, 0.5s) var(--ease, ease);
+}
+.ax-console__verdict[data-on="true"] {
+  opacity: 1;
+  transform: none;
+}
+.ax-console__verdict-text {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.ax-console__verdict-note {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+/* One colour per outcome, so the four traces do not all end the same
+   shade of violet. These are the states AgentConsole emits. */
+.ax-console__verdict[data-state="pass"] {
+  border-color: rgba(74, 222, 128, 0.32);
+  background: rgba(74, 222, 128, 0.08);
+}
+.ax-console__verdict[data-state="pass"] .ax-console__verdict-text {
+  color: #7ee2a8;
+}
+.ax-console__verdict[data-state="refer"] {
+  border-color: rgba(248, 119, 86, 0.32);
+  background: rgba(248, 119, 86, 0.08);
+}
+.ax-console__verdict[data-state="refer"] .ax-console__verdict-text {
+  color: var(--coral, #f87756);
+}
+.ax-console__verdict[data-state="hold"] {
+  border-color: rgba(246, 199, 92, 0.32);
+  background: rgba(246, 199, 92, 0.08);
+}
+.ax-console__verdict[data-state="hold"] .ax-console__verdict-text {
+  color: #f6c75c;
+}
+.ax-console__verdict[data-state="alert"] {
+  border-color: rgba(159, 72, 228, 0.4);
+  background: rgba(159, 72, 228, 0.12);
+}
+.ax-console__verdict[data-state="alert"] .ax-console__verdict-text {
+  color: var(--violet-300, #c79bf5);
+}
+
+@media screen and (max-width: 479px) {
+  .ax-console__body {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  /* The detail column is the first thing to go: "score 0.94" beside
+     "risk model v3.2" beside "9ms" in 320px is three ellipses. */
+  .ax-console__step {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .ax-console__step-detail {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-console__live-dot,
+  .ax-console__step[data-state="running"] .ax-console__step-mark {
+    animation: none;
+  }
+}

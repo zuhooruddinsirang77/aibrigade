@@ -54,21 +54,26 @@ const CASES = ["icu", "halyk", "uub"]
    studies and the project showcase, and "company" covers everything from
    the services strip down to the recognition badges. */
 const LINKS = [
-  { id: "platform", label: "platform", target: "#whyus", watch: ["whyus", "featured"] },
+  { id: "platform", label: "Platform", target: "#whyus", watch: ["whyus", "featured"] },
   {
     id: "cases",
-    label: "use cases",
+    label: "Deployments",
     target: "#cases",
     watch: ["cases", "reels"],
     menu: true,
   },
   {
     id: "company",
-    label: "company",
+    label: "Company",
     target: "#services",
     watch: ["services", "features", "reviews", "proud"],
   },
-  { id: "contact", label: "contact us", target: "mailto:contact@aibrigade.ai", external: true },
+  /* Was `mailto:contact@aibrigade.ai`. On a machine with no mail client
+     registered — most browsers on most desktops now — that link does
+     nothing at all when clicked, so the one item in the bar labelled
+     "Contact" was the one item that could silently fail. It points at a
+     real page now, and the address is still one tap away inside it. */
+  { id: "contact", label: "Contact", target: "/contact" },
 ];
 
 const DOMAINS = [
@@ -76,7 +81,13 @@ const DOMAINS = [
   { label: "healthtech", target: "#services" },
 ];
 
-const CTA_LABEL = "Request Free Strategy Session";
+/* Not "Request Free Strategy Session".
+   Three problems in four words: *free* prices the engagement before the
+   buyer does, on a page selling six-figure implementations; *strategy
+   session* is what an agency sells, not what an infrastructure company
+   books; and it did not match the hero's own button, so the same action
+   had two names on one screen. This matches the hero exactly. */
+const CTA_LABEL = "Book a technical review";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -338,9 +349,7 @@ export default function Navbar() {
                             ? { target: "_blank", rel: "noreferrer" }
                             : null)}
                         >
-                          <span aria-hidden="true">&lt;</span>
                           {l.label}
-                          <span aria-hidden="true">&gt;</span>
                         </a>
                       </li>
                     );
@@ -375,9 +384,7 @@ export default function Navbar() {
                           }
                         }}
                       >
-                        <span aria-hidden="true">&lt;</span>
                         {l.label}
-                        <span aria-hidden="true">&gt;</span>
                         <svg className="ax-nav__chev" viewBox="0 0 24 24" aria-hidden="true">
                           <path
                             d="M6 9.5l6 6 6-6"

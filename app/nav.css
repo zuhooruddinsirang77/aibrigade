@@ -535,8 +535,12 @@
   gap: 0.55rem;
   flex: none;
   padding: 0.85rem 1.4rem;
-  border-radius: var(--r-pill);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* 0.5rem, matching the hero's button. A fully-rounded pill is a
+     consumer affordance; every tool this brand wants to be mistaken for
+     uses a small radius, and the difference reads instantly even to
+     someone who could not name it. */
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   /* The brand violet with light coming off its top edge, rather than a
      flat fill — the same treatment the dark bands give their raised
      surfaces. The inset highlight is what makes it read as a physical
@@ -544,15 +548,22 @@
   background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-500) 55%, var(--violet-600) 100%);
   color: #fff;
   font-size: 0.9375rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.005em;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
-  box-shadow: 0 0.65rem 1.5rem rgba(146, 72, 228, 0.42),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.2);
-  transform: perspective(600px) translateZ(0);
+  /* A seated shadow, not a bloom. At 0.42 alpha and 1.5rem of blur this
+     was a violet halo standing off the button by half its own height —
+     against the near-black first screen it read as neon, which is the
+     one register this whole redesign is getting away from. A button on
+     an expensive dark surface is lit from inside its own edges and sits
+     on a shadow the colour of the room, not of itself. */
+  box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.45),
+    0 0 0 0.0625rem rgba(146, 72, 228, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.22);
+  transform: translateZ(0);
   transition: background-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
     transform var(--dur-2) var(--ease);
 }
@@ -579,9 +590,13 @@
 @media (hover: hover) and (pointer: fine) {
   .ax-nav__cta:hover {
     background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-400) 55%, var(--violet-500) 100%);
-    box-shadow: 0 1rem 2.5rem rgba(146, 72, 228, 0.62),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.2);
-    transform: perspective(600px) translateY(-0.1rem) rotateX(4deg) translateZ(0.3rem);
+    box-shadow: 0 0.6rem 1.5rem rgba(0, 0, 0, 0.55),
+      0 0 0 0.0625rem rgba(146, 72, 228, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.34), inset 0 -0.125rem 0.35rem rgba(0, 0, 0, 0.22);
+    /* Lift only. The rotateX tilted the pill toward the reader on every
+       hover, which on a fixed navbar over a 3D scene reads as the page
+       flexing rather than as a control responding. */
+    transform: translateY(-1px);
   }
   .ax-nav__cta:hover::before {
     transition: transform 0.7s var(--ease);
@@ -592,7 +607,7 @@
   }
 }
 .ax-nav__cta:active {
-  transform: perspective(600px) translateY(0.0625rem) scale(0.98);
+  transform: translateY(0) scale(0.99);
 }
 
 /* ---------------------------------------------------------------

@@ -94,7 +94,7 @@ const ACTS = [
  * arrives as one move rather than as two boxes fading in side by side.
  */
 export default function Cases() {
-  const { openPopup, startTransition } = usePopup();
+  const { startTransition } = usePopup();
 
   const go = (href) => (e) => {
     e.preventDefault();
@@ -165,10 +165,15 @@ export default function Cases() {
                 rotating by the same angle as a small one reads as the whole
                 page tipping rather than as one object leaning. */}
             <TiltCard max={3.5} lift={6} depth={30} perspective={1400}>
+              {/* No `data-cursor="view"` — that state's opaque, labelled
+                  badge (app/immersive.css) kept sitting over the console's
+                  live numbers no matter how small or translucent it got.
+                  Falling through to the plain "link" ring (a thin outline,
+                  no fill, no label) says "clickable" without ever
+                  obscuring the thing it's pointing at. */}
               <a
                 href={act.href}
                 className="ax-act__media"
-                data-cursor="view"
                 aria-label={`${act.title} — read the case study`}
                 onClick={go(act.href)}
               >
@@ -228,11 +233,11 @@ export default function Cases() {
                 <div className="heading-style-h1 _2">be next?</div>
                 <div className="div-block-3">
                   <a
-                    href="#"
+                    href="/contact"
                     className="link fill w-inline-block"
                     onClick={(e) => {
                       e.preventDefault();
-                      openPopup();
+                      startTransition("/contact");
                     }}
                   >
                     <div className="link_fill_text_wrapper">

@@ -20,6 +20,7 @@ export const CHAPTERS = [
   { id: "cases", label: "Evidence" },
   { id: "reels", label: "The work, playing" },
   { id: "environments", label: "Where it runs" },
+  { id: "services", label: "The offer" },
   { id: "features", label: "How we run it" },
   { id: "reviews", label: "Who vouches" },
   { id: "ctadark", label: "Start something" },

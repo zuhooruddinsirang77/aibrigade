@@ -161,8 +161,17 @@
 .ax-act__media {
   position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Was `center`: pinned to the vertical middle, the console sat over the
+     most active part of the footage (the hands) instead of near the top
+     corner, where the reference composition puts it. */
+  align-items: flex-start;
+  /* Was `center`: with the console pinned to the middle of the panel it
+     sat directly over the busiest part of the footage behind it (the
+     subject's hands), hiding exactly the part of the frame worth seeing.
+     Floating it to the right instead — not by touching the film's own
+     scrim/opacity, just where the console sits over it — leaves the left
+     side of the frame open. */
+  justify-content: flex-end;
   overflow: hidden;
   isolation: isolate;
   /* Was clamp(1.75rem, 3.5vw, 3.5rem) — at the low end of that range
@@ -171,6 +180,12 @@
      colour rather than as a picture. A larger floor keeps a real margin
      of visible film on every side regardless of window width. */
   padding: clamp(2.5rem, 5vw, 4.5rem);
+  /* Tighter than the shared value on these two sides only, now that the
+     console is pinned to the top-right corner rather than floating in the
+     middle: a corner needs less clearance to still read as "near the
+     edge, not glued to it" than the open left side does. */
+  padding-top: clamp(1.25rem, 2.5vw, 2rem);
+  padding-right: clamp(1rem, 2vw, 1.75rem);
   /* Tall enough to be the subject of the composition rather than an
      illustration beside the text. Capped against the viewport so a short
      laptop screen never has to scroll past one panel to reach its own

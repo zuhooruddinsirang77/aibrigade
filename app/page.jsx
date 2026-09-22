@@ -23,34 +23,22 @@ export default function Home() {
       <div className="main-wrapper">
         <Hero />
         <WhyUs />
-        <Featured />
         <DecisionPath />
         <Cases />
         <ProjectShowcase />
-        {/* The work, then the rooms it runs in — a prospect who has just
-            watched the reels is asking "where does this actually land?"
-            before they are ready to read a service list.
-
-            The separation used to be four `<br />`s, which is a run of
-            empty line boxes on the white body between two full-bleed dark
-            bands: at 1440px it reads as a gap where a section failed to
-            render. `Environments` owns its own top padding, so the space
-            is already there — what was missing was anything to look at
-            during it. The seam below is that: the two bands' own ink,
-            resolving into the page white. No new colour, no new copy, and
-            it collapses to nothing under reduced motion. */}
+      
         <SectionSeam />
 
         <Environments />
         <Services />
         <Features />
-        {/* Features closes on Discover → … → Scale. This is what Scale
-            means once the engagement is over, and the page used to go
-            straight from the pipeline to testimonials without saying. */}
+       
         <Infrastructure />
         <Reviews />
+                <Featured />
+
         <Cta />
-        <Proud />
+        {/* <Proud /> */}
         <CtaDark />
         <Footer />
       </div>

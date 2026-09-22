@@ -10,15 +10,22 @@ import StageDepth from "@/components/motion/StageDepth";
 import ScrollCue from "@/components/motion/ScrollCue";
 import IntelligenceSystem from "@/components/motion/IntelligenceSystem";
 
-const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
-
+/**
+ * The ticker's trust row — our own project clients, not stock Webflow
+ * logo files. Where a real logo has been dropped into /public, it's used
+ * as an image; the rest fall back to a plain wordmark at the same visual
+ * weight (see `.ticker_wordmark` in film.css) until a file exists for them.
+ */
 const tickerLogos = [
-  `${CDN}/6419854b6528564c6705e8f1_logo%20halyk.svg`,
-  `${CDN}/6419854b9612bf761a454aaa_logo%20ICU.svg`,
-  `${CDN}/6419854bcd8723200b132ed2_raiffeisen.svg`,
-  `${CDN}/6419854b3d99c56eb40ece06_aushan.svg`,
-  `${CDN}/6419854b8f060240e04873d7_bcc-invest.svg`,
-  `${CDN}/6419854b3d99c5ea9b0ece07_image_267.webp`,
+  { name: "Zindagi", src: "/Zindagi.png" },
+  { name: "BankIslami", src: "/bank-islami-logo.png" },
+  { name: "JS Bank", src: "/js-bank-logo.png" },
+  { name: "Easypaisa", src: "/Easypaisa-logo.png" },
+   { name: "Zindagi Health", src: "/Zindagi-Health.png" },
+
+  {name:"Crédit Agricole",src: "/creditagricole.png" },
+  { name: "Aik Islami", src: "/logo-aik-islamic.svg" },
+
 ];
 
 /**
@@ -170,10 +177,21 @@ export default function Hero() {
           <div className="ticker_move">
             {[0, 1].map((row) => (
               <div className="ticker_wrapper" key={row}>
-                {tickerLogos.map((src, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={src} alt="" className="ticker_image" key={i} />
-                ))}
+                {tickerLogos.map((logo, i) =>
+                  logo.src ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={logo.src}
+                      alt={logo.name}
+                      className="ticker_image ticker_logo-img"
+                      key={i}
+                    />
+                  ) : (
+                    <span className="ticker_image ticker_wordmark" key={i}>
+                      {logo.name}
+                    </span>
+                  )
+                )}
                 <div className="ticker_div-ipad-pro" />
               </div>
             ))}
