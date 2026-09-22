@@ -1,114 +1,161 @@
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
+/**
+ * The eight capabilities, in the order the page argues them.
+ *
+ * These were six vertical use cases (fraud detection, underwriting, clinical
+ * documentation, ...). Those are sector offers, and the page now has a
+ * section whose organising idea is the sector — see ServiceExplorer. What
+ * belongs here is the layer underneath: the reusable capabilities every one
+ * of those offers is assembled from.
+ *
+ * The first four are the hero's arrow in order — listen, understand, reason,
+ * act — with `decide` split out of reasoning because the threshold is the
+ * client's to set, not ours. `domain` no longer names a sector (none of
+ * these is sector-specific); it names which of the four phases the card
+ * belongs to, so the row reads in groups of two as it scrolls.
+ *
+ * `bg`, `animWrapCls`, `animCls` and `grad` are layout decoration carried
+ * over positionally from the six that were here: there is no bg7/bg8 in the
+ * stylesheet, so the last two reuse earlier backgrounds rather than pointing
+ * at classes that do not exist.
+ */
 export const whyUs = [
   {
-    title: "Fraud detection",
-    domain: "Fintech",
+    title: "Listen",
+    domain: "Input",
     bg: "bg1",
-    text: "We build real-time fraud detection systems that spot anomalous transactions before they cost you, tuned for the complexity of financial services.",
+    text: "Multilingual voice and speech, across phone, web and mobile — the conversation starts wherever the customer already is.",
     animWrapCls: "_1",
     animCls: "hide-tablet",
-    icon: "shield",
+    icon: "waveform",
   },
   {
-    title: "Autonomous underwriting",
-    domain: "Fintech",
+    title: "Understand",
+    domain: "Input",
     bg: "bg2",
-    text: "Decision intelligence workflows that automate underwriting with the accuracy and auditability financial institutions require.",
+    text: "Intent, documents and enterprise knowledge. The request is read against what your organisation actually knows, not against a generic model's guess.",
     animWrapCls: "_12-col-grid",
     animCls: "lottie2 hide-tablet",
-    icon: "automation",
-  },
-  {
-    title: "Clinical documentation",
-    domain: "Healthtech",
-    bg: "bg3",
-    text: "HIPAA-compliant copilots that reduce clinician documentation burden while integrating cleanly with existing EHR systems.",
-    animCls: "lottie width hide-tablet",
     icon: "document",
   },
   {
-    title: "Diagnostics support",
-    domain: "Healthtech",
-    text: "AI-assisted diagnostics and risk stratification models that help clinical teams surface the right insight at the right moment.",
-    grad: true,
+    title: "Reason",
+    domain: "Judgement",
+    bg: "bg3",
+    text: "Models, rules and business context together. The reasoning step is where a policy your team owns meets a model's output.",
+    animCls: "lottie width hide-tablet",
     icon: "pulse",
   },
   {
-    title: "Compliance & trading",
-    domain: "Fintech",
-    bg: "bg5",
-    text: "Automation agents that monitor trading activity and compliance obligations, giving your team a complete, always-current view.",
-    animCls: "lottie hide-tablet",
+    title: "Decide",
+    domain: "Judgement",
+    text: "Risk, policy, confidence and approvals. Where the threshold sits is a business decision, and it lives somewhere your risk team can change it.",
+    grad: true,
     icon: "scale",
   },
   {
-    title: "EHR integration",
-    domain: "Healthtech",
+    title: "Act",
+    domain: "Execution",
+    bg: "bg5",
+    text: "APIs, applications and workflows. This is the step most enterprise AI skips: the system does the thing, in the system of record, and the record proves it did.",
+    animCls: "lottie hide-tablet",
+    icon: "automation",
+  },
+  {
+    title: "Communicate",
+    domain: "Execution",
     bg: "bg6",
-    text: "Deep integration experience with HL7 FHIR, Epic, and Cerner ensures our systems fit directly into your clinical workflows.",
+    text: "Voice, web, mobile and outbound. The agent closes its own loop — it tells the customer, the queue and the operator what just happened.",
     animCls: "lottie _2 hide-tablet",
     icon: "network",
+  },
+  {
+    title: "Escalate",
+    domain: "Control",
+    bg: "bg1",
+    text: "Human-in-the-loop wherever judgement is required. The handoff is designed first, not added after the first incident.",
+    icon: "shield",
+  },
+  {
+    title: "Operate privately",
+    domain: "Control",
+    bg: "bg3",
+    text: "Cloud, on-prem, hybrid or air-gapped. Regulated teams get the capability without sending sensitive data to public AI.",
+    icon: "lock",
   },
 ];
 
 export const services = [
   {
-    title: "AI in Fintech — real-time fraud detection and autonomous underwriting",
+    title: "Fintech — a digital workforce for the bank",
     img: `${CDN}/642ab7230145bb548a2a64a7_figure_service1.webp`,
     cls: "_1",
     alt: "Two nested purple polygon-shaped trays on a black background.",
   },
   {
-    title: "AI in Healthcare — HIPAA-compliant solutions for patient outcomes and clinical efficiency",
+    title: "Healthtech — administrative work that moves before staff chase it",
     img: `${CDN}/642ab7232b66313700f6d2a8_figure_service2.webp`,
     cls: "_2",
     alt: "Glossy, purple, spiral-shaped 3D object on a black background.",
   },
   {
-    title: "Custom AI Development — end-to-end discovery through MLOps and deployment",
+    title: "Retail and customer operations — an AI operator beside every frontline team",
     img: `${CDN}/642ab7235b6551c1785eab6d_figure_service3.webp`,
     cls: "_3",
     alt: "Cluster of connected purple 3D rectangular blocks on a black background.",
   },
   {
-    title: "Automation & Integrations — eliminating manual workflows and surfacing system intelligence",
+    title: "Industrial and energy — governed AI at the point of work",
     img: `${CDN}/642ab723702a841c291d5644_figure_service4.webp`,
     cls: "_4",
     alt: "Shiny purple spiraled 3D coil shape floating on black background.",
   },
 ];
 
+/**
+ * The engagement, as five stages plus a closing claim.
+ *
+ * Renamed from Discover → Design → Build → Deploy → Scale. The pipeline has
+ * five slots and every deployment reel has five chapters, so rather than
+ * collapsing to the four steps this is argued in, `Prove` is split into the
+ * design of the workflow and the proving of it — which maps 1:1 onto the
+ * chapters already written in deployments.data.js.
+ *
+ * `STAGE_TITLES` in Features.jsx and `STAGES` in deployments.data.js index
+ * these titles by string, so all three move together or the reels caption
+ * with stage names the pipeline no longer has.
+ */
 export const features = [
   {
-    title: "Discover",
+    title: "Identify",
     img: `${CDN}/641ae0e9f9ebde4ba9f76a38_spiral_glass_2.webp`,
-    text: "We start with a discovery phase that maps your data, workflows, and compliance requirements across fintech and healthtech domains.",
+    text: "Choose one meaningful workflow with measurable pain — slow, expensive, manual, risky or frustrating. We'll tell you whether AI can materially improve it.",
   },
   {
     title: "Design",
     img: `${CDN}/641afc135a8ad482432bdf73_abstract_glass_1.webp`,
-    text: "We design the right architecture for your AI system, choosing the models and frameworks that fit your risk and regulatory profile.",
+    text: "Workflow design, then agent architecture: what the agent decides, what the policy decides, and where a human has to.",
   },
   {
-    title: "Build",
+    title: "Prove",
     img: `${CDN}/641afc139a2175af6696cfd1_globe_spiral_glass_1.webp`,
-    text: "Our engineers build production-grade copilots, automation agents, and GPT platforms with rigorous testing at every step.",
+    text: "Built against real business conditions and the systems you actually permit us to reach — not a sandbox with synthetic data.",
   },
   {
-    title: "Deploy",
+    title: "Measure",
     img: `${CDN}/641afc133c554ce59418060d_flying_cubes_1.webp`,
-    text: "We deploy into your environment with HIPAA-compliant infrastructure and EHR integrations, typically within months, not years.",
+    text: "Outcomes compared against your own operating baseline, on numbers your team already trusts.",
   },
   {
     title: "Scale",
     img: `${CDN}/641afc1393b320d329fa7f7b_wire_glass_1.webp`,
-    text: "Our in-house team scales the system with you, from startup pilots to enterprise-wide rollouts nationwide.",
+    text: "Productionize, then reuse the capabilities across adjacent workflows. The second workflow costs less than the first.",
   },
   {
-    title: "People-first approach",
+    title: "Evidence, not dependency",
     img: `${CDN}/641afc13beeffc1963a12a0e_pisma_glass_1.webp`,
-    text: "Our team combines deep AI expertise with genuine care for your outcomes. With us, you can count on honest, open collaboration.",
+    text: "The first engagement should leave you with proof you can act on and a system your team can run — not a vendor you cannot leave.",
   },
 ];
 

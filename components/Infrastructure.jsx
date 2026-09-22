@@ -30,21 +30,21 @@ import MaskHeading from "@/components/motion/MaskHeading";
  */
 const COMMITMENTS = [
   {
-    k: "Owned",
-    v: "You keep the code",
-    d: "Everything ships into your accounts, your repos, your cloud. No runtime dependency on us.",
+    k: "Bounded",
+    v: "You set what it may do",
+    d: "Scope, thresholds and approval limits live in a policy your team owns and changes without a deployment. The agent acts inside it and escalates outside it.",
     icon: "lock",
   },
   {
-    k: "Watched",
-    v: "Monitoring from day one",
-    d: "Drift, latency and cost are instrumented before launch, not bolted on after the first incident.",
+    k: "Recorded",
+    v: "Every action, reconstructable",
+    d: "Inputs, knowledge versions, model version, policy version, output and approver. Not a log — a record a regulator can read.",
     icon: "eye",
   },
   {
-    k: "Handed over",
-    v: "Your team can run it",
-    d: "Runbooks, retraining procedure and a walkthrough with the people who inherit it.",
+    k: "Yours",
+    v: "Your accounts, your choice of ground",
+    d: "Cloud, on-prem, hybrid or air-gapped. Code, runbooks and retraining procedure hand over to the people who inherit it.",
     icon: "handoff",
   },
 ];
@@ -91,15 +91,16 @@ export default function Infrastructure() {
                     <span className="ax-infra__status-dot" aria-hidden="true" />
                     Always on
                   </p>
-                  <p className="ax-infra__kicker">After handover</p>
+                  <p className="ax-infra__kicker">Control and governance</p>
                   <h2 className="ax-infra__title">
                     <MaskHeading text={"The part that\nruns at 3am"} />
                   </h2>
                   <Reveal variant="rise" className="ax-infra__lede">
                     <p>
-                      A model that works in a demo and a model that survives a
-                      quarter of real traffic are different pieces of
-                      engineering. We build the second one.
+                      An agent that executes is an agent that can be wrong at
+                      scale. Everything it is allowed to do is bounded,
+                      everything it does is recorded, and the boundary is a
+                      thing your team sets &mdash; not a thing we tune.
                     </p>
                   </Reveal>
                 </div>

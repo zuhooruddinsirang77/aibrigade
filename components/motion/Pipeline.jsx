@@ -11,7 +11,7 @@ import { films, filmFor } from "@/components/video.data";
  *
  * The content was already on the page: Discover, Design, Build, Deploy,
  * Scale, laid out as six equal tiles in a 3x2 grid (the sixth,
- * "People-first approach", is not a stage and is handled separately by the
+ * the closing claim, is not a stage and is handled separately by the
  * caller). Nothing in that layout said these happen in order, which is the
  * single most important thing about them — and it is the same five-stage
  * spine the Deployments section already scrubs its reels along, so the page

@@ -5,17 +5,25 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 import AmbientVideo from "@/components/motion/AmbientVideo";
 
 /**
- * "Inside the system" — one request, walked through the architecture that
- * answers it.
+ * "The difference" — one request, walked through the layer that does
+ * something about it.
  *
- * The hero shows a decision *running*: four rows in a console, 21ms, a
- * verdict. This section is the other half of that sentence — the same
- * request, slowed down, with the machine it runs through drawn around it.
- * The six stages and their payloads are the four AgentConsole steps plus
- * the two either side of them (the request arriving, the audit record
- * being written), so the numbers here and the numbers in the hero are the
- * same numbers: 1 + 4 + 9 + 2 + 6 = 22ms, which is what the hero's meter
- * counts to. If one changes, the other has to.
+ * Traditional AI answers and stops; a person still does the work. This
+ * section is the other shape, drawn: the same request, slowed down, from
+ * the moment it arrives to the record of what the system did about it. The
+ * six stages are the page's spine — listen, understand, reason, act, with
+ * `decide` split out of reasoning because the threshold is the client's to
+ * set, and `audit` after acting because an agent that executes has to be
+ * reconstructable.
+ *
+ * No milliseconds. This used to total 22ms, matching the fraud trace in the
+ * hero's console (AgentConsole, via IntelligenceSystem) step for step —
+ * which was right while both described the same synchronous score. It isn't
+ * any more: these six stages now include placing a call and writing to a
+ * system of record, and no millisecond total spans that honestly. The hero
+ * console keeps its timings, because what it times really is sub-second.
+ * Here the meter counts steps, which is true by construction, and each step
+ * carries what governs it instead of how long it takes.
  *
  * Why scroll-driven rather than a looping autoplay: this is the part of
  * the page that has to answer "do these people actually know how to build
@@ -52,56 +60,56 @@ const POS = [
 
 const STAGES = [
   {
-    key: "ingest",
-    node: "ingest",
+    key: "listen",
+    node: "listen",
     title: "The request arrives",
-    payload: "POST /score · txn_8f2a41",
-    ms: 1,
-    text: "One endpoint, called from the systems you already run. No migration, no second source of truth — the transaction is scored where it already lives.",
+    payload: "POST /intake · req_8f2a41",
+    mode: "any channel",
+    text: "A call, a message, a transaction, a scheduled event. One endpoint, called from the systems you already run — no migration, no second source of truth.",
   },
   {
-    key: "features",
-    node: "feature store",
-    title: "Features are assembled",
-    payload: "142 features",
-    ms: 4,
-    text: "The model never queries your production database directly. A feature store reads from it, versions every value, and hands the model the same view it was trained on.",
+    key: "understand",
+    node: "understand",
+    title: "It reads it against what you know",
+    payload: "retrieve · policy_v14 + 3 docs",
+    mode: "governed sources",
+    text: "Intent and documents resolved against governed enterprise knowledge, so the answer is grounded in your approved sources rather than the model's general impression of your industry.",
   },
   {
-    key: "model",
-    node: "risk model v3.2",
-    title: "The model returns a score",
-    payload: "score 0.94",
-    ms: 9,
-    text: "A calibrated probability, not a verdict. The version is stamped on the response, so a decision made today can still be explained after the model has been retrained twice.",
+    key: "reason",
+    node: "reason",
+    title: "Models, rules and context together",
+    payload: "reason · ctx=account+policy",
+    mode: "models + rules",
+    text: "The model proposes; your business context constrains. Neither one decides alone, which is what makes the outcome defensible later.",
   },
   {
-    key: "policy",
-    node: "policy engine",
-    title: "Your rules decide what it means",
-    payload: "rule FR-118",
-    ms: 2,
-    text: "Where the threshold sits is a business decision, not a modelling one. It lives in a policy your risk team owns and can change without a deployment.",
+    key: "decide",
+    node: "decide",
+    title: "Your policy sets the threshold",
+    payload: "policy · auto | review | hold",
+    mode: "your policy",
+    text: "Risk, confidence and approval limits live in a policy your team owns and can change without a deployment. Where the line sits is a business decision, not a modelling one.",
   },
   {
-    key: "explanation",
-    node: "explanation",
-    title: "Reasons, in reviewable language",
-    payload: "3 reasons",
-    ms: 6,
-    text: "The three features that moved the score, written the way your reviewers already talk about them. This is the difference between a system a regulator accepts and one they don't.",
+    key: "act",
+    node: "act",
+    title: "It executes, or it escalates",
+    payload: "execute · 2 calls · 1 escalation",
+    mode: "human gate",
+    text: "Inside the supported workflow, the agent does the work — updates the record, sends the message, moves the case. Outside it, a person gets the decision with the context already assembled.",
   },
   {
     key: "audit",
-    node: "audit trail",
-    title: "The decision is written down",
-    payload: "immutable",
-    ms: 0,
-    text: "Inputs, feature versions, model version, policy version, output, reviewer. Every decision this system has ever made can be reconstructed exactly as it was made.",
+    node: "audit",
+    title: "Everything is written down",
+    payload: "audit · immutable · 6 entries",
+    mode: "immutable",
+    text: "Inputs, knowledge versions, model version, policy version, what was done and who approved it. Every action this system has ever taken can be reconstructed exactly as it was taken.",
   },
 ];
 
-const TOTAL_MS = STAGES.reduce((n, s) => n + s.ms, 0);
+const TOTAL_STEPS = STAGES.length;
 
 /* The route the request travels, as one continuous path through the six
    node centres. Built from POS so the geometry has exactly one source. */
@@ -200,7 +208,7 @@ export default function DecisionPath() {
     return () => cancelAnimationFrame(raf);
   }, [active, settled]);
 
-  const elapsed = STAGES.slice(0, active + 1).reduce((n, s) => n + s.ms, 0);
+  const reached = active + 1;
 
   return (
     <section id="inside" className="ax-path ax-band">
@@ -211,18 +219,50 @@ export default function DecisionPath() {
         <div className="container-large">
           <div className="ax-path__head">
             <p className="ax-kicker ax-kicker--invert">
-              <span>03</span> Inside the system
+              <span>03</span> The difference
             </p>
             <h2 className="ax-path__title">
-              One request,
+              Most AI stops
               <br />
-              start to audit
+              at the answer
             </h2>
             <p className="ax-path__lede">
-              The console on the first screen answers a transaction in 22
-              milliseconds. This is what happens inside those 22
-              milliseconds — and why each piece of it is separate from the
-              others.
+              The value gap appears after the model responds — when a human
+              still has to do the work.
+            </p>
+          </div>
+
+          {/* The two shapes, side by side, before the second one is drawn
+              in full below. The trace further down this section is one
+              long argument; this is the half-second version of it, and
+              without it the diagram has to carry a comparison it never
+              actually shows. The last link on the left is marked because
+              that link is the whole point: it is the one a person does. */}
+          <div className="ax-path__contrast">
+            <div className="ax-path__contrast-col" data-kind="old">
+              <p className="ax-path__contrast-label">Traditional AI</p>
+              <ol className="ax-path__contrast-chain">
+                <li>Ask</li>
+                <li>AI answers</li>
+                <li data-stop="true">Human does the work</li>
+              </ol>
+            </div>
+            <div className="ax-path__contrast-col" data-kind="new">
+              <p className="ax-path__contrast-label">Agentic AI</p>
+              <ol className="ax-path__contrast-chain">
+                <li>Request / event</li>
+                <li>Understands</li>
+                <li>Reasons</li>
+                <li>Acts</li>
+              </ol>
+            </div>
+          </div>
+
+          <div className="ax-path__verdict">
+            <p className="ax-path__verdict-line">We build the second kind.</p>
+            <p className="ax-path__verdict-sub">
+              AI becomes an execution layer — not another screen employees have
+              to manage.
             </p>
           </div>
 
@@ -244,7 +284,7 @@ export default function DecisionPath() {
                   className="ax-path__svg"
                   viewBox={`0 0 ${VB.w} ${VB.h}`}
                   role="img"
-                  aria-label="Architecture diagram: ingest, feature store, risk model, policy engine, explanation, audit trail."
+                  aria-label="Architecture diagram: listen, understand, reason, decide, act, audit."
                 >
                   <defs>
                     {/* The lit part of the route runs the same coral →
@@ -309,12 +349,12 @@ export default function DecisionPath() {
                   <span className="ax-path__meter" aria-hidden="true">
                     <span
                       className="ax-path__meter-fill"
-                      style={{ width: `${(elapsed / TOTAL_MS) * 100}%` }}
+                      style={{ width: `${(reached / TOTAL_STEPS) * 100}%` }}
                     />
                   </span>
                   <span className="ax-path__readout-ms">
-                    {elapsed}
-                    <i>/{TOTAL_MS}ms</i>
+                    {reached}
+                    <i>/{TOTAL_STEPS} steps</i>
                   </span>
                 </div>
               </div>
@@ -336,7 +376,7 @@ export default function DecisionPath() {
                   <p className="ax-path__step-text">{s.text}</p>
                   <span className="ax-path__step-meta">
                     <code>{s.node}</code>
-                    {s.ms > 0 ? <em>{s.ms}ms</em> : <em>async</em>}
+                    <em>{s.mode}</em>
                   </span>
                 </li>
               ))}

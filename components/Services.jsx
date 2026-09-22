@@ -3,22 +3,23 @@ import Reveal from "@/components/motion/Reveal";
 import Kicker from "@/components/motion/Kicker";
 import ServiceExplorer from "@/components/motion/ServiceExplorer";
 
-// Every phrase here already appears in this site's own copy (Hero,
-// WhyUs, Features — see components/data.js and Hero.jsx) — this isn't a
-// new capability claim, just the technical specifics that were already
-// being said in prose, surfaced as a scannable strip. That distinction
-// matters: this README already flags the risk of claims a prospect's
-// procurement team can't verify, so nothing gets added here that isn't
-// already stated in full sentences elsewhere on the page.
+// One chip per capability card in WhyUs, in the same order — this isn't a
+// new capability claim, just the eight things already argued in full
+// sentences further up, surfaced as a scannable strip. That distinction
+// matters: the README flags the risk of claims a prospect's procurement
+// team can't verify, so nothing gets added here that isn't already stated
+// in prose elsewhere on the page. This row also inherited the stack
+// vocabulary the hero used to carry, which is why it reads as a stack and
+// the hero now reads as a claim.
 const STACK = [
-  "GPT platforms",
-  "Decision intelligence",
-  "Real-time fraud scoring",
-  "Autonomous underwriting",
-  "HL7 FHIR integration",
-  "HIPAA-compliant infra",
-  "MLOps & deployment",
-  "Explainable risk models",
+  "Voice & speech",
+  "Intent & documents",
+  "Retrieval over private knowledge",
+  "Models + rules",
+  "Policy & approvals",
+  "Tool use & APIs",
+  "Human-in-the-loop",
+  "Immutable audit trail",
 ];
 
 const dot = `${CDN}/641af270af36ff69cfe98e5c_Group%202666.svg`;
@@ -26,9 +27,9 @@ const dot2 = `${CDN}/641af3f899336e17b7abd9e1_Group%202667%20(1).svg`;
 
 function TickerItem({ start }) {
   const stats = [
-    "Discovery to deployment in months",
-    "Fintech & HealthTech clients nationwide",
-    "HIPAA-compliant AI systems",
+    "One workflow, proven against real conditions",
+    "Six sectors, one execution layer",
+    "Cloud, on-prem, hybrid or air-gapped",
   ];
   const icons = start ? [dot, dot2, dot] : [dot2, dot, dot2];
   return (
@@ -65,15 +66,16 @@ export default function Services() {
                 one exception, missing from CHAPTERS entirely, so it read as
                 a section that forgot to introduce itself right after a page
                 full of sections that do. */}
-            <Kicker id="services" label="The offer" />
+            <Kicker id="services" label="The digital workforce" />
             <Reveal variant="rise" className="_3-columns-grid">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
-                What we can <br />
-                help you with
+                Imagine your business <br />
+                with a digital workforce
               </h2>
               <p className="p2 max-width-medium text-16pt-ipad_pro">
-                From discovery to production deployment, we build AI systems that give you a
-                real competitive edge.
+                Instead of isolated AI tools, think in terms of agents assigned to specific
+                business outcomes &mdash; each one owning a workflow end to end, with a human
+                wherever judgement is required.
               </p>
             </Reveal>
 

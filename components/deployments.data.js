@@ -28,7 +28,7 @@
  * seconds into that clip, and a wrong one makes the whole device feel broken.
  */
 
-export const STAGES = ["Discover", "Design", "Build", "Deploy", "Scale"];
+export const STAGES = ["Identify", "Design", "Prove", "Measure", "Scale"];
 
 export const deployments = [
   {
@@ -46,10 +46,10 @@ export const deployments = [
     film: "fraudReal",
     duration: 48,
     chapters: [
-      { t: 0, stage: "Discover", caption: "Mapping two years of settled disputes" },
+      { t: 0, stage: "Identify", caption: "Mapping two years of settled disputes" },
       { t: 9, stage: "Design", caption: "Choosing features the risk team can defend" },
-      { t: 19, stage: "Build", caption: "Streaming scorer, shadow-run against live traffic" },
-      { t: 31, stage: "Deploy", caption: "Cutover behind a kill switch" },
+      { t: 19, stage: "Prove", caption: "Streaming scorer, shadow-run against live traffic" },
+      { t: 31, stage: "Measure", caption: "Cutover behind a kill switch" },
       { t: 41, stage: "Scale", caption: "Retraining loop on reviewer feedback" },
     ],
   },
@@ -64,10 +64,10 @@ export const deployments = [
     film: "geneEditing",
     duration: 52,
     chapters: [
-      { t: 0, stage: "Discover", caption: "Shadowing clinicians through a full shift" },
+      { t: 0, stage: "Identify", caption: "Shadowing clinicians through a full shift" },
       { t: 11, stage: "Design", caption: "Drafting inside the note, never beside it" },
-      { t: 22, stage: "Build", caption: "HL7 FHIR write-back with a human approval gate" },
-      { t: 35, stage: "Deploy", caption: "One department first, then the floor" },
+      { t: 22, stage: "Prove", caption: "HL7 FHIR write-back with a human approval gate" },
+      { t: 35, stage: "Measure", caption: "One department first, then the floor" },
       { t: 45, stage: "Scale", caption: "Specialty-specific templates" },
     ],
   },
@@ -82,10 +82,10 @@ export const deployments = [
     film: "agentsInterface",
     duration: 44,
     chapters: [
-      { t: 0, stage: "Discover", caption: "Where the current queue actually stalls" },
+      { t: 0, stage: "Identify", caption: "Where the current queue actually stalls" },
       { t: 8, stage: "Design", caption: "Drawing the line between auto and referred" },
-      { t: 17, stage: "Build", caption: "Policy engine plus model, versioned together" },
-      { t: 29, stage: "Deploy", caption: "Parallel run against human decisions" },
+      { t: 17, stage: "Prove", caption: "Policy engine plus model, versioned together" },
+      { t: 29, stage: "Measure", caption: "Parallel run against human decisions" },
       { t: 38, stage: "Scale", caption: "New products onboarded by config" },
     ],
   },
@@ -100,10 +100,10 @@ export const deployments = [
     film: "infrastructure",
     duration: 39,
     chapters: [
-      { t: 0, stage: "Discover", caption: "Reconciling six incompatible feeds" },
+      { t: 0, stage: "Identify", caption: "Reconciling six incompatible feeds" },
       { t: 7, stage: "Design", caption: "An alert that answers 'and then what?'" },
-      { t: 15, stage: "Build", caption: "Middleware and the review interface" },
-      { t: 26, stage: "Deploy", caption: "Running alongside the old process" },
+      { t: 15, stage: "Prove", caption: "Middleware and the review interface" },
+      { t: 26, stage: "Measure", caption: "Running alongside the old process" },
       { t: 34, stage: "Scale", caption: "New venue onboarding in days" },
     ],
   },

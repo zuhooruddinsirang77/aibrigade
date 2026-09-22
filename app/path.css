@@ -89,12 +89,24 @@
   overflow: clip;
 }
 
+/* Heading left, lede right, kicker across the top — the same band every
+   other section on this page opens on (`._3-columns-grid` in WhyUs,
+   Services and Features). It was a 44rem stack in a 1386px container,
+   which left the right 60% of the widest band on the page empty and made
+   the section read as a column of left-hung blocks rather than as a
+   composition. The lede sits on the heading's last baseline rather than
+   at the top of the column, so the two read as one line of thought. */
 .ax-path__head {
-  max-width: 44rem;
-  margin-bottom: var(--sp-8);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  align-items: end;
+  column-gap: var(--sp-8);
+}
+.ax-path__head > .ax-kicker {
+  grid-column: 1 / -1;
 }
 .ax-path__title {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: clamp(2.25rem, 4vw, 3.75rem);
   line-height: 1.04;
   letter-spacing: -0.03em;
@@ -103,10 +115,204 @@
 }
 .ax-path__lede {
   margin: 0;
-  max-width: 44ch;
+  max-width: 42ch;
+  padding-bottom: 0.45rem;
   font-size: 1.0625rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.6);
+}
+@media (max-width: 59.999rem) {
+  .ax-path__head {
+    grid-template-columns: 1fr;
+    align-items: start;
+    row-gap: var(--sp-4);
+  }
+  .ax-path__lede {
+    padding-bottom: 0;
+  }
+}
+
+/* ---------- the two shapes ----------
+   Traditional vs agentic, stated once at the top of the section so the
+   long trace below has something to be the second half of. Two panels,
+   each holding a row of boxes that fills it; the left chain ends on a
+   link a person has to do, and that link is the only thing in either
+   panel carrying the warning hue. The boxes are the same hairline-on-dark
+   vocabulary the node diagram below already uses, at the same radius —
+   this block is the half-second version of that diagram and should look
+   like it. */
+.ax-path__contrast {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--sp-5);
+  margin: var(--sp-7) 0 0;
+}
+/* Two surfaces, not two rows of chips in shared blackness. A hairline
+   divider between them was the earlier attempt at saying "these are two
+   different things", and it failed for a simple reason: each chain only
+   filled about 40% of its half, so both floated at the left edge of an
+   oversized column and the rule in the middle related to nothing on
+   either side. A panel bounds the comparison — the eye gets two objects
+   to weigh against each other, and the chain inside can be told to fill
+   the object it is in. */
+.ax-path__contrast-col {
+  padding: var(--sp-5);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--r-lg);
+  background: rgba(255, 255, 255, 0.016);
+}
+/* The right-hand panel is the one this company builds, so it carries the
+   violet the lit route below uses. Faint: it marks which of the two the
+   section is arguing for without deciding it before the reader has read
+   the chains. */
+.ax-path__contrast-col[data-kind="new"] {
+  border-color: rgba(146, 72, 228, 0.3);
+  background: rgba(146, 72, 228, 0.05);
+}
+
+.ax-path__contrast-label {
+  margin: 0 0 0.9rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-path__contrast-col[data-kind="new"] .ax-path__contrast-label {
+  color: var(--violet-200, #b79cf0);
+}
+
+/* `flex: 1 1 0` on every link, so three links split the panel in three
+   and four split it in four. That is the whole fix for this block: the
+   links were `flex-wrap` pills sized to their own text, so "Ask" was a
+   48px tag and the row stopped a third of the way across a 674px column.
+   Sized from the container instead, the chain fills the panel by
+   construction and reads as the deck's own row of boxes rather than as a
+   row of filter chips.
+
+   The step number comes from a counter rather than from markup — the
+   links are a list, and a list that has to carry its own indices in the
+   DOM stops being one. */
+.ax-path__contrast-chain {
+  display: flex;
+  align-items: stretch;
+  gap: 1.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: link;
+}
+.ax-path__contrast-chain li {
+  counter-increment: link;
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 4.75rem;
+  padding: 0.8rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.035);
+  font-size: 0.875rem;
+  line-height: 1.25;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.88);
+}
+.ax-path__contrast-chain li::before {
+  content: counter(link, decimal-leading-zero);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* The arrow sits in the gap, not inside the box — `left: 100%` with the
+   gap's own width, so it is centred between two links whatever they
+   measure. Drawn as content rather than as extra markup so the chain
+   stays a list for a screen reader. */
+.ax-path__contrast-chain li:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 1.9rem;
+  transform: translateY(-50%);
+  text-align: center;
+  font-size: 0.9375rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* The link a person has to do. It is the only reason this block exists,
+   so it is the only thing in either panel carrying the warning hue —
+   and it is the one box with no arrow leaving it. */
+.ax-path__contrast-chain li[data-stop="true"] {
+  border-color: rgba(248, 119, 86, 0.55);
+  background: rgba(248, 119, 86, 0.1);
+  color: #f9a78c;
+}
+.ax-path__contrast-chain li[data-stop="true"]::before {
+  color: rgba(249, 167, 140, 0.6);
+}
+
+/* Below the width where the two panels stack, the chains stack too.
+   Wrapping was the old behaviour and it produced two-and-a-half links on
+   one line — at that point the row has stopped drawing a sequence. Turned
+   vertical, each link keeps its full measure and the arrow turns with
+   it. */
+@media (max-width: 59.999rem) {
+  .ax-path__contrast-chain {
+    flex-direction: column;
+    gap: 1.6rem;
+  }
+  .ax-path__contrast-chain li {
+    /* Back to content sizing. `flex: 1 1 0` is what makes the links share
+       the row at desktop, but `flex-basis` resolves against the main
+       axis — so the moment this container turns vertical that same
+       declaration sets each box's *height* to zero and lets it grow only
+       into free space there isn't any of. The boxes collapsed under their
+       own content and the step number rendered on top of the border. */
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 0.7rem 0.75rem;
+  }
+  .ax-path__contrast-chain li:not(:last-child)::after {
+    content: "↓";
+    top: 100%;
+    left: 50%;
+    width: auto;
+    height: 1.6rem;
+    display: grid;
+    place-items: center;
+    transform: translateX(-50%);
+  }
+}
+
+/* The conclusion drawn from both columns, so it is not allowed to look
+   like a footnote to the left one. It gets the full measure, its own
+   vertical room, and a size that sits between the section heading and
+   the body — the only piece of type in this section at that weight. */
+.ax-path__verdict {
+  margin: var(--sp-7) auto var(--sp-9);
+  max-width: 46rem;
+  text-align: center;
+}
+.ax-path__verdict-line {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+  color: #fff;
+}
+.ax-path__verdict-sub {
+  margin: 0.85rem auto 0;
+  max-width: 52ch;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.62);
 }
 
 .ax-path__body {

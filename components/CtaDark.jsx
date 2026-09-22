@@ -10,6 +10,20 @@ import Curtain from "@/components/motion/Curtain";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
+/* Where the work usually is. Seven functions rather than the six sectors
+   the hero opens on: by the time a reader reaches the bottom of the page
+   they have agreed this applies to their industry, and the question that
+   is left is which part of their own operation to point it at. */
+const AREAS = [
+  "Customer operations",
+  "Back office",
+  "Risk & compliance",
+  "Knowledge work",
+  "Field operations",
+  "Revenue operations",
+  "Technology operations",
+];
+
 export default function CtaDark() {
   const { startTransition } = usePopup();
   return (
@@ -24,9 +38,9 @@ export default function CtaDark() {
       {/* The page opened on real footage of a person working with an AI
           agent; it closes the same way — a person at a laptop, a small
           holographic assistant beside them — rather than on an abstract
-          circuit clip. "Let us turn your concept into a production-grade
-          AI system" lands better next to a picture of that collaboration
-          than next to a trace of light with no one in the frame. */}
+          circuit clip. The closing question is about that person's work,
+          so it lands next to a picture of them doing it rather than next to
+          a trace of light with no one in the frame. */}
       <AmbientVideo film="aiPartner" className="ax-cta__film" />
       {/* The page opens on a film with a volume of light suspended in
           front of it and closes the same way, at half strength — the
@@ -41,8 +55,25 @@ export default function CtaDark() {
             <div className="container-large">
               <div className="cta_dark_component">
                 <h2 className="heading-style-h4 text-color-white _4 max-width-large big heading-40pt-ipad_pro">
-                  <MaskHeading text="Let us turn your concept into a production-grade AI system" />
+                  <MaskHeading text="What work should AI be doing in your business?" />
                 </h2>
+
+                {/* Seven places to look, for a reader who agrees with the
+                    question and cannot immediately answer it. Not links —
+                    there is nowhere on this site they would each go, and a
+                    chip that looks clickable and isn't is worse than a
+                    label. They are there to make the question answerable
+                    in the ten seconds before the button. */}
+                <ul className="ax-close__areas">
+                  {AREAS.map((a) => (
+                    <li key={a}>{a}</li>
+                  ))}
+                </ul>
+
+                <p className="ax-close__ask">
+                  Bring us one problem. We&rsquo;ll show you what AI can actually do with it.
+                </p>
+
                 <Magnetic>
                 <Link
                   href="/contact"
@@ -53,7 +84,7 @@ export default function CtaDark() {
                   }}
                 >
                   <div className="link_fill_text_wrapper">
-                    <div className="body20 text-weight-medium _20">work with us</div>
+                    <div className="body20 text-weight-medium _20">bring us one problem</div>
                     <div className="button_line_box">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -65,6 +96,18 @@ export default function CtaDark() {
                   </div>
                 </Link>
                 </Magnetic>
+
+                {/* The last line, and the same four words the page opens
+                    on. Set small and tracked out under the button rather
+                    than as a second heading: at heading size it would
+                    compete with the question above it and read as the page
+                    restating its claim after asking for something, which
+                    is the wrong order. At this size it is a sign-off — the
+                    reader has just been asked to bring one problem, and
+                    this is what happens to it. */}
+                <p className="ax-close__stamp" aria-hidden="true">
+                  AI that does the work.
+                </p>
               </div>
             </div>
           </div>

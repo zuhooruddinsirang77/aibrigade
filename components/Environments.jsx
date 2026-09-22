@@ -13,6 +13,40 @@ import Curtain from "@/components/motion/Curtain";
 const DWELL = 7000;
 const TICK = 50;
 
+/* The estate the layer sits on. Eight systems, in the order a buyer
+   recognises them: the systems of record first, then the channels, then
+   the two that are not always reachable on our terms. The asterisk on
+   IoT/OT is load-bearing — see `.ax-estate__foot`. */
+const ESTATE = [
+  "Core banking",
+  "EHR",
+  "CRM",
+  "ERP",
+  "WMS / POS",
+  "Contact center",
+  "Data / APIs",
+  "IoT / OT*",
+];
+
+/* What the layer is made of. Same eight capabilities the cards in WhyUs
+   argue in full sentences, named here as parts of one thing rather than
+   as a list of features. */
+const LAYER = [
+  "Reasoning",
+  "RAG",
+  "Voice",
+  "Rules",
+  "Workflow",
+  "Tool use",
+  "Human control",
+  "Audit",
+];
+
+/* Who is on the other side of it. The section is otherwise entirely about
+   systems, and a diagram of systems with no people in it quietly makes
+   the case that this is an IT project. */
+const AUDIENCES = ["Customers", "Employees", "Operations", "Management"];
+
 /**
  * "Where it runs" — the four operating environments, one at a time.
  *
@@ -151,15 +185,16 @@ export default function Environments() {
         <div className="container-large">
           <div className="ax-env__inner">
             <div className="ax-env__head">
-              <Kicker id="environments" label="Where it runs" tone="invert" />
+              <Kicker id="environments" label="Low-disruption transformation" tone="invert" />
               <h2 className="ax-env__title">
-                <MaskHeading text={"A system is only\nreal on the floor"} />
+                <MaskHeading text={"Don't replace your systems.\nPut intelligence across them."} />
               </h2>
               <Reveal variant="rise" className="ax-env__intro">
                 <p>
-                  Every engagement ends somewhere specific — a ward, a back
-                  office, a line, a network. These are the four rooms we build
-                  systems to survive.
+                  Agentic AI can sit across the technology estate you already
+                  own — reasoning, retrieval, voice, rules, workflow, tool use,
+                  human control and audit, in one layer above the systems that
+                  already hold your data.
                 </p>
               </Reveal>
             </div>
@@ -215,6 +250,12 @@ export default function Environments() {
                       <li key={t}>{t}</li>
                     ))}
                   </ul>
+                  {/* The OT/SCADA qualifier used to sit here, on the
+                      plant-and-field tab. It now sits under the estate
+                      diagram below, bound to the asterisk on IoT / OT —
+                      which is where the deck puts it, and which stops a
+                      reader on that one tab from being told the same thing
+                      twice inside one screen. */}
                 </div>
 
                 <p className="ax-env__count" aria-hidden="true">
@@ -223,6 +264,46 @@ export default function Environments() {
                   {String(environments.length).padStart(2, "0")}
                 </p>
               </div>
+            </div>
+
+            {/* The estate, drawn.
+                The four tabs above are rooms you can watch; this is the
+                whole surface the layer sits on, and without it the
+                section's own headline ("across them") points at four
+                things rather than at an estate. Read top to bottom: the
+                systems a client already owns, the layer between, and the
+                four constituencies that feel the difference. */}
+            <div className="ax-estate">
+              <p className="ax-estate__label">Systems you already own</p>
+              <ul className="ax-estate__grid">
+                {ESTATE.map((s) => (
+                  <li className="ax-estate__cell" key={s}>
+                    {s}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="ax-estate__layer">
+                <p className="ax-estate__layer-name">
+                  AIBrigade agentic intelligence + execution layer
+                </p>
+                <ul className="ax-estate__layer-parts">
+                  {LAYER.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <ul className="ax-estate__audience">
+                {AUDIENCES.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+
+              <p className="ax-estate__foot">
+                *Industrial/energy integration depends on the client&rsquo;s
+                OT/SCADA architecture and permitted interfaces.
+              </p>
             </div>
           </div>
         </div>

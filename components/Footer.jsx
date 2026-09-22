@@ -46,10 +46,10 @@ import { caseStudies } from "@/components/casestudies.data";
 const CASES = ["icu", "halyk", "uub"].map((slug) => caseStudies[slug]).filter(Boolean);
 
 const EXPLORE = [
-  { label: "Platform", target: "#whyus" },
-  { label: "What we build", target: "#services" },
-  { label: "Inside the system", target: "#features" },
-  { label: "Deployments", target: "#cases" },
+  { label: "Capability", target: "#whyus" },
+  { label: "Digital workforce", target: "#services" },
+  { label: "How we start", target: "#features" },
+  { label: "Proof", target: "#cases" },
   /* A route rather than an anchor. `goTo` below already routes anything
      that isn't a `#id` through the page transition. */
   { label: "AI demos", target: "/demos" },
@@ -220,8 +220,8 @@ export default function Footer() {
                 <Logo dark size="3rem" />
               </a>
               <p className="ax-foot__line">
-                Production-grade AI systems for fintech and healthtech — from discovery
-                through deployment.
+                Enterprise AI that understands, reasons and executes — inside the systems
+                you already own.
               </p>
               <Magnetic>
                 <Link
@@ -232,7 +232,7 @@ export default function Footer() {
                     startTransition("/contact");
                   }}
                 >
-                  Start a project
+                  Bring us one problem
                   {ARROW}
                 </Link>
               </Magnetic>

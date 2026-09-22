@@ -50,6 +50,24 @@ const WHYUS_ICONS = {
       <path d="M7.3 6.8h3.9a3.6 3.6 0 013.6 3.6M7.3 17.2h3.9a3.6 3.6 0 003.6-3.6" />
     </svg>
   ),
+  /* Listen. Drawn as a waveform rather than a microphone: the capability
+     is speech in both directions — inbound calls and outbound ones — and
+     a mic glyph only says one of them. */
+  waveform: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 12h1.6M8 7.4v9.2M12 4.6v14.8M16 8.6v6.8M19.9 11h.6" />
+    </svg>
+  ),
+  /* Operate privately. The same glyph Infrastructure.jsx draws for its
+     "Bounded" commitment, at the same weight — one lock in two places
+     rather than two locks that almost match. */
+  lock: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="5.5" y="10.5" width="13" height="9" rx="1.6" />
+      <path d="M8 10.5V7.8a4 4 0 018 0v2.7" />
+      <path d="M12 14v2.4" />
+    </svg>
+  ),
 };
 
 /**
@@ -384,15 +402,15 @@ export default function WhyUs() {
           <div className="padding-global">
             <div className="container-large">
               <div className="padding-section-whyus">
-                <Kicker id="whyus" label="What we build" />
+                <Kicker id="whyus" label="Our actual capability" />
                 <Reveal variant="rise" className="_3-columns-grid">
                   <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
-                    What we&rsquo;re <br />
-                    good at
+                    What we&rsquo;ve already <br />
+                    taught AI to do
                   </h2>
                   <p className="p2 max-width-medium text-16pt-ipad_pro">
-                    Building production-grade AI systems trusted by fintech and healthtech
-                    organizations across the U.S.
+                    These are the reusable building blocks behind new client solutions. Your
+                    use case becomes the next workflow.
                   </p>
                 </Reveal>
 

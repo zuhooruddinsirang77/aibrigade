@@ -79,9 +79,9 @@ const WF_CUSTOM_CSS =
   "https://s3.amazonaws.com/assets.vvmd.team/Auxility/styles/3hhyvl-6.csb.app_style.css";
 
 export const metadata = {
-  title: "AI Brigade | Custom AI Systems for FinTech & HealthTech",
+  title: "AIBrigade | AI That Does the Work",
   description:
-    "AI Brigade builds production-grade AI systems — copilots, automation agents, GPT platforms, and decision intelligence workflows — for FinTech and HealthTech companies, from initial discovery through production deployment.",
+    "Enterprise AI that listens, understands, reasons, connects to the systems you already run — and executes real business workflows. Agentic AI for fintech, healthtech, retail, customer operations, industrial and energy.",
   metadataBase: new URL("https://aibrigade.vercel.app"),
   icons: {
     icon: "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/641832e35aac6568d9a90013_favicon32x32-fintech.png",
@@ -89,9 +89,9 @@ export const metadata = {
       "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/6418342a3c418513b24385a0_favicon256x256-fintech.png",
   },
   openGraph: {
-    title: "AI Brigade | Custom AI Systems for FinTech & HealthTech",
+    title: "AIBrigade | AI That Does the Work",
     description:
-      "AI Brigade builds production-grade AI systems — copilots, automation agents, GPT platforms, and decision intelligence workflows — for FinTech and HealthTech companies.",
+      "Most enterprise AI stops at the answer. We build the kind that does the work — understands, reasons, and executes inside the systems you already own.",
     type: "website",
   },
 };

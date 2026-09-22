@@ -158,38 +158,52 @@ export const films = {
  * evidence — swap in real capture of that actual engagement at the same
  * time.
  */
+/* Four rooms, re-aimed at the estate rather than at the industry: the
+   section's argument is that the layer sits across systems a client
+   already owns, so each `kicker` names one of those systems (core banking,
+   EHR, WMS/POS, IoT/OT) and the `label` names the place it is running.
+   Same four films — the room each one shows did not change, only what the
+   copy claims is happening in it. */
 export const environments = [
   {
-    id: "clinical",
-    film: "geneEditing",
-    label: "The clinical floor",
-    kicker: "HealthTech",
-    line: "Documentation copilots and triage support that draft inside the chart the clinician already has open, with a human approving every write-back.",
-    tags: ["HL7 FHIR", "Human-in-the-loop", "Audit trail"],
-  },
-  {
-    id: "operations",
+    id: "banking",
     film: "operations",
-    label: "The operations floor",
-    kicker: "Enterprise",
-    line: "Agents that pick up the repeating parts of a back-office process — intake, reconciliation, chasing an exception — and hand a person the decision that needs judgement.",
-    tags: ["Workflow agents", "Exception routing", "SSO"],
+    label: "The banking floor",
+    kicker: "Core banking",
+    line: "Agents that work supported service requests, disputes, reconciliation and exception queues against the core you already run — and hand a person the file that needs judgement.",
+    tags: ["Core banking", "Contact center", "Audit trail"],
   },
   {
-    id: "production",
-    film: "factory",
-    label: "The production line",
-    kicker: "Industrial",
-    line: "Vision and telemetry models that watch a line continuously and raise a defect or a drift long before the shift report would.",
-    tags: ["Vision", "Edge inference", "Drift alerts"],
+    id: "clinical",
+    /* `healthcare`, not `geneEditing`. This tab's kicker is "EHR" and its
+       line is scheduling, eligibility, billing follow-up and documentation
+       — hospital administration. The gene-editing clip is a glowing DNA
+       strand on a lab bench, which is research imagery: it illustrated a
+       claim this tab does not make and left the claim it does make with
+       no picture. A hospital corridor is the room this copy is set in.
+       `geneEditing` is still the right clip for the UUB case and the
+       clinical reel, both of which are about care rather than admin. */
+    film: "healthcare",
+    label: "The clinical floor",
+    kicker: "EHR",
+    line: "Scheduling, eligibility, billing follow-up and documentation that move before staff have to chase them, drafted inside the chart the clinician already has open.",
+    tags: ["HL7 FHIR", "Human-in-the-loop", "Approval gate"],
   },
   {
-    id: "network",
+    id: "floor",
     film: "logistics",
-    label: "The distribution network",
-    kicker: "Logistics",
-    line: "Dispatch and routing models that re-plan against live conditions, and explain why a route changed to the person who has to defend it.",
-    tags: ["Routing", "Live re-planning", "Explainability"],
+    label: "The store and the warehouse",
+    kicker: "WMS / POS",
+    line: "Hands-free stock, location and movement for the people actually standing in front of the shelf, plus the exception that would otherwise surface a shift later.",
+    tags: ["Voice", "WMS / POS", "Exception routing"],
+  },
+  {
+    id: "field",
+    film: "factory",
+    label: "The plant and the field",
+    kicker: "IoT / OT",
+    line: "Manuals, work orders and spares reachable by voice at the point of work, and operational exceptions classified before the shift report would have caught them.",
+    tags: ["Edge", "Work orders", "Drift alerts"],
   },
 ];
 
@@ -211,22 +225,43 @@ export const environments = [
  * invented for it.
  */
 export const filmFor = {
-  /* WhyUs — the six capability cards. Fintech cards get the real fintech
-     footage, clinical cards get real footage each — "Diagnostics support"
-     has a clip purpose-shot for it rather than sharing Clinical
-     documentation's; the two that are neither (Compliance & trading, EHR
-     integration) keep the abstract loops that were already carrying them.
-     "Fraud detection" now runs `fraudReal` — real footage instead of stock
-     B-roll — which also settles the earlier clash with "Autonomous
-     underwriting" right beside it in this row: the two no longer share a
-     clip. */
+  /* WhyUs — the eight capability cards.
+
+     Keyed by card title, and the titles changed when this row stopped
+     being six vertical use cases and became the eight capabilities. Every
+     key here has to match a `title` in `whyUs` (components/data.js)
+     exactly — a miss returns undefined, AmbientVideo renders nothing, and
+     the card is a black box with a paragraph at the bottom of it. That is
+     what happened for one build after the rename.
+
+     Assignment is by what the clip actually shows, not by what is left —
+     and this list has been wrong twice, both times because the comment
+     described an intention the assignment never carried out:
+
+       - `Understand` said "documents" and pointed at `geneEditing`, which
+         is a DNA strand over a lab bench. No documents, no knowledge, and
+         a healthtech image under a card that is explicitly cross-sector.
+         `diagnosticSupport` is a head with the sources it draws on
+         resolving around it, which is the card's sentence exactly.
+       - `Escalate` said "clinicians" and pointed at `diagnosticSupport`,
+         which has no people in it at all — it is a wireframe head. The
+         card is about handing a decision to a person, so it needs a clip
+         with a person in it: `operations`, colleagues working a problem
+         around a table.
+
+     The rest stand: a person and an assistant for Listen, the chip coming
+     up for Reason, markets for Decide (where the threshold is set), the
+     agent interface for Act, the network for Communicate, the data centre
+     for Operate privately. */
   whyUs: {
-    "Fraud detection": "fraudReal",
-    "Autonomous underwriting": "fintechGrowth",
-    "Clinical documentation": "geneEditing",
-    "Diagnostics support": "diagnosticSupport",
-    "Compliance & trading": "infrastructure",
-    "EHR integration": "energy",
+    Listen: "aiPartner",
+    Understand: "diagnosticSupport",
+    Reason: "awaken",
+    Decide: "fintechGrowth",
+    Act: "agentsInterface",
+    Communicate: "stream",
+    Escalate: "operations",
+    "Operate privately": "infrastructure",
   },
 
   /* Cases — the three media tiles. ICU's card is literally titled "Real-time
@@ -239,11 +274,23 @@ export const filmFor = {
     uub: "geneEditing",
   },
 
-  /* ServiceExplorer — indexed to `services` in components/data.js:
-     0 Fintech, 1 Healthcare, 2 Custom AI Development, 3 Automation. Custom
-     AI Development gets the real agents-interface footage — it is the one
-     offer that is literally "we build the thing this clip is showing". */
-  services: ["fintechGrowth", "geneEditing", "agentsInterface", "factory"],
+  /* ServiceExplorer — indexed to `services` in components/data.js. The
+     four tracks are now the deck's four sectors: 0 Fintech, 1 Healthtech,
+     2 Retail and customer operations, 3 Industrial and energy. (This
+     comment named "Custom AI Development" and "Automation" for a while
+     after the tracks were rewritten, and the films underneath it were
+     still assigned to those two offers.)
+
+     Each track gets the room it is sold into, which is the only test this
+     table has to pass:
+       0  markets — the bank
+       1  a hospital corridor, not the gene-editing lab: the track is
+          scheduling, eligibility, RCM and billing, i.e. administration
+       2  the logistics hub, not the agent interface: this track is
+          inventory, store ops and the shelf, and a laptop on a desk shows
+          none of it
+       3  the line — the plant and the field */
+  services: ["fintechGrowth", "healthcare", "logistics", "factory"],
 
   /* Deployments — the four reels in "The work, playing", keyed by the id in
      components/deployments.data.js.
@@ -281,15 +328,21 @@ export const filmFor = {
   },
 
   /* Pipeline — the five engagement stages. Order carries meaning here: a
-     room full of people (Discover), a chip coming up (Design), a real
-     agent interface taking shape (Build), the racks it lands on (Deploy),
-     a network under load (Scale). Read top to bottom it is the same arc
-     the page opens and closes on. */
+     room full of people (Identify), a chip coming up (Design), a real
+     agent interface taking shape (Prove), the racks it lands on
+     (Measure), a network under load (Scale). Read top to bottom it is the
+     same arc the page opens and closes on.
+
+     Keyed by stage title, read by Pipeline.jsx as `filmFor.stages[s.title]`,
+     so these five strings must match `STAGE_TITLES` in Features.jsx and the
+     `title` fields in data.js exactly. They were renamed from Discover /
+     Build / Deploy and this table has to move with them — a miss here is
+     silent, and the stage simply plays no film. */
   stages: {
-    Discover: "operations",
+    Identify: "operations",
     Design: "awaken",
-    Build: "agentsInterface",
-    Deploy: "infrastructure",
+    Prove: "agentsInterface",
+    Measure: "infrastructure",
     Scale: "logistics",
   },
 };

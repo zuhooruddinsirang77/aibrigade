@@ -112,6 +112,201 @@
 
 /* ---- the sequence ---- */
 
+/* ---------- the four flagship builds ----------
+   Sits between the Cases heading and the three client acts. Each card is
+   a product and the chain it runs, keyed by a coloured edge — the same
+   left-rule device WhyUs and the deck both use, so a reader arriving at
+   this strip has already learned to read it. Four across on a wide
+   screen, two on a tablet, one on a phone; the `auto-fit` does that with
+   no breakpoint of its own. */
+.ax-proof {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--sp-4);
+  margin: var(--rhythm-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ax-proof__item {
+  position: relative;
+  /* Deep enough that a one-line chain still reads as a card rather than
+     as a label with a rule beside it. The three client acts below are
+     generous blocks; four squat tiles above them looked like a legend. */
+  min-height: 7.5rem;
+  padding: var(--sp-5) var(--sp-5) var(--sp-5) calc(var(--sp-5) + 0.5rem);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+}
+/* The coloured edge. A pseudo-element rather than a `border-left` so it
+   inherits the card's corner radius on the side that has one. */
+.ax-proof__item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  background: var(--violet);
+}
+.ax-proof__item[data-tone="coral"]::before {
+  background: var(--coral);
+}
+.ax-proof__item[data-tone="teal"]::before {
+  background: #2fd3c0;
+}
+.ax-proof__item[data-tone="blue"]::before {
+  background: #4d7cf5;
+}
+
+.ax-proof__name {
+  margin: 0 0 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.ax-proof__chain {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-60);
+}
+
+/* The portfolio claim under the strip. Centred and ruled off, because it
+   is a summary of the four cards above it rather than a fifth one — and
+   given real room, since sitting tight under the cards it read as a
+   caption on the last card instead of on the set. */
+.ax-proof__note {
+  margin: var(--sp-8) 0 0;
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+.ax-proof__note p {
+  margin: 0 auto;
+  max-width: 64ch;
+  text-align: center;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+@media (max-width: 767px) {
+  .ax-proof__note p {
+    text-align: left;
+  }
+}
+
+/* ---------- the five problems, and what happens to one ----------
+   Under the Featured band, on the white body — so these are the light
+   counterpart of `.ax-path__contrast`, same shapes, opposite ground.
+   Five across at full width and they get narrow, which is right: each
+   one is two or three words plus a line, and a reader is scanning for
+   the one that describes them rather than reading all five. */
+/* Pulled up tight under the violet band. These five are the band's own
+   argument continued — the heading inside it asks for a business
+   problem, and these are the five shapes one takes — so a full section
+   gap below the band left them reading as an unrelated strip that had
+   drifted in from somewhere else. */
+.ax-problems {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--sp-4);
+  margin: var(--sp-7) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ax-problems__item {
+  position: relative;
+  min-height: 7rem;
+  padding: var(--sp-5) var(--sp-4) var(--sp-5) calc(var(--sp-4) + 0.5rem);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+}
+/* Five edges across the brand's own range rather than five of one hue:
+   these are five different kinds of pain, and a single colour would say
+   they are five degrees of the same one. */
+.ax-problems__item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  background: var(--violet);
+}
+.ax-problems__item:nth-child(1)::before {
+  background: #2fd3c0;
+}
+.ax-problems__item:nth-child(2)::before {
+  background: #f0a83c;
+}
+.ax-problems__item:nth-child(3)::before {
+  background: #4d7cf5;
+}
+.ax-problems__item:nth-child(4)::before {
+  background: var(--coral);
+}
+
+.ax-problems__k {
+  margin: 0 0 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.ax-problems__d {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--ink-60);
+}
+
+/* The route out: what happens to a problem once it is brought. Ruled off
+   above so it closes the block rather than trailing off it, and set at
+   pill weight so a chain of five reads as a sequence at a glance. */
+.ax-route {
+  margin: var(--sp-7) 0 0;
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+.ax-route__chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-route__chain li {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--violet) 26%, transparent);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--violet) 6%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--violet);
+}
+/* Trailing arrow, so a wrapped chain never opens a line with one. */
+.ax-route__chain li:not(:last-child)::after {
+  content: "→";
+  margin-left: 0.85rem;
+  color: var(--ink-45);
+}
+
+@media (max-width: 767px) {
+  .ax-route__chain {
+    justify-content: flex-start;
+  }
+}
+
 .ax-acts {
   display: grid;
   gap: var(--rhythm-3);
@@ -470,6 +665,27 @@
   font-size: var(--t-display);
   line-height: 0.98;
   letter-spacing: var(--track-display);
+}
+
+/* ...with one exception, and it is a mechanical one rather than a matter
+   of taste.
+
+   `line-height: 0.98` is safe for a heading whose every line is authored,
+   which is what these three were: two short lines each, split on an
+   explicit `\n`. Environments now opens on two full sentences. Each one
+   wraps, and MaskHeading wraps every word in an `inline-flex` box
+   carrying 0.18em of descender padding (`.ax-mask__word`, motion.css) —
+   so a line box under about 1.1 lets a wrapped line sit ON TOP of the one
+   above it. At 0.98 the two sentences overlapped each other outright.
+
+   Smaller and looser here, therefore: each sentence lands on one line at
+   desktop, and if a narrower viewport does wrap one, the lines clear.
+   Any heading using MaskHeading on text long enough to wrap needs the
+   same treatment. */
+.ax-env__title {
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
 }
 
 @media (max-width: 991px) {

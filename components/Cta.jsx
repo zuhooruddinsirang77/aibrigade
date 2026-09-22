@@ -24,12 +24,13 @@ export default function Cta() {
                 className="cta_bg"
               />
               <h2 className="text-color-white heading-60pt-ipad_pro">
-                <MaskHeading text="Collaborate with us" />
+                <MaskHeading text="Bring us one problem" />
               </h2>
               <Reveal variant="rise" className="cta_text_wrapper" delay={0.15}>
                 <p className="p2 _20 text-20pt-ipad_pro">
-                  We are passionate builders of production-grade AI, helping fintech and healthtech
-                  organizations turn ideas into deployed systems.
+                  We&rsquo;ll show you what AI can actually do with it &mdash; one workflow,
+                  measured against your own baseline, in weeks rather than a transformation
+                  program.
                 </p>
               </Reveal>
               <div className="cta_button_wrapper">
@@ -43,7 +44,13 @@ export default function Cta() {
                   }}
                 >
                   <div className="link_fill_text_wrapper">
-                    <div className="body20 text-weight-medium _20">Request Free Strategy Session</div>
+                    {/* Not "Bring us one problem", which the heading two
+                        lines above already says — a button that repeats the
+                        headline it sits under reads as a stutter. And not
+                        "Request Free Strategy Session", which this said
+                        before: *free* prices the engagement before the buyer
+                        does, and *strategy session* is what an agency sells. */}
+                    <div className="body20 text-weight-medium _20">Start the conversation</div>
                     <div className="button_line_box">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img

@@ -87,14 +87,16 @@ export default function ProjectShowcase() {
       <div className="padding-global">
         <div className="container-large">
           <div className="ax-reels__head">
-            <Kicker id="reels" label="Projects" tone="invert" />
+            <Kicker id="reels" label="The portfolio" tone="invert" />
             <h2 className="ax-reels__title">
-              <MaskHeading text={"The work,\nplaying"} />
+              <MaskHeading text={"Demo-ready.\nNot slideware."} />
             </h2>
             <Reveal variant="rise" className="ax-reels__intro">
               <p>
-                Real products, in the languages they ship in. Pick a project,
-                choose a language, and watch it run.
+                Eight AI products you can watch run, in the languages they ship
+                in. Reusable engineering capabilities behind each one &mdash;
+                which is why a new workflow starts from proven components rather
+                than from a blank page.
               </p>
             </Reveal>
           </div>

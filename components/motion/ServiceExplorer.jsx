@@ -27,38 +27,76 @@ import AmbientVideo from "@/components/motion/AmbientVideo";
  * the only place the detail exists.
  */
 
+/**
+ * `note` is where the proof goes, and the wording of it is load-bearing.
+ * "Proof built" means a named product of ours already does this. "Transferable
+ * proof" means the capability is built and shipping, but in an adjacent
+ * sector — no client in this one has taken delivery yet. The two are not
+ * interchangeable and a later editing pass should not smooth them into one.
+ *
+ * `headline` is the deck's own sector headline, one per track. The section
+ * above this component opens on the general form of the claim ("Imagine your
+ * business with a digital workforce"); each of the four sectors states it
+ * again in its own terms, and those four sentences are the only place the
+ * page says what the workforce actually *does* for a bank as against a
+ * hospital as against a shop floor. They were the one part of slides 6–9
+ * with nowhere to land when this panel carried only `short` as its title —
+ * "AI in Fintech" is a label, not a claim, and the claim is the thing the
+ * slide was written for. `short` stays as the eyebrow: it is the tab's own
+ * name and the panel has to say which tab you opened.
+ */
 const DETAIL = {
   0: {
+    headline: "Imagine your bank with a digital workforce.",
     short: "AI in Fintech",
     builds: [
-      "Real-time fraud scoring",
-      "Autonomous underwriting",
-      "Compliance monitoring agents",
+      "Customer agent — supported service and banking requests, conversationally",
+      "Fraud agent — scores suspicious activity and creates explainable intervention context",
+      "Collections agent — contacts customers, captures outcomes, escalates exceptions",
+      "Operations agent — disputes, reconciliation and exception queues",
+      "Knowledge agent — governed access to policies, SOPs and institutional knowledge",
+      "Employee copilot — assists regulated teams without sending sensitive data to public AI",
     ],
-    note: "Decisions your risk team can defend line by line, with the policy that made them versioned alongside the model.",
+    note: "Proof built: AXON · LIVE fintech fraud detection · AI outbound voice engagement · private enterprise LLM.",
   },
   1: {
+    headline: "Imagine administrative work moving before staff have to chase it.",
     short: "AI in Healthcare",
     builds: [
-      "Clinical documentation copilots",
-      "Diagnostics and risk stratification",
-      "HL7 FHIR / Epic / Cerner integration",
+      "Patient access agent — scheduling, navigation, FAQs and service requests",
+      "RCM agent — eligibility, AR follow-up, billing and denial workflow",
+      "Patient financial agent — multilingual billing support and proactive follow-up",
+      "Knowledge agent — SOP, policy and operational knowledge grounded in approved sources",
+      "Supply agent — voice-driven stock for pharmacy and clinical supplies",
+      "Workforce copilot — summaries, document assistance and workflow guidance for staff",
     ],
-    note: "HIPAA-compliant infrastructure, and systems that fit the clinical workflow that already exists rather than replacing it.",
+    note: "Transferable proof: voice AI · outbound voice · private RAG/LLM · voice inventory.",
   },
   2: {
-    short: "Custom AI Development",
-    builds: ["GPT platforms", "Decision intelligence", "MLOps and deployment"],
-    note: "Discovery through production, including the parts most proposals leave out: evaluation, rollback, and who owns it after launch.",
+    headline: "Imagine every frontline team having an AI operator beside them.",
+    short: "Retail & Customer Ops",
+    builds: [
+      "Inventory agent — hands-free stock, location, movement and exceptions",
+      "Store ops agent — tasks, SOPs and operational issue escalation",
+      "Customer service agent — supported requests across voice and digital",
+      "Outbound agent — reminders, campaigns, qualification and follow-up",
+      "Agent assist — retrieves knowledge, summarizes calls, suggests next actions",
+      "Analytics agent — surfaces operational exceptions through natural-language interaction",
+    ],
+    note: "Proof built: AI voice retail inventory manager · AXON · AXON 2.0 · AI outbound voice engagement.",
   },
   3: {
-    short: "Automation & Integrations",
+    headline: "Imagine field and operations teams with governed AI at the point of work.",
+    short: "Industrial & Energy",
     builds: [
-      "Automation agents",
-      "Middleware across disconnected systems",
-      "Explainable risk models",
+      "Maintenance agent — manuals, history and SOPs for troubleshooting",
+      "Field voice copilot — hands-free procedures, work instructions and knowledge access",
+      "Spares agent — inventory and availability across parts stores and warehouses",
+      "Work order agent — creates, enriches, prioritizes and updates maintenance workflows",
+      "Asset knowledge agent — searches technical documentation and maintenance records",
+      "Exception agent — classifies operational, meter, billing and process exceptions",
     ],
-    note: "The manual steps between your systems, removed — and the intelligence already sitting in them, surfaced where someone can act on it.",
+    note: "Transferable proof: private enterprise LLM/RAG · voice inventory · AXON voice stack · workflow orchestration. Integration depends on the client's OT/SCADA architecture and permitted interfaces.",
   },
 };
 
@@ -187,7 +225,13 @@ export default function ServiceExplorer() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={item.img} alt={item.alt} className="ax-svc__render" />
           <div className="ax-svc__panel-copy">
-            <h3 className="ax-svc__panel-title">{detail.short}</h3>
+            {/* Eyebrow then claim: the eyebrow confirms which tab is open,
+                the heading is the sector's own sentence from the deck. The
+                heading used to be the eyebrow's text, which meant the panel
+                named itself twice (the tab already says "AI in Fintech" two
+                columns to the left) and never said what the track is for. */}
+            <p className="ax-svc__panel-eyebrow">{detail.short}</p>
+            <h3 className="ax-svc__panel-title">{detail.headline}</h3>
             <ul className="ax-svc__builds">
               {detail.builds.map((b) => (
                 <li key={b}>{b}</li>

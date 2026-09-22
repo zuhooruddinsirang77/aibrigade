@@ -38,14 +38,17 @@ const tickerLogos = [
  * AGENTS" — with a WebGL mote field over the footage, a tab row cycling
  * the clips, and a proof strip printing placeholder metrics. Every one of
  * those said "AI" the way a stock library says it. This says what the
- * company does: intelligence, engineered for production.
+ * company does: AI that does the work.
  *
- * The copy is the site's own. "Custom AI systems for Fintech & HealthTech"
- * (the previous H1, and the page title) becomes the eyebrow, so the
- * positioning is still the first thing read; the lede is Featured's own
- * paragraph and the old Overview line, cut to two sentences; the trust
- * line under the buttons is the vocabulary Featured and Services already
- * use. The primary action and its destination are unchanged.
+ * The claim is the whole positioning in four words, so it needs no
+ * subtitle. The eyebrow above it is the arrow the rest of the page is
+ * built on — listen, understand, reason, act — which recurs in the
+ * capability cards and again in the architecture section; three sightings
+ * of the same four words in the same order is what makes it read as a
+ * spine rather than as a tagline. The lede is the deck's own subtitle plus
+ * the sentence that says what the alternative costs you. The row under the
+ * buttons is the sectors, not the stack; the stack vocabulary lives in the
+ * Services strip. The primary action and its destination are unchanged.
  *
  * `IntelligenceSystem` replaces the footage and the mote field. It is one
  * SVG and a few dozen words — no video, no canvas, no three.js — so the
@@ -82,10 +85,10 @@ export default function Hero() {
           <div className="container-large">
             <div className="ax-hero__grid">
               <div className="ax-hero__copy">
-                <Kicker id="header" label="Custom AI systems · Fintech & HealthTech" tone="hero" />
+                <Kicker id="header" label="Listen → Understand → Reason → Act" tone="hero" />
 
                 <h1 className="ax-hero__title">
-                  <MaskHeading text={"Intelligence,\nengineered\nfor production."} delay={0.15} />
+                  <MaskHeading text={"AI that\ndoes the\nwork."} delay={0.15} />
                 </h1>
 
                 {/* `immediate`: the first screen reveals as a function of
@@ -93,10 +96,9 @@ export default function Hero() {
                     happen. See the note on the prop in Reveal.jsx. */}
                 <Reveal variant="rise" delay={0.45} immediate>
                   <p className="ax-hero__lede">
-                    We design and build production-grade AI systems for fintech and
-                    healthcare &mdash; copilots, automation agents and decision
-                    intelligence &mdash; from first discovery to a system your team runs
-                    every day.
+                    Enterprise AI that listens, understands, reasons, connects to the
+                    systems you already run &mdash; and executes real business workflows.
+                    Not one more answer for somebody on your team to act on.
                   </p>
                 </Reveal>
 
@@ -111,16 +113,20 @@ export default function Hero() {
                         startTransition("/contact");
                       }}
                     >
-                      {/* Not "Request Free Strategy Session".
-                          Three problems in four words: *free* prices the
-                          engagement before the buyer does, on a page
-                          selling six-figure implementations; *strategy
+                      {/* This is the navigation's label, exactly — the same
+                          action must not have two names on one screen. See
+                          CTA_LABEL in Navbar.jsx.
+
+                          Not "Request Free Strategy Session": *free* prices
+                          the engagement before the buyer does, and *strategy
                           session* is what an agency sells, not what an
-                          infrastructure company books; and it did not
-                          match the button in the bar directly above it,
-                          so the same action had two names on one screen.
-                          This is the navigation's label, exactly. */}
-                      Book a technical review
+                          execution layer sells. And not "Book a technical
+                          review", which this used to say — the page now
+                          argues that you should not have to choose a model
+                          or define an agent framework before talking to us,
+                          and then asked you to book a *technical* review.
+                          The ask is the one the page closes on. */}
+                      Bring us one problem
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path
                           d="M5 12h13M13 6l6 6-6 6"
@@ -144,7 +150,7 @@ export default function Hero() {
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
                   >
-                    See the work
+                    See what we&rsquo;ve built
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         d="M9 5l7 7-7 7"
@@ -158,13 +164,22 @@ export default function Hero() {
                   </a>
                 </Reveal>
 
-                {/* What the systems are made of — the vocabulary Featured
-                    and Services already use, nothing added. */}
-                <Reveal variant="rise" delay={0.72} immediate as="ul" className="ax-hero__trust" aria-label="What we build">
-                  <li>AI agents</li>
-                  <li>Decision intelligence</li>
-                  <li>Automation</li>
-                  <li>HIPAA-compliant infrastructure</li>
+                {/* The sectors, not the stack. This row used to list what
+                    the systems are made of (AI agents, decision
+                    intelligence, automation, HIPAA-compliant
+                    infrastructure) — vocabulary that only means something
+                    once you already believe the claim above it. The row
+                    that earns its place on a first screen is the one that
+                    tells a reader in two seconds whether this page is for
+                    them. The stack vocabulary moved down to the Services
+                    strip, where it is no longer competing with the claim. */}
+                <Reveal variant="rise" delay={0.72} immediate as="ul" className="ax-hero__trust" aria-label="Sectors we build for">
+                  <li>Fintech</li>
+                  <li>Healthtech</li>
+                  <li>Retail</li>
+                  <li>Customer operations</li>
+                  <li>Industrial</li>
+                  <li>Energy</li>
                 </Reveal>
               </div>
 

@@ -6,7 +6,7 @@ import { canRunWebGL, renderScale } from "@/components/motion/webglGuard";
 /**
  * The brand's faceted crystal, as an object rather than a picture of one.
  *
- * `pisma_glass_1.webp` and the smaller gem beside "People-first approach"
+ * `pisma_glass_1.webp` and the smaller gem beside the pipeline's closing claim
  * are pre-rendered stills of a 3D object — the same silhouette, lit once,
  * frozen at one angle. On a page where the case tiles now hold live
  * footage and the hero holds a live depth volume, a flat render of a

@@ -14,14 +14,14 @@
  * inserting one renumbers every kicker after it.
  */
 export const CHAPTERS = [
-  { id: "header", label: "The brief" },
-  { id: "whyus", label: "What we build" },
-  { id: "inside", label: "Inside the system" },
-  { id: "cases", label: "Evidence" },
-  { id: "reels", label: "The work, playing" },
-  { id: "environments", label: "Where it runs" },
-  { id: "services", label: "The offer" },
-  { id: "features", label: "How we run it" },
+  { id: "header", label: "AI that does the work" },
+  { id: "whyus", label: "Our actual capability" },
+  { id: "inside", label: "The difference" },
+  { id: "cases", label: "Proof before promise" },
+  { id: "reels", label: "The portfolio" },
+  { id: "environments", label: "Across your estate" },
+  { id: "services", label: "The digital workforce" },
+  { id: "features", label: "A lower-risk way to start" },
   { id: "reviews", label: "Who vouches" },
-  { id: "ctadark", label: "Start something" },
+  { id: "ctadark", label: "Bring us one problem" },
 ];

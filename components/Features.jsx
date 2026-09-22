@@ -5,12 +5,17 @@ import Kicker from "@/components/motion/Kicker";
 import GemCore from "@/components/motion/GemCore";
 
 /**
- * The five engagement stages are a sequence; "People-first approach" is a
- * value statement that happens to have been the sixth tile in the same 3x2
- * grid. Splitting them lets the sequence be drawn as one (see Pipeline.jsx)
- * and lets the closing claim sit where a closing claim belongs.
+ * The five engagement stages are a sequence; the sixth entry in `features`
+ * is a closing claim that happened to have been the sixth tile in the same
+ * 3x2 grid. Splitting them lets the sequence be drawn as one (see
+ * Pipeline.jsx) and lets the closing claim sit where a closing claim
+ * belongs.
+ *
+ * Matched by string against `features` in data.js, and the same five names
+ * key every chapter in deployments.data.js — change one list and all three
+ * have to move.
  */
-const STAGE_TITLES = ["Discover", "Design", "Build", "Deploy", "Scale"];
+const STAGE_TITLES = ["Identify", "Design", "Prove", "Measure", "Scale"];
 
 export default function Features() {
   const stages = features.filter((f) => STAGE_TITLES.includes(f.title));
@@ -21,14 +26,15 @@ export default function Features() {
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-features">
-            <Kicker id="features" label="How we run it" />
+            <Kicker id="features" label="A lower-risk way to start" />
             <Reveal variant="rise" className="_3-columns-grid">
               <h2 className="heading-style-h4 _2 _3 heading-30pt-tablet heading-40pt-ipad_pro">
-                We are <span className="text-span">AI system builders</span>, <br />
-                not just consultants
+                Start with one workflow. <br />
+                <span className="text-span">Earn the right to expand.</span>
               </h2>
               <p className="p2 max-width-medium _2 text-16pt-ipad_pro">
-                We go beyond strategy decks. We build the systems that run your business.
+                No enterprise-wide transformation program is required to establish whether the
+                approach works.
               </p>
             </Reveal>
 

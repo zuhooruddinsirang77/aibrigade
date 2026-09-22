@@ -55,10 +55,10 @@ const CASES = ["icu", "halyk", "uub"]
    studies and the project showcase, and "company" covers everything from
    the services strip down to the recognition badges. */
 const LINKS = [
-  { id: "platform", label: "Platform", target: "#whyus", watch: ["whyus", "featured"] },
+  { id: "platform", label: "Capability", target: "#whyus", watch: ["whyus", "featured"] },
   {
     id: "cases",
-    label: "Deployments",
+    label: "Proof",
     target: "#cases",
     watch: ["cases", "reels"],
     menu: true,
@@ -82,18 +82,32 @@ const LINKS = [
   { id: "contact", label: "Contact", target: "/contact" },
 ];
 
+/* Six, not two. The page now argues six sectors and the hero's own row
+   lists all six; a bar that still offered fintech and healthtech would be
+   telling four of them they were in the wrong place. All six point at the
+   same section — ServiceExplorer groups them into four tracks, so "retail"
+   and "customer ops" land on the same tab, as do "industrial" and
+   "energy". If the row proves too wide at tablet, drop to fintech,
+   healthtech, retail, industrial rather than going back to two. */
 const DOMAINS = [
   { label: "fintech", target: "#services" },
   { label: "healthtech", target: "#services" },
+  { label: "retail", target: "#services" },
+  { label: "customer ops", target: "#services" },
+  { label: "industrial", target: "#services" },
+  { label: "energy", target: "#services" },
 ];
 
-/* Not "Request Free Strategy Session".
-   Three problems in four words: *free* prices the engagement before the
-   buyer does, on a page selling six-figure implementations; *strategy
-   session* is what an agency sells, not what an infrastructure company
-   books; and it did not match the hero's own button, so the same action
-   had two names on one screen. This matches the hero exactly. */
-const CTA_LABEL = "Book a technical review";
+/* Matches the hero's button exactly — the same action must not have two
+   names on one screen.
+
+   Not "Request Free Strategy Session": *free* prices the engagement before
+   the buyer does, and *strategy session* is what an agency sells. And no
+   longer "Book a technical review", which this said until the page was
+   repositioned: the argument now is that you should not have to choose a
+   model or define an agent framework before talking to us, and a button
+   asking for a *technical* review asks for exactly that readiness. */
+const CTA_LABEL = "Bring us one problem";
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';

@@ -29,14 +29,43 @@ const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
  * film inside the media panel. They are this section's existing colour
  * atmosphere and they stay exactly as they were.
  */
+/* The four flagship builds, each stated as the chain it actually runs.
+   These are products, not engagements — they are what lets the three
+   client stories below read as delivery rather than as the only four
+   things we have ever done. The chains are deliberately terse: a reader
+   scanning this strip should be able to tell in one line what the system
+   takes in and what it does about it. */
+const PROOF = [
+  {
+    name: "AXON",
+    chain: "Voice → understand → execute supported banking workflows",
+    tone: "teal",
+  },
+  {
+    name: "Live Fraud",
+    chain: "Transaction → score → explain → intervene / route",
+    tone: "coral",
+  },
+  {
+    name: "Outbound AI",
+    chain: "Call → converse → capture → update → escalate",
+    tone: "blue",
+  },
+  {
+    name: "Private LLM",
+    chain: "Retrieve private knowledge → reason → assist",
+    tone: "violet",
+  },
+];
+
 const ACTS = [
   {
     id: "icu",
     href: "/icu",
     sector: "Fintech",
     client: "ICU Capital",
-    title: "Real-time fraud detection for a regional bank",
-    body: "AIBrigade built an autonomous fraud detection system for ICU Capital, a self-contained asset and investment management company. It provides real-time transaction monitoring, explainable risk scoring, and multi-factor authentication for a secure, flawless user experience.",
+    title: "Transaction → score → explain → intervene",
+    body: "Live fraud detection for a self-contained asset and investment management company. The agent scores activity as it happens, builds the explainable context a reviewer needs to act, and routes the case — rather than filling a queue somebody has to work through afterwards.",
     film: filmFor.cases.icu,
     visual: "stream",
     decs: ["cases_dec-1", "cases_dec-2"],
@@ -46,8 +75,8 @@ const ACTS = [
     href: "/halyk",
     sector: "Fintech",
     client: "Meridian Capital",
-    title: "Autonomous underwriting for a leading investment bank",
-    body: "Meridian Capital is a leading investment bank serving clients nationwide. AIBrigade built a decision intelligence workflow that automates underwriting while keeping every decision auditable and compliant.",
+    title: "Request → reason → decide → write back",
+    body: "Underwriting for a leading investment bank. The clear files are decided straight through against a policy the risk team owns; the files that need judgement arrive at an analyst with the reasoning already assembled. Every decision stays auditable.",
     film: filmFor.cases.halyk,
     visual: "split",
     decs: ["cases_dec-3", "cases_dec-4"],
@@ -57,8 +86,8 @@ const ACTS = [
     href: "/uub",
     sector: "Healthtech",
     client: "UUB Health",
-    title: "A HIPAA-compliant clinical documentation copilot",
-    body: "UUB Health is a growing multi-site clinical network. AIBrigade built a HIPAA-compliant documentation copilot, integrated with Epic via HL7 FHIR, that reduces clinician charting time and improves clinical efficiency.",
+    title: "Listen → draft → approve → write back",
+    body: "A documentation agent inside a multi-site clinical network. It drafts in the chart the clinician already has open, integrated with Epic via HL7 FHIR, and never writes back without a human approving the write.",
     film: filmFor.cases.uub,
     visual: "draft",
     decs: [],
@@ -107,15 +136,31 @@ export default function Cases() {
       <div className="padding-global">
         <div className="container-large">
           <div className="ax-cases__head">
-            <Kicker id="cases" label="Evidence" />
+            <Kicker id="cases" label="Proof before promise" />
             <Reveal variant="rise" className="ax-cases__headline">
               <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
-                Prominent <br />
-                Cases
+                Built. <br />
+                Not conceptual.
               </h2>
               <p className="p2 max-width-medium _3 _4 text-16pt-ipad_pro margin-top-zero-ipad-pro">
-                Production-grade AI systems we&rsquo;ve deployed for fintech and healthtech
-                organizations nationwide.
+                Our product portfolio demonstrates the core capabilities required to make
+                enterprise agents useful in the real world &mdash; not in a pitch.
+              </p>
+            </Reveal>
+
+            <Reveal variant="stagger" selector=".ax-proof__item" className="ax-proof" as="ul">
+              {PROOF.map((p) => (
+                <li className="ax-proof__item" key={p.name} data-tone={p.tone}>
+                  <h3 className="ax-proof__name">{p.name}</h3>
+                  <p className="ax-proof__chain">{p.chain}</p>
+                </li>
+              ))}
+            </Reveal>
+
+            <Reveal variant="rise" className="ax-proof__note">
+              <p>
+                Eight demo-ready AI products. Reusable engineering capabilities. New
+                workflows built on proven components.
               </p>
             </Reveal>
           </div>
@@ -225,13 +270,13 @@ export default function Cases() {
               </Parallax>
               <div className="cases_text_wrapper text-color-white">
                 <div className="cases_text_top">
-                  <div className="heading-style-h1 big heading-80pt-ipad_pro">Will</div>
+                  <div className="heading-style-h1 big heading-80pt-ipad_pro">Bring</div>
                 </div>
                 <div className="heading-style-h1 _2">
-                  your <span className="text-color-black">&lt;</span>app
+                  us one <span className="text-color-black">&lt;</span>problem
                   <span className="text-color-black">&gt;</span>
                 </div>
-                <div className="heading-style-h1 _2">be next?</div>
+                <div className="heading-style-h1 _2">to start.</div>
                 <div className="div-block-3">
                   <Link
                     href="/contact"
@@ -242,7 +287,7 @@ export default function Cases() {
                     }}
                   >
                     <div className="link_fill_text_wrapper">
-                      <div className="body20 text-weight-medium _20">Request Free Strategy Session</div>
+                      <div className="body20 text-weight-medium _20">Bring us one problem</div>
                       <div className="button_line_box">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img

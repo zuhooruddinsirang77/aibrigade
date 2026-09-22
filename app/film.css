@@ -210,13 +210,23 @@
   gap: var(--sp-9);
 }
 
+/* Widened from 44rem. The heading here used to be two short lines ("A
+   system is only / real on the floor"); it is now two full sentences,
+   and at 44rem each of them wrapped again inside its own line. */
 .ax-env__head {
-  max-width: 44rem;
+  max-width: 54rem;
 }
+/* `line-height` raised from 1.04, and the ceiling dropped from 4rem.
+   MaskHeading wraps every word in an `inline-flex` box carrying 0.18em
+   of descender padding (see .ax-mask__word in motion.css), so a line box
+   shorter than about 1.1 lets a wrapped line sit on top of the one above
+   it. At 1.04 the two sentences here overlapped each other on desktop.
+   Anything using MaskHeading on text long enough to wrap needs leading
+   of at least this much. */
 .ax-env__title {
   margin: 0.75rem 0 0;
-  font-size: clamp(2.25rem, 5.4vw, 4rem);
-  line-height: 1.04;
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: 1.12;
   letter-spacing: -0.02em;
   font-weight: 600;
   color: #fff;
@@ -342,6 +352,159 @@
   font-size: 0.75rem;
   letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---------- the estate ----------
+   The diagram under the four tabs: systems owned, the layer across them,
+   the people it reaches. Dark band, so this reuses the same hairline
+   vocabulary as `.ax-env__tags` rather than inventing a second one. The
+   layer band is the only filled element, because it is the only thing in
+   the diagram that is ours. */
+.ax-estate {
+  /* `.ax-env__inner` already puts --sp-9 between its children and the
+     panel above reserves height for its longest tab, so the old --sp-9
+     here stacked into roughly 200px of dead band. */
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-8);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ax-estate__label {
+  margin: 0 0 1rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.ax-estate__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-estate__cell {
+  display: grid;
+  place-items: center;
+  min-height: 3.5rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.03);
+  text-align: center;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* The one filled element. `--grad-violet` is the same wash the brand
+   blocks elsewhere on the page use, held at low opacity so the estate
+   above and the audiences below stay legible against it. */
+/* The one filled element, and the only thing in the diagram that is ours.
+   It carries a downward cue at each end so the three bands read as a
+   stack that flows — estate above, layer across, people below — rather
+   than as three unrelated rows that happen to be near each other. */
+.ax-estate__layer {
+  position: relative;
+  margin: 2.25rem 0;
+  padding: 1.75rem 1.5rem;
+  border: 1px solid rgba(155, 125, 240, 0.55);
+  border-radius: var(--r-lg);
+  background: rgba(124, 77, 232, 0.14);
+  text-align: center;
+}
+.ax-estate__layer::before,
+.ax-estate__layer::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 1.35rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(155, 125, 240, 0),
+    rgba(155, 125, 240, 0.6)
+  );
+}
+.ax-estate__layer::before {
+  top: calc(-1.35rem - 1px);
+}
+.ax-estate__layer::after {
+  bottom: calc(-1.35rem - 1px);
+  transform: scaleY(-1);
+}
+.ax-estate__layer-name {
+  margin: 0;
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  color: #fff;
+}
+.ax-estate__layer-parts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem 0;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-estate__layer-parts li {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--violet-200, #b79cf0);
+}
+/* Trailing, not leading — a wrapped line must not open on a dot that
+   separates it from nothing. Same reasoning as the chain arrows in
+   path.css. */
+.ax-estate__layer-parts li:not(:last-child)::after {
+  content: "•";
+  margin: 0 0.75rem;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.ax-estate__audience {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ax-estate__audience li {
+  padding: 0.65rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ax-estate__foot {
+  margin: var(--sp-6) 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+@media (max-width: 767px) {
+  /* Two across rather than four squeezed, and the parts row left-aligns
+     with everything else on a phone instead of centring alone. */
+  .ax-estate__audience {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .ax-estate__layer-parts {
+    justify-content: flex-start;
+  }
+  .ax-estate__foot {
+    text-align: left;
+  }
 }
 
 .ax-env__count {
@@ -950,6 +1113,57 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
    and puts the film under the network canvas at -1. */
 .section_cta_dark .ax-cta__film {
   z-index: -2;
+}
+
+/* ---- the closing question's own answer sheet ----
+   Seven functional areas and the ask, between the heading and the
+   button. Chips, not links: nothing on this site is a page per function,
+   and something that looks clickable and isn't is worse than a label —
+   hence no hover state and no pointer. The stack below orders them
+   heading → areas → ask → button, which is the order the question is
+   actually answered in. */
+.section_cta_dark .ax-close__areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: var(--sp-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.section_cta_dark .ax-close__areas li {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.section_cta_dark .ax-close__ask {
+  margin: var(--sp-6) 0 var(--sp-5);
+  max-width: 44ch;
+  font-size: clamp(1.0625rem, 2vw, 1.375rem);
+  line-height: 1.45;
+  color: #fff;
+}
+
+/* The sign-off under the button — the page's own title, returned at the
+   end. Deliberately the quietest type in the section: it is a rhyme with
+   the hero, and a rhyme that shouts is just a repetition. `aria-hidden`
+   in the markup for the same reason — a screen reader has already had
+   this sentence, as the h1. */
+.section_cta_dark .ax-close__stamp {
+  margin: var(--sp-2) 0 0;
+  /* 0.75rem tracked out to 0.22em came out at ~10px of uppercase over a
+     moving picture, which is below the size this treatment survives — it
+     was legible on the dark half of the frame and gone on the light half.
+     Up one step, with the tracking eased off to match. */
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  text-shadow: 0 1px 12px rgba(5, 7, 10, 0.55);
 }
 
 /* Webflow lays `.cta_dark_component`'s two children (the heading, the
