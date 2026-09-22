@@ -1,0 +1,362 @@
+/* ================================================================
+   AIBrigade — /privacy-policy and /terms-of-use
+
+   A document, not a landing page: no film, no network, no gradient
+   headline. The ink band at the top is the one thing it shares with the
+   rest of the site, so arriving here still feels like the same site,
+   and everything below it is set for reading.
+
+   Tokens only. Every selector is new (`.ax-legal*`).
+   ================================================================ */
+
+/* `overflow: hidden` here would make this element a scroll container,
+   and a `position: sticky` descendant sticks to its nearest scrolling
+   ancestor — so the contents list below simply stopped sticking and
+   scrolled away with the document. `clip` does the same visual job
+   without creating one. */
+.ax-legal {
+  overflow-x: clip;
+}
+
+/* ---------- hero ---------- */
+.ax-legal__hero {
+  position: relative;
+  isolation: isolate;
+  background: var(--ink-canvas);
+  color: #fff;
+  padding-top: clamp(8rem, 6vw + 5rem, 10.5rem);
+  padding-bottom: clamp(2.5rem, 3vw + 1rem, 4rem);
+}
+.ax-legal__hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    46% 64% at 6% -14%,
+    rgba(146, 72, 228, 0.26) 0%,
+    rgba(146, 72, 228, 0) 66%
+  );
+  pointer-events: none;
+}
+
+.ax-legal__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--coral);
+}
+.ax-legal__eyebrow::after {
+  content: "";
+  height: 1px;
+  width: 3.5rem;
+  background: linear-gradient(90deg, var(--coral), rgba(248, 119, 86, 0));
+}
+
+.ax-legal__title {
+  margin: 0;
+  font-size: clamp(2.25rem, 2.2vw + 1.5rem, 3.25rem);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  color: #fff;
+}
+.ax-legal__summary {
+  margin: 1.5rem 0 0;
+  max-width: 62ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.66);
+}
+.ax-legal__updated {
+  margin: 1.75rem 0 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-legal__updated time {
+  color: #fff;
+}
+
+/* ---------- document ---------- */
+.ax-legal__body {
+  background: var(--surface);
+  padding-top: clamp(3rem, 4vw + 1rem, 5rem);
+  padding-bottom: clamp(4rem, 6vw + 2rem, 7rem);
+}
+.ax-legal__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+/* ---------- contents ---------- */
+.ax-legal__aside {
+  position: sticky;
+  /* Clears the fixed navigation, the way every section's
+     `scroll-margin-top` does. */
+  top: 7rem;
+}
+.ax-legal__toc-head {
+  margin: 0 0 var(--sp-4);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-legal__toc ol {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--line);
+}
+.ax-legal__toc a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.5rem 0 0.5rem 0.9rem;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--ink-45);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+}
+.ax-legal__toc a span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-45);
+  padding-top: 0.15rem;
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-legal__toc a:hover {
+  color: var(--ink);
+}
+/* The rule down the left is the "you are here" mark the nav, the
+   capability explorer and the footer's case list all draw. */
+.ax-legal__toc a[data-active="true"] {
+  color: var(--ink);
+  font-weight: 500;
+  border-left-color: var(--violet-500);
+}
+.ax-legal__toc a[data-active="true"] span {
+  color: var(--violet-500);
+}
+
+/* ---------- prose ---------- */
+.ax-legal__doc {
+  min-width: 0;
+  /* The one measurement that decides whether a document like this is
+     read or skimmed. */
+  max-width: 68ch;
+}
+.ax-legal__section + .ax-legal__section {
+  margin-top: var(--sp-8);
+}
+.ax-legal__doc h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin: 0 0 var(--sp-4);
+  font-size: clamp(1.25rem, 0.7vw + 1.05rem, 1.5rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  /* An anchored heading must clear the fixed bar when the contents list
+     jumps to it. */
+  scroll-margin-top: 6.5rem;
+}
+.ax-legal__n {
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--violet-500);
+}
+.ax-legal__doc section {
+  scroll-margin-top: 6.5rem;
+}
+.ax-legal__doc p {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--ink-60);
+}
+.ax-legal__doc p:last-child {
+  margin-bottom: 0;
+}
+.ax-legal__sub {
+  margin: 1.5rem 0 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.ax-legal__list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.ax-legal__list li {
+  position: relative;
+  padding-left: 1.25rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--ink-60);
+}
+/* A violet rule rather than a bullet — the same mark the rest of the
+   site uses for an item in a list. */
+.ax-legal__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.75em;
+  width: 0.5rem;
+  height: 1px;
+  background: var(--violet-300);
+}
+
+/* The one call-out. Used sparingly, for the three or four sentences on
+   these pages that change what a reader should actually do. */
+.ax-legal__note {
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem 1rem 1.5rem;
+  background: var(--surface-violet);
+  border-radius: var(--r-md);
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.ax-legal__note span {
+  position: absolute;
+  left: 0;
+  top: 0.75rem;
+  bottom: 0.75rem;
+  width: 0.1875rem;
+  border-radius: var(--r-pill);
+  background: var(--violet-500);
+}
+
+/* ---------- foot ---------- */
+.ax-legal__foot {
+  margin-top: var(--sp-9);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+.ax-legal__next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-legal__next span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+.ax-legal__next small {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-legal__next svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--violet-500);
+  flex: 0 0 auto;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-legal__next:hover {
+  border-color: var(--violet-300);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-0.125rem);
+}
+.ax-legal__next:hover svg {
+  transform: translateX(0.25rem);
+}
+.ax-legal__foot p {
+  margin: var(--sp-5) 0 0;
+  font-size: 0.875rem;
+  color: var(--ink-45);
+}
+.ax-legal__foot p a {
+  color: var(--violet-600);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* ---------- responsive ---------- */
+@media screen and (max-width: 991px) {
+  .ax-legal__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-7);
+  }
+  /* Sticky is meaningless once the list is above the document rather
+     than beside it — and a 16-item list pinned to the top of a phone
+     screen would take the screen. */
+  .ax-legal__aside {
+    position: static;
+    top: auto;
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--line);
+  }
+  .ax-legal__toc ol {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-left: 0;
+  }
+  .ax-legal__toc a {
+    padding-left: 0;
+    margin-left: 0;
+    border-left: 0;
+  }
+  .ax-legal__toc a[data-active="true"] {
+    border-left: 0;
+  }
+  .ax-legal__doc {
+    max-width: none;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .ax-legal__toc ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ax-legal__next {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ax-legal__next:hover,
+  .ax-legal__next:hover svg {
+    transform: none;
+  }
+}

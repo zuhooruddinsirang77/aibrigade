@@ -14,8 +14,13 @@
    order the other stylesheets are so carefully arranged in.
    ================================================================ */
 
+/* `clip`, not `hidden`. `overflow: hidden` makes this element a scroll
+   container, and a `position: sticky` descendant sticks to its nearest
+   scrolling ancestor — so `.ax-contact__aside` below was never sticky at
+   all, it just scrolled away with the form. `clip` contains the hero's
+   glow the same way without creating a scroll container. */
 .ax-contact {
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 /* ---------- hero ----------

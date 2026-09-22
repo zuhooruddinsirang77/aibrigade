@@ -242,7 +242,7 @@ export default function PopupForm() {
                           <span className="text-size-14pt is--checkbox w-form-label">
                             {" "}I have read and accept the terms of the{" "}
                             <a
-                              href="https://www.aibrigade.ai/privacy-policy"
+                              href="/privacy-policy"
                               target="_blank"
                               rel="noreferrer"
                               className="link-underline is--check"

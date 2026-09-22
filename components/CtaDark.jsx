@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
@@ -10,7 +11,7 @@ import Curtain from "@/components/motion/Curtain";
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 export default function CtaDark() {
-  const { openPopup } = usePopup();
+  const { startTransition } = usePopup();
   return (
     /* The closing frame widens, the same way the two dark scenes before
        it opened. See Curtain. */
@@ -43,12 +44,12 @@ export default function CtaDark() {
                   <MaskHeading text="Let us turn your concept into a production-grade AI system" />
                 </h2>
                 <Magnetic>
-                <a
-                  href="#"
+                <Link
+                  href="/contact"
                   className="link fill width w-inline-block"
                   onClick={(e) => {
                     e.preventDefault();
-                    openPopup();
+                    startTransition("/contact");
                   }}
                 >
                   <div className="link_fill_text_wrapper">
@@ -62,7 +63,7 @@ export default function CtaDark() {
                       />
                     </div>
                   </div>
-                </a>
+                </Link>
                 </Magnetic>
               </div>
             </div>

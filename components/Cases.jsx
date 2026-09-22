@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
@@ -232,7 +233,7 @@ export default function Cases() {
                 </div>
                 <div className="heading-style-h1 _2">be next?</div>
                 <div className="div-block-3">
-                  <a
+                  <Link
                     href="/contact"
                     className="link fill w-inline-block"
                     onClick={(e) => {
@@ -251,7 +252,7 @@ export default function Cases() {
                         />
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 </div>
               </div>
               {/* Was the `bg_corner45_violet.webp` flat gradient image this

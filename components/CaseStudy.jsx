@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -69,7 +70,7 @@ function ReelEmbed({ deployment, client }) {
 }
 
 export default function CaseStudy({ slug }) {
-  const { openPopup, startTransition } = usePopup();
+  const { startTransition } = usePopup();
   const study = getCaseStudy(slug);
 
   const go = (href) => (e) => {
@@ -136,12 +137,12 @@ export default function CaseStudy({ slug }) {
                       </div>
                     ) : null}
                     <Magnetic>
-                      <a
-                        href="#"
+                      <Link
+                        href="/contact"
                         className="link fill w-inline-block"
                         onClick={(e) => {
                           e.preventDefault();
-                          openPopup();
+                          startTransition("/contact");
                         }}
                       >
                         <div className="link_fill_text_wrapper">
@@ -155,7 +156,7 @@ export default function CaseStudy({ slug }) {
                             />
                           </div>
                         </div>
-                      </a>
+                      </Link>
                     </Magnetic>
                   </div>
                 </div>

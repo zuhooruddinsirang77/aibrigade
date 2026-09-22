@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
@@ -9,7 +10,7 @@ import Reveal from "@/components/motion/Reveal";
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 export default function Cta() {
-  const { openPopup } = usePopup();
+  const { startTransition } = usePopup();
   return (
     <div id="cta" className="section_cta">
       <div className="padding-global">
@@ -33,12 +34,12 @@ export default function Cta() {
               </Reveal>
               <div className="cta_button_wrapper">
                 <Magnetic>
-                <a
-                  href="#"
+                <Link
+                  href="/contact"
                   className="link fill w-inline-block"
                   onClick={(e) => {
                     e.preventDefault();
-                    openPopup();
+                    startTransition("/contact");
                   }}
                 >
                   <div className="link_fill_text_wrapper">
@@ -52,7 +53,7 @@ export default function Cta() {
                       />
                     </div>
                   </div>
-                </a>
+                </Link>
                 </Magnetic>
               </div>
               <Parallax speed={-18}>

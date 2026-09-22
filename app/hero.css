@@ -143,40 +143,122 @@
    refine.css and reused as they are: the white pill that fills violet on
    hover, and the hairline link. */
 
-/* The trust line: what the systems are made of, in the detail register
-   the rest of the page uses for metadata. */
+/* The capability line: what the systems are made of, in the detail
+   register the rest of the page uses for metadata.
+
+   It was set at 0.6875rem in mono at 46% white — which on this site's
+   fluid root (13px at 1440) arrives at about 8.9px. Four of the page's
+   load-bearing words were the smallest, faintest type on the first
+   screen, sitting directly under the two largest. Same register, one
+   step up, and the violet pips carry the separation instead of the
+   letter-spacing. */
 .ax-hero__trust {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0;
   margin: 2.5rem 0 0;
-  padding: 1.1rem 0 0;
+  padding: 1.25rem 0 0;
   list-style: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.46);
+  color: rgba(255, 255, 255, 0.62);
 }
 .ax-hero__trust li {
   display: inline-flex;
   align-items: center;
+  transition: color var(--dur-2) var(--ease);
 }
 .ax-hero__trust li + li::before {
   content: "";
   display: inline-block;
-  width: 0.25rem;
-  height: 0.25rem;
-  margin: 0 0.85rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  margin: 0 1rem;
   border-radius: 50%;
-  background: rgba(199, 155, 245, 0.55);
+  background: rgba(199, 155, 245, 0.8);
 }
 
 .ax-hero__visual {
   position: relative;
   min-width: 0;
+}
+
+/* ---------------------------------------------------------------
+   2b. The trust strip
+
+   film.css explains why this band is light rather than dark: the client
+   marks are coloured wordmarks with no backing of their own, and
+   inverting them shifts their hue instead of producing white. That
+   stands. What it did not fix is everything else about the row.
+
+   Two problems, both visible the moment real files went in. The marks
+   are drawn at wildly different scales — JS Bank's file rendered about
+   three times the height of Easypaisa's, so the row read as one big
+   logo and six small ones rather than as a list of peers. And six
+   full-colour marks on a white slab directly under a near-black hero is
+   the loudest thing on the first screen, competing with the headline
+   for the eye.
+
+   Both are solved the way a trusted-by row usually is: one optical
+   height for every mark, and colour held back until you point at one.
+   --------------------------------------------------------------- */
+
+.ax-hero .header_ticker {
+  padding-block: 0.85rem;
+}
+
+/* The label and the marquee share a row inside the page's own container,
+   so the label starts on the headline's left edge rather than on an
+   arbitrary offset of its own. */
+.ax-hero__ticker-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+/* A row of bank and health marks with nothing naming them is ambiguous —
+   client, partner, integration, customer of a customer. */
+.ax-hero__ticker-label {
+  flex: 0 0 auto;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(22, 29, 37, 0.42);
+}
+
+/* The marquee takes the rest of the row and fades at both ends, so a
+   mark enters and leaves rather than being cut off by the label on one
+   side and the viewport on the other. */
+.ax-hero .ticker_component {
+  flex: 1 1 auto;
+  min-width: 0;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 2.5rem, #000 calc(100% - 3rem), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 2.5rem, #000 calc(100% - 3rem), transparent 100%);
+}
+
+/* One height for every mark, whatever the file's own proportions, with
+   the width left free so nothing is squashed. `.ticker_logo-img` had no
+   rule of its own anywhere in the cascade — the sizes on screen were
+   whatever each source file happened to be. */
+.ax-hero .ticker_logo-img {
+  height: 1.75rem;
+  width: auto;
+  max-width: 9rem;
+  object-fit: contain;
+  filter: grayscale(1);
+  opacity: 0.55;
+  transition: filter var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-hero .ticker_logo-img:hover {
+  filter: none;
+  opacity: 1;
 }
 
 /* ---------------------------------------------------------------
@@ -197,7 +279,9 @@
   width: 100%;
   max-width: 42rem;
   margin-left: auto;
-  aspect-ratio: 720 / 560;
+  /* Follows `W` / `H` in the component. It was 720/560 while the bottom
+     third of that box was empty. */
+  aspect-ratio: 720 / 480;
 }
 html.ax-motion:not(.ax-reduced) .ax-sys {
   animation: ax-sys-in 1.1s var(--ease) 0.35s both;
@@ -294,19 +378,20 @@ html.ax-reduced .ax-sys__pulses {
 }
 .ax-sys__label {
   position: absolute;
-  font-size: 0.75rem;
+  font-size: 0.9375rem;
   line-height: 1.2;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.86);
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.94);
   white-space: nowrap;
 }
 .ax-sys__label small {
   display: block;
-  margin-top: 0.15rem;
-  font-size: 0.625rem;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
   font-weight: 400;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.42);
+  letter-spacing: 0.03em;
+  color: rgba(255, 255, 255, 0.58);
 }
 .ax-sys__label--src {
   transform: translateY(-50%);
@@ -318,17 +403,30 @@ html.ax-reduced .ax-sys__pulses {
   color: #fff;
 }
 .ax-sys__label--core small {
-  color: rgba(199, 155, 245, 0.75);
+  color: rgba(199, 155, 245, 0.92);
 }
+/* Anchored on its first line, not on its middle. `translateY(-50%)`
+   centres the whole block on the node, which with three lines put the
+   node — and the curve arriving at it, and the rule leaving it — level
+   with the qualifier instead of with the decision it names. Half of the
+   first line's height is the offset that lines them up, and it holds
+   whether the block runs to two lines or three. */
 .ax-sys__label--dec {
-  transform: translateY(-50%);
+  transform: translateY(-0.5625rem);
 }
-.ax-sys__label--act {
-  transform: translateX(-50%);
-  text-align: center;
-}
-.ax-sys__label--act small {
-  color: rgba(255, 255, 255, 0.5);
+/* The third line of a decision: where it lands. Set apart from the
+   qualifier above it by colour and a hairline rather than by distance,
+   so the three lines still read as one block. */
+.ax-sys__action {
+  display: block;
+  margin-top: 0.4rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: rgba(199, 155, 245, 0.88);
 }
 
 /* The four stages, along the foot of the drawing. */
@@ -348,10 +446,14 @@ html.ax-reduced .ax-sys__pulses {
   gap: 0.45rem;
   transform: translateX(-50%);
   font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
-  font-size: 0.625rem;
-  letter-spacing: 0.18em;
+  font-size: 0.75rem;
+  /* 0.18em put "03 DECISION" and "04 ACTION" into each other at this
+     size — the two stages sit closest together on the rail, because the
+     decision column and the action column are only 130 units apart in
+     the drawing's own coordinates. */
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.62);
   white-space: nowrap;
 }
 .ax-sys__stage::before {
@@ -390,8 +492,8 @@ html.ax-reduced .ax-sys__pulses {
   gap: 1rem;
   pointer-events: none;
   font-family: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
 }
 .ax-sys__event {
   display: inline-flex;
@@ -399,7 +501,7 @@ html.ax-reduced .ax-sys__pulses {
   gap: 0.55rem;
   margin: 0;
   min-width: 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.72);
 }
 .ax-sys__event code {
   font: inherit;
@@ -437,7 +539,7 @@ html.ax-motion:not(.ax-reduced) .ax-sys__event {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.04);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.75);
 }
 .ax-sys__status-dot {
   width: 0.4rem;
@@ -534,6 +636,14 @@ html.ax-motion:not(.ax-reduced) .ax-sys__status-dot {
   .ax-hero__trust li + li::before {
     display: none;
   }
+  /* No room for a label and the marks beside it. */
+  .ax-hero__ticker-label {
+    display: none;
+  }
+  .ax-hero .ticker_component {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
   .ax-sys {
     max-width: none;
     /* No tilt on touch; keep the words legible at phone scale. */
@@ -577,13 +687,12 @@ html.ax-motion:not(.ax-reduced) .ax-sys__status-dot {
 }
 
 @media (max-width: 479px) {
-  /* The decision sub-labels are the next to go when the drawing is 340px
-     wide — the node names and the stage rail still tell the whole story. */
-  .ax-sys__label--dec small {
+  /* The decision qualifiers and their landing line are the next to go
+     when the drawing is 340px wide — the node names and the stage rail
+     still tell the whole story. */
+  .ax-sys__label--dec small,
+  .ax-sys__action {
     display: none;
-  }
-  .ax-sys__label--act small {
-    font-size: 0.5rem;
   }
   .ax-sys__event code {
     max-width: 52vw;

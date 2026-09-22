@@ -23,6 +23,8 @@ import "./console.css";
    system.css, refine.css and motion.css at once. Those blocks are gone;
    see the header here. */
 import "./footer.css";
+/* legal.css — /privacy-policy and /terms-of-use. */
+import "./legal.css";
 /* film.css after the sections it layers into — it positions backdrops
    against rules in hero.css and deployments.css. */
 import "./film.css";

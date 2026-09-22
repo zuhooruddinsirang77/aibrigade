@@ -328,11 +328,15 @@
   font-weight: 600;
   letter-spacing: -0.045em;
   white-space: nowrap;
+  /* Quiet enough to be a watermark. At the strength this started on, a
+     coral-into-violet wash across 13rem letterforms made the loudest
+     element on the page the one that carries no information — it read as
+     a pink banner under the content rather than as a mark under it. */
   background: linear-gradient(
     96deg,
-    rgba(146, 72, 228, 0.18) 0%,
-    rgba(248, 119, 86, 0.16) 52%,
-    rgba(22, 29, 37, 0.07) 100%
+    rgba(146, 72, 228, 0.13) 0%,
+    rgba(103, 44, 169, 0.1) 46%,
+    rgba(22, 29, 37, 0.055) 100%
   );
   -webkit-background-clip: text;
   background-clip: text;
@@ -374,32 +378,40 @@
   color: var(--violet-600);
 }
 
-/* Six outbound links on one rule. They were chips with an arrow glyph
-   fetched from the Webflow CDN; plain text with a hairline that draws on
-   hover is quieter, costs no requests, and does not turn the bottom of
-   the page into a row of grey lozenges. */
+/* Six marks on one rule. They were text labels in grey lozenges, which
+   made the widest, greyest thing in the small print a list of other
+   companies' names. Icon buttons read as a set at a glance and give the
+   row back to the brand; the name is on each one for anyone who needs
+   it (see the component). */
 .ax-foot__socials {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.1rem;
+  gap: 0.5rem;
 }
 .ax-foot__social {
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--ink-60);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease),
+    background var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
 }
-.ax-foot__social::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.15rem;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  transition: transform var(--dur-2) var(--ease);
+.ax-foot__social svg {
+  width: 1.125rem;
+  height: 1.125rem;
 }
-.ax-foot__social:hover::after {
-  transform: scaleX(1);
+.ax-foot__social:hover {
+  color: var(--violet-600);
+  border-color: var(--violet-300);
+  background: #fff;
+  box-shadow: var(--shadow-1);
+  transform: translateY(-0.15rem);
 }
 
 .ax-foot__totop {
@@ -490,6 +502,7 @@
   }
   .ax-foot__link:hover,
   .ax-foot__case:hover,
+  .ax-foot__social:hover,
   .ax-foot__cta:hover svg,
   .ax-foot__inline:hover svg,
   .ax-foot__totop:hover svg {

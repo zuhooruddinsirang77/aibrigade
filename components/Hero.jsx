@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
@@ -55,7 +56,7 @@ const tickerLogos = [
  * inert and the layout is exactly what the stylesheet says.
  */
 export default function Hero() {
-  const { openPopup } = usePopup();
+  const { startTransition } = usePopup();
   const sectionRef = useRef(null);
 
   return (
@@ -101,16 +102,25 @@ export default function Hero() {
 
                 <Reveal variant="rise" delay={0.58} immediate className="ax-hero__actions">
                   <Magnetic>
-                    <a
+                    <Link
                       id="OpenPop"
-                      href="#"
+                      href="/contact"
                       className="ax-hero__cta"
                       onClick={(e) => {
                         e.preventDefault();
-                        openPopup();
+                        startTransition("/contact");
                       }}
                     >
-                      Request Free Strategy Session
+                      {/* Not "Request Free Strategy Session".
+                          Three problems in four words: *free* prices the
+                          engagement before the buyer does, on a page
+                          selling six-figure implementations; *strategy
+                          session* is what an agency sells, not what an
+                          infrastructure company books; and it did not
+                          match the button in the bar directly above it,
+                          so the same action had two names on one screen.
+                          This is the navigation's label, exactly. */}
+                      Book a technical review
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path
                           d="M5 12h13M13 6l6 6-6 6"
@@ -121,7 +131,7 @@ export default function Hero() {
                           strokeLinejoin="round"
                         />
                       </svg>
-                    </a>
+                    </Link>
                   </Magnetic>
 
                   <a
@@ -172,29 +182,44 @@ export default function Hero() {
           the moment the reader acts on it. */}
       <ScrollCue targetId="whyus" />
 
+      {/* A row of bank and health marks with nothing saying what they are
+          is ambiguous — client, partner, integration, customer of a
+          customer. Four words fix it, and they are the same claim the
+          `tickerLogos` list above already makes. Hidden on phones, where
+          the strip has no room for a label and the logos beside it. */}
       <div className="header_ticker">
-        <div className="ticker_component">
-          <div className="ticker_move">
-            {[0, 1].map((row) => (
-              <div className="ticker_wrapper" key={row}>
-                {tickerLogos.map((logo, i) =>
-                  logo.src ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={logo.src}
-                      alt={logo.name}
-                      className="ticker_image ticker_logo-img"
-                      key={i}
-                    />
-                  ) : (
-                    <span className="ticker_image ticker_wordmark" key={i}>
-                      {logo.name}
-                    </span>
-                  )
-                )}
-                <div className="ticker_div-ipad-pro" />
+        <div className="padding-global">
+          {/* The label sits inside the page's own container so it starts on
+              the same left edge as the headline; the marquee takes the
+              rest of the row. */}
+          <div className="container-large ax-hero__ticker-inner">
+            <span className="ax-hero__ticker-label" aria-hidden="true">
+              Trusted by teams at
+            </span>
+            <div className="ticker_component">
+              <div className="ticker_move">
+                {[0, 1].map((row) => (
+                  <div className="ticker_wrapper" key={row}>
+                    {tickerLogos.map((logo, i) =>
+                      logo.src ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={logo.src}
+                          alt={logo.name}
+                          className="ticker_image ticker_logo-img"
+                          key={i}
+                        />
+                      ) : (
+                        <span className="ticker_image ticker_wordmark" key={i}>
+                          {logo.name}
+                        </span>
+                      )
+                    )}
+                    <div className="ticker_div-ipad-pro" />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>

@@ -33,24 +33,47 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 /* ---- geometry (viewBox 720 × 560) ------------------------------------ */
 
 const W = 720;
-const H = 560;
-const CORE = { x: 330, y: 250, r: 38 };
+/* 560 until the rows were laid out: the sources ran 122–377 and the
+   decisions 162–338, so everything in the drawing sat inside the top
+   two-thirds and the bottom third was empty space between the core's
+   caption and the stage rail. 480 crops that band rather than the
+   drawing; every row below moves up with it so the composition stays
+   centred on the core. `.ax-sys`'s `aspect-ratio` in app/hero.css
+   follows this number. */
+const H = 480;
+const CORE = { x: 356, y: 240, r: 38 };
 
 const SOURCES = [
-  { y: 122, label: "Transactions", sub: "real-time" },
-  { y: 207, label: "Clinical notes", sub: "EHR · HL7 FHIR" },
-  { y: 292, label: "Documents", sub: "underwriting files" },
-  { y: 377, label: "Calls", sub: "voice · multilingual" },
+  { y: 112, label: "Transactions", sub: "real-time" },
+  { y: 197, label: "Clinical notes", sub: "EHR · HL7 FHIR" },
+  { y: 282, label: "Documents", sub: "underwriting files" },
+  { y: 367, label: "Calls", sub: "voice · multilingual" },
 ];
-const SRC_X = 120;
+/* 120 until the source labels were set at a readable size. They are
+   right-aligned to `SRC_X - 40`, so the width available to them is
+   everything left of that — at 120 that was 80 units of a 720-unit
+   drawing, about 60 real pixels, and "underwriting files" and
+   "voice · multilingual" ran off the left edge of the section and were
+   cut in half. 190 gives that column 150 units, which holds the longest
+   of them with room to spare. The core moves 26 units right to keep the
+   two halves of the drawing balanced. */
+const SRC_X = 190;
 
 const DECISIONS = [
-  { y: 162, label: "Approve", sub: "straight-through", action: "Written back" },
-  { y: 250, label: "Refer", sub: "with reasons", action: "Analyst queue" },
-  { y: 338, label: "Hold", sub: "human in the loop", action: "Clinician sign-off" },
+  { y: 152, label: "Approve", sub: "straight-through", action: "Written back" },
+  { y: 240, label: "Refer", sub: "with reasons", action: "Analyst queue" },
+  { y: 328, label: "Hold", sub: "human in the loop", action: "Clinician sign-off" },
 ];
-const DEC_X = 530;
-const ACT_X = 660;
+/* 530 and 660 until the labels were set at a readable size, and then
+   the right-hand side had 130 units — under 100 real pixels — to hold a
+   decision label, its qualifier and the rule running out to the action.
+   "straight-through" is about 119 of those units on its own, so the
+   qualifier line ran straight through the rule beside it in every
+   screenshot. The decision column moves left and the action column
+   right, which buys the label block 60 more units and leaves the rule a
+   clear run. */
+const DEC_X = 500;
+const ACT_X = 684;
 
 const STAGES = [
   { x: SRC_X, n: "01", label: "Data" },
@@ -70,11 +93,40 @@ const EVENTS = [
 
 const pct = (v, of) => `${(v / of) * 100}%`;
 
-const inPath = (y) =>
-  `M ${SRC_X} ${y} C ${SRC_X + 90} ${y}, ${CORE.x - 120} ${CORE.y}, ${CORE.x - CORE.r - 4} ${CORE.y}`;
-const outPath = (y) =>
-  `M ${CORE.x + CORE.r + 4} ${CORE.y} C ${CORE.x + 110} ${CORE.y}, ${DEC_X - 90} ${y}, ${DEC_X - 8} ${y}`;
-const actPath = (y) => `M ${DEC_X + 9} ${y} L ${ACT_X - 10} ${y}`;
+/* Both control points run forward along the path. They used to be
+   `SRC_X + 90` then `CORE.x - 120`, which with the columns this close
+   together put the second control point behind the first — the curve
+   doubled back on itself just before the core, and four of them doing it
+   at once made the tangle left of the core in every screenshot.
+ 
+   The other half of that tangle was the destination: all four lines
+   ended on the same pixel, so they arrived as a knot rather than as a
+   convergence. Each one now lands on its own point of the core's edge,
+   fanned across it in source order and sitting on the circle rather than
+   beside it — `dock` is just the x of a circle of radius `r` at height
+   `dy`, which is what keeps the lines touching the sphere instead of
+   stopping short of it or running under it. */
+const DOCK_R = CORE.r + 6;
+const dock = (dy) => Math.sqrt(Math.max(0, DOCK_R * DOCK_R - dy * dy));
+
+const IN_FAN = [-13.5, -4.5, 4.5, 13.5];
+const OUT_FAN = [-9, 0, 9];
+
+const inPath = (y, i) => {
+  const dy = IN_FAN[i] ?? 0;
+  const ey = CORE.y + dy;
+  return `M ${SRC_X} ${y} C ${SRC_X + 72} ${y}, ${CORE.x - 92} ${ey}, ${(CORE.x - dock(dy)).toFixed(2)} ${ey}`;
+};
+const outPath = (y, i) => {
+  const dy = OUT_FAN[i] ?? 0;
+  const sy = CORE.y + dy;
+  return `M ${(CORE.x + dock(dy)).toFixed(2)} ${sy} C ${CORE.x + 88} ${sy}, ${DEC_X - 72} ${y}, ${DEC_X - 10} ${y}`;
+};
+/* A short lead-in rather than a rule spanning the whole gap: the label
+   block sits in that gap, and a line drawn across three lines of type
+   reads as a strike-through, not as a connection. It starts clear of the
+   longest of them. */
+const actPath = (y) => `M ${ACT_X - 40} ${y} L ${ACT_X - 12} ${y}`;
 
 export default function IntelligenceSystem({ className = "" }) {
   const hostRef = useRef(null);
@@ -176,12 +228,12 @@ export default function IntelligenceSystem({ className = "" }) {
               <stop offset="100%" stopColor="#3f166e" />
             </linearGradient>
             <linearGradient id="ax-sys-line-in" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
-              <stop offset="100%" stopColor="#c79bf5" stopOpacity="0.55" />
+              <stop offset="0%" stopColor="#fff" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#c79bf5" stopOpacity="0.85" />
             </linearGradient>
             <linearGradient id="ax-sys-line-out" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#c79bf5" stopOpacity="0.55" />
-              <stop offset="100%" stopColor="#fff" stopOpacity="0.14" />
+              <stop offset="0%" stopColor="#c79bf5" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0.28" />
             </linearGradient>
           </defs>
 
@@ -191,15 +243,15 @@ export default function IntelligenceSystem({ className = "" }) {
           {/* ---- connections ---- */}
           <g className="ax-sys__lines ax-sys__lines--in" stroke="url(#ax-sys-line-in)" strokeWidth="1">
             {SOURCES.map((s, i) => (
-              <path key={i} id={`ax-in-${i}`} d={inPath(s.y)} pathLength="1" style={{ "--i": i }} />
+              <path key={i} id={`ax-in-${i}`} d={inPath(s.y, i)} pathLength="1" style={{ "--i": i }} />
             ))}
           </g>
           <g className="ax-sys__lines ax-sys__lines--out" stroke="url(#ax-sys-line-out)" strokeWidth="1">
             {DECISIONS.map((d, i) => (
-              <path key={i} id={`ax-out-${i}`} d={outPath(d.y)} pathLength="1" style={{ "--i": i + 4 }} />
+              <path key={i} id={`ax-out-${i}`} d={outPath(d.y, i)} pathLength="1" style={{ "--i": i + 4 }} />
             ))}
           </g>
-          <g className="ax-sys__lines ax-sys__lines--act" stroke="rgba(255,255,255,0.22)" strokeWidth="1">
+          <g className="ax-sys__lines ax-sys__lines--act" stroke="rgba(255,255,255,0.34)" strokeWidth="1">
             {DECISIONS.map((d, i) => (
               <path key={i} id={`ax-act-${i}`} d={actPath(d.y)} pathLength="1" style={{ "--i": i + 7 }} />
             ))}
@@ -207,7 +259,7 @@ export default function IntelligenceSystem({ className = "" }) {
 
           {/* ---- the core ---- */}
           <g className="ax-sys__core" style={{ "--cx": `${CORE.x}px`, "--cy": `${CORE.y}px` }}>
-            <circle className="ax-sys__ring ax-sys__ring--far" cx={CORE.x} cy={CORE.y} r="110" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+            <circle className="ax-sys__ring ax-sys__ring--far" cx={CORE.x} cy={CORE.y} r="110" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
             <g className="ax-sys__ring ax-sys__ring--arcs">
               <circle
                 cx={CORE.x}
@@ -241,36 +293,67 @@ export default function IntelligenceSystem({ className = "" }) {
               strokeDasharray="1.5 7"
               strokeLinecap="round"
             />
+            {/* The sphere, in four passes rather than one flat disc and a
+                dot: a thin shell just outside it so it has an edge against
+                the glow, the graded body, a soft highlight where the light
+                falls, and a small bright centre with its own halo. Flat,
+                it read as a purple ball with a white pixel on it. */}
+            <circle
+              cx={CORE.x}
+              cy={CORE.y}
+              r={CORE.r + 7}
+              fill="none"
+              stroke="rgba(199,155,245,0.22)"
+              strokeWidth="1"
+            />
             <circle className="ax-sys__disc" cx={CORE.x} cy={CORE.y} r={CORE.r} fill="url(#ax-sys-core)" />
-            <circle cx={CORE.x} cy={CORE.y} r={CORE.r} stroke="rgba(255,255,255,0.28)" strokeWidth="1" />
-            <circle cx={CORE.x - 12} cy={CORE.y - 12} r="16" fill="rgba(255,255,255,0.09)" />
-            <circle cx={CORE.x} cy={CORE.y} r="3.5" fill="#fff" />
+            <circle cx={CORE.x} cy={CORE.y} r={CORE.r} stroke="rgba(255,255,255,0.4)" strokeWidth="1" />
+            <circle cx={CORE.x - 13} cy={CORE.y - 13} r="17" fill="rgba(255,255,255,0.14)" />
+            <circle cx={CORE.x - 17} cy={CORE.y - 17} r="7" fill="rgba(255,255,255,0.2)" />
+            <circle cx={CORE.x} cy={CORE.y} r="9" fill="rgba(255,255,255,0.16)" />
+            <circle cx={CORE.x} cy={CORE.y} r="3.75" fill="#fff" />
           </g>
 
           {/* ---- nodes ---- */}
           <g className="ax-sys__nodes">
             {SOURCES.map((s, i) => (
               <g key={i}>
-                <line x1={SRC_X - 30} y1={s.y} x2={SRC_X - 12} y2={s.y} stroke="rgba(255,255,255,0.18)" strokeWidth="1" />
-                <circle cx={SRC_X} cy={s.y} r="9" stroke="rgba(255,255,255,0.16)" strokeWidth="1" />
-                <circle cx={SRC_X} cy={s.y} r="3.5" fill="rgba(255,255,255,0.85)" />
+                <line x1={SRC_X - 28} y1={s.y} x2={SRC_X - 13} y2={s.y} stroke="rgba(255,255,255,0.32)" strokeWidth="1" />
+                <circle cx={SRC_X} cy={s.y} r="10" fill="rgba(5,7,10,0.85)" stroke="rgba(255,255,255,0.34)" strokeWidth="1" />
+                <circle cx={SRC_X} cy={s.y} r="3.5" fill="#fff" />
               </g>
             ))}
             {DECISIONS.map((d, i) => (
               <g key={i}>
-                <circle cx={DEC_X} cy={d.y} r="10" stroke="rgba(199,155,245,0.35)" strokeWidth="1" />
+                <circle cx={DEC_X} cy={d.y} r="11" fill="rgba(5,7,10,0.85)" stroke="rgba(199,155,245,0.65)" strokeWidth="1" />
                 <circle cx={DEC_X} cy={d.y} r="4" fill="#c79bf5" />
+                {/* A square inside a square said nothing. This is the
+                    thing the decision is written into: a tray with the
+                    result dropping into it. */}
                 <rect
-                  x={ACT_X - 6}
-                  y={d.y - 6}
-                  width="12"
-                  height="12"
-                  rx="2.5"
-                  stroke="rgba(255,255,255,0.55)"
+                  x={ACT_X - 8}
+                  y={d.y - 8}
+                  width="16"
+                  height="16"
+                  rx="3.5"
+                  stroke="rgba(255,255,255,0.4)"
                   strokeWidth="1"
                   fill="rgba(5,7,10,0.9)"
                 />
-                <rect x={ACT_X - 2.5} y={d.y - 2.5} width="5" height="5" rx="1" fill="rgba(255,255,255,0.75)" />
+                <path
+                  d={`M ${ACT_X} ${d.y - 4.5} v 5.5 m -2.6 -2.4 2.6 2.6 2.6 -2.6`}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.8)"
+                  strokeWidth="1.1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d={`M ${ACT_X - 4} ${d.y + 4} h 8`}
+                  stroke="rgba(255,255,255,0.45)"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                />
               </g>
             ))}
           </g>
@@ -316,29 +399,27 @@ export default function IntelligenceSystem({ className = "" }) {
 
           <span
             className="ax-sys__label ax-sys__label--core"
-            style={{ left: pct(CORE.x, W), top: pct(CORE.y + 118, H) }}
+            style={{ left: pct(CORE.x, W), top: pct(CORE.y + 124, H) }}
           >
             Intelligence core
             <small>models · policy · memory</small>
           </span>
 
+          {/* Decision, qualifier, and where it lands — one block, three
+              lines, one left edge. The third line used to be a label of
+              its own, centred under the tray at `ACT_X`, which put it
+              half over the qualifier above it and left it reading as a
+              caption for an icon rather than as the end of the
+              sentence. */}
           {DECISIONS.map((d, i) => (
             <span
               key={`d-${i}`}
               className="ax-sys__label ax-sys__label--dec"
-              style={{ left: pct(DEC_X + 18, W), top: pct(d.y, H) }}
+              style={{ left: pct(DEC_X + 20, W), top: pct(d.y, H) }}
             >
               {d.label}
               <small>{d.sub}</small>
-            </span>
-          ))}
-          {DECISIONS.map((d, i) => (
-            <span
-              key={`a-${i}`}
-              className="ax-sys__label ax-sys__label--act"
-              style={{ left: pct(ACT_X, W), top: pct(d.y + 22, H) }}
-            >
-              <small>{d.action}</small>
+              <em className="ax-sys__action">{d.action}</em>
             </span>
           ))}
 

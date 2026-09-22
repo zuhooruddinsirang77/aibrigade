@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import Logo from "@/components/Logo";
 import { caseStudies } from "@/components/casestudies.data";
@@ -93,7 +94,7 @@ const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 export default function Navbar() {
-  const { openPopup, startTransition } = usePopup();
+  const { startTransition } = usePopup();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // the phone drawer
@@ -151,9 +152,9 @@ export default function Navbar() {
       e.preventDefault();
       setMenuOpen(false);
       setOpenDrop(null);
-      openPopup();
+      startTransition("/contact");
     },
-    [openPopup]
+    [startTransition]
   );
 
   /* ---- scroll state ---------------------------------------------------- */
@@ -452,7 +453,7 @@ export default function Navbar() {
             </nav>
 
             {/* ---- the one action ---- */}
-            <a href="#" className="ax-nav__cta" onClick={openEnquiry}>
+            <Link href="/contact" className="ax-nav__cta" onClick={openEnquiry}>
               <span>{CTA_LABEL}</span>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -464,7 +465,7 @@ export default function Navbar() {
                   strokeLinejoin="round"
                 />
               </svg>
-            </a>
+            </Link>
 
             {/* ---- drawer control ---- */}
             <button
@@ -590,9 +591,9 @@ export default function Navbar() {
               contact@aibrigade.ai
             </a>
             {/* Last, so the action is the thing closest to the thumb. */}
-            <a href="#" className="ax-nav__drawer-cta" onClick={openEnquiry}>
+            <Link href="/contact" className="ax-nav__drawer-cta" onClick={openEnquiry}>
               {CTA_LABEL}
-            </a>
+            </Link>
           </div>
         </div>
       </div>

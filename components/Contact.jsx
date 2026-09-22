@@ -542,11 +542,10 @@ export default function Contact() {
                           </span>
                           <span className="ax-contact__check-text">
                             I have read and accept the terms of the{" "}
-                            <a
-                              href="https://www.aibrigade.ai/privacy-policy"
-                              target="_blank"
-                              rel="noreferrer"
-                            >
+                            {/* A new tab on purpose: this opens mid-form,
+                                and navigating away would lose everything
+                                typed so far. */}
+                            <a href="/privacy-policy" target="_blank" rel="noreferrer">
                               Privacy Policy
                             </a>
                             .

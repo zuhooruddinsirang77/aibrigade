@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Logo from "@/components/Logo";
 import Reveal from "@/components/motion/Reveal";
 import Magnetic from "@/components/motion/Magnetic";
@@ -52,13 +53,61 @@ const EXPLORE = [
   { label: "Client reviews", target: "#reviews" },
 ];
 
+/**
+ * Four marks, drawn here rather than fetched.
+ *
+ * The old footer pulled one generic outbound-arrow image from the
+ * Webflow CDN and repeated it for every link, so the row said
+ * "elsewhere" six times and named nothing.
+ *
+ * Six became four. Clutch and Behance are gone: Behance is a portfolio
+ * board for visual work, which is not what this firm sells, and a Clutch
+ * badge belongs beside the reviews it links to rather than in the small
+ * print — neither was a place a fintech or health buyer goes to check
+ * this company out. What is left is where a buyer actually looks.
+ *
+ * Each glyph is a real brand mark rather than a monogram, in one stroke
+ * weight so the four read as a set, and inline so the row costs no
+ * requests. The visible label is gone, so each link carries its name in
+ * `aria-label`, with `title` for the same name on hover.
+ */
 const SOCIALS = [
-  { label: "LinkedIn", href: "https://www.linkedin.com/company/aibrigade/" },
-  { label: "Twitter", href: "https://twitter.com/aibrigade" },
-  { label: "Clutch", href: "https://clutch.co/profile/aibrigade#summary" },
-  { label: "Behance", href: "https://www.behance.net/aibrigade" },
-  { label: "Instagram", href: "https://www.instagram.com/aibrigade/" },
-  { label: "Facebook", href: "https://www.facebook.com/aibrigade" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/aibrigade/",
+    icon: (
+      <>
+        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6z" />
+        <rect x="2" y="9" width="4" height="12" />
+        <circle cx="4" cy="4" r="2" />
+      </>
+    ),
+  },
+  {
+    label: "Twitter",
+    href: "https://twitter.com/aibrigade",
+    icon: (
+      <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z" />
+    ),
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/aibrigade/",
+    icon: (
+      <>
+        <rect x="2" y="2" width="20" height="20" rx="5" />
+        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+        <path d="M17.5 6.5h.01" />
+      </>
+    ),
+  },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/aibrigade",
+    icon: (
+      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+    ),
+  },
 ];
 
 const OFFICES = [
@@ -123,7 +172,7 @@ function LocalTime({ tz }) {
 }
 
 export default function Footer() {
-  const { openPopup, startTransition } = usePopup();
+  const { startTransition } = usePopup();
 
   /* An id that isn't on this page is not a dead link — it is a link to
      the home page's version of that section. */
@@ -172,17 +221,17 @@ export default function Footer() {
                 through deployment.
               </p>
               <Magnetic>
-                <a
-                  href="#"
+                <Link
+                  href="/contact"
                   className="ax-foot__cta"
                   onClick={(e) => {
                     e.preventDefault();
-                    openPopup();
+                    startTransition("/contact");
                   }}
                 >
                   Start a project
                   {ARROW}
-                </a>
+                </Link>
               </Magnetic>
               <p className="ax-foot__status">
                 <span className="ax-foot__status-dot" aria-hidden="true" />
@@ -275,10 +324,12 @@ export default function Footer() {
           <div className="ax-foot__base">
             <div className="ax-foot__base-left">
               <p className="ax-foot__copy">© {new Date().getFullYear()} AI Brigade</p>
-              <a href="https://www.aibrigade.ai/privacy-policy" target="_blank" rel="noreferrer">
+              {/* These pointed at the old marketing domain and opened in
+                  a new tab. Both documents live on this site now. */}
+              <a href="/privacy-policy" onClick={goTo("/privacy-policy")}>
                 Privacy Policy
               </a>
-              <a href="https://www.aibrigade.ai/terms-of-use" target="_blank" rel="noreferrer">
+              <a href="/terms-of-use" onClick={goTo("/terms-of-use")}>
                 Terms of Use
               </a>
             </div>
@@ -292,8 +343,20 @@ export default function Footer() {
                     target="_blank"
                     rel="noreferrer"
                     className="ax-foot__social"
+                    aria-label={s.label}
+                    title={s.label}
                   >
-                    {s.label}
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      {s.icon}
+                    </svg>
                   </a>
                 ))}
               </div>
