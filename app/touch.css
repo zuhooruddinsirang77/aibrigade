@@ -1,0 +1,499 @@
+/* ================================================================
+   touch.css — the small-screen usability layer.
+
+   Everything in this file lives inside a `max-width` media query, so
+   the desktop rendering (>= 992px) is provably untouched: there is not
+   one unconditional declaration below this comment. That is the whole
+   contract of the file — if a rule here ever needs to apply at desktop
+   width it belongs in the stylesheet that owns the component, not here.
+
+   It fixes the four things a phone gets wrong on this site that a
+   1440px browser never shows you:
+
+     1. Form fields set below 16px, which makes iOS Safari zoom the page
+        in the moment the field takes focus.
+     2. Links and tabs whose hit area is 20-30px tall against a ~44px
+        fingertip.
+     3. Label text at 10-11px, which is the site's desktop eyebrow size
+        rendered on a screen held at arm's length.
+     4. Horizontal scrollers whose last item sits flush against the
+        screen edge with nothing to say there is more of it.
+
+   Load order: last, after nav.css. Several of the rules below correct
+   values set in compose.css and hero.css, which are themselves late.
+   ================================================================ */
+
+/* ================================================================
+   1 — Form fields: the iOS zoom trap
+
+   Every text field, select and textarea on the site (contact page and
+   the popup alike) is set at `0.9375rem` = 15px. Mobile Safari zooms
+   the viewport in on focus for any form control under 16px, and it does
+   not zoom back out when the field blurs — so filling in the contact
+   form on an iPhone means the page jumps in at the first tap and the
+   visitor pinches their way back out, once per field. 16px is the
+   threshold, not a preference: at 16px Safari leaves the viewport
+   alone. `max-width: 991px` keeps the desktop form at its designed
+   15px.
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  .ax-contact__field input,
+  .ax-contact__field textarea,
+  .ax-contact__select select,
+  .popup_input,
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 1rem;
+  }
+
+  /* The label above each field tracks the field's own size. Left at
+     0.8125rem against a 16px input it reads as a caption rather than
+     the name of the thing below it. */
+  .ax-contact__field > label,
+  .ax-contact__fieldset legend {
+    font-size: 0.8125rem;
+  }
+
+  /* The honeypot must stay invisible and unfocusable — it is off-screen
+     at `left: -9999px`, and the rule above would otherwise have grown
+     it. Nothing here should make it easier to hit. */
+  .ax-contact__pot,
+  .ax-contact__pot input {
+    font-size: inherit;
+  }
+}
+
+/* ================================================================
+   2 — Hit areas
+
+   The target below is 44px, which is the width of an adult fingertip
+   and the figure both Apple's and Google's guidance settle on. Two
+   different techniques, chosen per element:
+
+   - Padding, where the element sits in a column list and growing its
+     box only spaces the list out (which a phone wants anyway).
+   - An invisible `::before` overlay, where the element carries a
+     border or an animated underline that padding would drag away from
+     the text. The overlay is centred on the link and inherits nothing
+     visible, so the design is untouched and only the hit area grows.
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  /* ---- footer link columns ----
+     21px tall with a 0.7rem gap. Padding closes the gap between "easy
+     to read" and "easy to hit" without moving the text baseline of the
+     first item, because the list is `flex-direction: column` and the
+     padding is symmetric. */
+  .ax-foot__link {
+    padding-block: 0.6rem;
+  }
+  .ax-foot__list {
+    gap: 0.15rem;
+  }
+
+  /* ---- the small print row ----
+     "Privacy Policy" and "Terms of Use" sit in a wrapping flex row at
+     20px tall. Padding here spreads the row slightly, which is the
+     right trade on a phone. */
+  .ax-foot__base a {
+    display: inline-block;
+    padding-block: 0.7rem;
+  }
+
+  /* ---- the contents list on the two legal pages ----
+     Twelve to fourteen navigation links in a column at 36px each. The
+     rule down the left edge is drawn by `border-left` on each link, so
+     growing them keeps the rule continuous — there is no gap to open. */
+  .ax-legal__toc a {
+    padding-block: 0.75rem;
+  }
+
+  /* ---- the hero's secondary action, and the PDF links on each
+          project ----
+     Both are `inline-flex` rows with an underline or a rule beneath
+     them, so they take the overlay rather than padding. */
+  .ax-hero__ghost::before,
+  .ax-proj__res::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    min-height: 2.75rem;
+    height: 100%;
+    transform: translateY(-50%);
+  }
+  .ax-hero__ghost,
+  .ax-proj__res {
+    position: relative;
+  }
+
+  /* ---- "Back to top" ---- */
+  .ax-foot__totop {
+    min-height: 2.75rem;
+  }
+
+  /* ---- case-study "All case studies" ----
+     A `display: flex` box with `width: fit-content`, so vertical
+     padding grows it downward into its own 1.75rem bottom margin.
+     Trimming the margin by the padding keeps the eyebrow beneath it
+     exactly where it was. */
+  .ax-case__back {
+    padding-block: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  /* ---- "learn more" on the three act cards ----
+     Carries an animated underline pinned to `bottom: 0`; padding would
+     take the line with it. The overlay leaves the box alone. */
+  .ax-act__link::before,
+  .ax-contact__hero-mail::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    min-height: 2.75rem;
+    height: 100%;
+    transform: translateY(-50%);
+  }
+  .ax-contact__hero-mail {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* ---- links inside a running sentence ----
+     The consent line on the contact form ("…accept the terms of the
+     Privacy Policy.") and the addresses inside the legal prose are
+     links in the middle of a sentence, so they cannot be padded into a
+     44px block without opening a gap in the paragraph they sit in.
+
+     They do not have to be. Vertical padding on an element that is
+     still `display: inline` grows the box the browser hit-tests
+     against but is ignored when the line box is measured — the
+     paragraph's leading does not change and no text moves. The link
+     just becomes three times easier to land on. (Keeping them `inline`
+     is the whole trick; `inline-block` here would push the lines
+     apart.) */
+  .ax-contact__check-text a,
+  .ax-legal__doc p a,
+  .ax-legal__doc li a {
+    padding-block: 0.65rem;
+  }
+
+  /* ---- inference console domain tabs ----
+     30px tall in a row that already scrolls horizontally. */
+  .ax-console__tab {
+    min-height: 2.5rem;
+    padding-block: 0.6rem;
+  }
+
+  /* ---- the environments index ----
+     Already generous, but the rail is the only thing separating one
+     tab's hit area from the next. */
+  .ax-env__tab {
+    min-height: 2.75rem;
+  }
+}
+
+/* ================================================================
+   3 — Label legibility
+
+   `0.6875rem` (11px) is the site's eyebrow size. It is a considered
+   choice on a monitor at desk distance and too small on a phone held
+   at arm's length, where it is also competing with the glare every
+   outdoor reader has. 12px is a one-pixel change that does not re-wrap
+   any of these labels — they are one or two uppercase words inside
+   their own row — and it lifts them over the threshold where the
+   letter-spacing these carry (0.16-0.18em) stops helping and starts
+   dissolving the word.
+
+   Scoped to 767px rather than 991px: a tablet holds these at reading
+   distance and the 11px is doing its job there.
+
+   Deliberately NOT included, in both cases because the text is a
+   picture of an interface rather than something to be read:
+
+   - The `.ax-sys__*` micro-labels in the hero diagram, which hero.css
+     takes down to 9-10px on purpose so they fit inside a fixed-size
+     drawing. Growing those collides the node names with the paths
+     between them.
+   - The `.ax-sysv__*` rows — the simulated fraud-scoring and
+     underwriting consoles. Each row fits an id, an amount, a score bar
+     and a verdict chip on one line inside a panel sysv.css caps at
+     `min(22rem, 78%)` on a phone. The 9px is what makes it read as a
+     dense operator screen; at 12px the rows wrap and the illustration
+     stops looking like the product it is imitating.
+   ================================================================ */
+
+@media screen and (max-width: 767px) {
+  .ax-foot__head,
+  .ax-foot__case-sector,
+  .ax-foot__office-role,
+  .ax-contact__eyebrow,
+  .ax-contact__channel-label,
+  .ax-console__path,
+  .ax-case__eyebrow,
+  .ax-legal__eyebrow,
+  .ax-legal__toc-head,
+  .ax-path__panel-path,
+  .ax-terminal__title,
+  .ax-caps__of,
+  .ax-caps__now,
+  .ax-cap__domain {
+    font-size: 0.75rem;
+  }
+
+  /* The four capability marks under the hero CTA are prose, not diagram
+     ornament — they name what the company does. hero.css sets them to
+     10px in a two-column grid; 11px still fits both columns at 320px. */
+  .ax-hero__trust {
+    font-size: 0.6875rem;
+  }
+}
+
+/* ================================================================
+   4 — Horizontal scrollers
+
+   Three rows on the site scroll sideways on a phone: the "what we're
+   good at" cards, the console's domain tabs, and the contact topic
+   chips. Each one ended its content flush against the right edge of
+   the screen, which reads as a cut-off rather than as an invitation —
+   there is no gap after the last item to suggest the row has an end
+   you can reach.
+
+   `scroll-padding-inline` also fixes where a snapped card lands: without
+   it the first card snaps hard against the left edge with none of the
+   page's own gutter beside it.
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  .ax-console__tabs {
+    scroll-padding-inline: 1rem;
+  }
+  .ax-console__tabs::after {
+    content: "";
+    flex: 0 0 0.5rem;
+  }
+
+  /* The card row in "what we're good at". globals.css gives the list
+     `padding: 0 1.25rem`; the trailing padding on a flex row is
+     collapsed by most engines during overflow scroll, so the last card
+     stops dead at the edge. A zero-width flex spacer is honoured. */
+  .horizontal-list::after {
+    content: "";
+    flex: 0 0 0.05rem;
+  }
+
+  /* Momentum scrolling and no scroll-chaining into the page behind:
+     flicking the card row to its end should stop there, not start
+     scrolling the article underneath. */
+  .horizontal-list-wrapper,
+  .ax-console__tabs {
+    overscroll-behavior-x: contain;
+  }
+}
+
+/* ================================================================
+   5 — Touch affordances
+
+   Two small things that only exist on a touch screen.
+
+   `tap-highlight-color`: iOS paints a grey box over any element with a
+   click handler when you touch it, sized to the element's box — which,
+   now that several of the links above carry a 44px invisible overlay,
+   would flash a grey rectangle considerably larger than the link. The
+   site already draws its own pressed states.
+
+   `touch-action: manipulation` drops the 300ms delay Safari holds every
+   tap for while it waits to see whether a second tap is coming and the
+   gesture is a double-tap zoom. On buttons and links that delay is the
+   difference between a control that feels wired to the screen and one
+   that feels like a web page.
+   ================================================================ */
+
+@media (hover: none) and (pointer: coarse) {
+  a,
+  button,
+  [role="button"],
+  [role="tab"],
+  input,
+  select,
+  textarea,
+  label {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+
+  a,
+  button,
+  [role="button"],
+  [role="tab"] {
+    touch-action: manipulation;
+  }
+}
+
+/* ================================================================
+   6 — The capability explorer's film escaping its panel
+
+   Symptom: below 992px the whole "What we can help you with" list was
+   unreadable — four dark-ink offer names sitting on top of moving
+   footage, with no white behind them.
+
+   Cause, and it is a two-part one. film.css mounts the clip as
+   `.ax-svc__stage { position: absolute; inset: 0; z-index: -1 }` inside
+   `.ax-svc__panel`, and its comment states the dependency outright:
+   "`.ax-svc__panel` is `position: sticky`, a stacking context on its
+   own, so the stage sits at -1 and stays inside the panel". The
+   responsive block in svc.css then sets `position: static` on that same
+   panel to stop it sticking on a phone — which removes both things the
+   film was relying on:
+
+     - the containing block, so `inset: 0` stopped resolving against the
+       panel and resolved against the section instead. Measured at
+       375px: panel 390px tall, stage 792px tall and starting 401px
+       higher — exactly spanning the list as well.
+     - the stacking context, so `z-index: -1` was no longer scoped to
+       the panel and the clip dropped behind the section's background
+       rather than behind the panel's copy.
+
+   `overflow: hidden` on the panel could not clip what was no longer its
+   descendant box, so the footage ran the full height of the explorer.
+
+   The fix restores both properties without restoring the stickiness
+   (`position: relative` is what the panel needs to be a containing
+   block; `isolation: isolate` makes it a stacking context explicitly,
+   which is the honest way to say "this is what the -1 is scoped to"
+   rather than relying on a side effect of some other property).
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  .ax-svc__panel {
+    position: relative;
+    /* svc.css pairs `position: sticky` with `top: 7.5rem`, and that offset
+       is inert only while the responsive block has the panel `static`.
+       Making it `relative` brings the `top` back to life and pushes the
+       panel 120px down its own grid row — a band of white between the
+       fourth offer and the panel, with the panel overhanging the section
+       by the same amount. The offset has no meaning off a sticky box. */
+    top: auto;
+    isolation: isolate;
+  }
+}
+
+/* ================================================================
+   7 — "How we run it" as a real sequence on a phone
+
+   The five stages are a sequence, and Pipeline.jsx is explicit that the
+   order "is the single most important thing about them". On desktop a
+   horizontal rail draws through the five nodes and says so.
+
+   Below 992px motion.css hides that rail — correctly, because there is
+   no horizontal line to draw in a single column — but nothing replaced
+   it. The stages became five paragraphs each with an unattached dot
+   floating to the left of it: the dots were still there, the thing that
+   made them mean "in this order" was not. A phone reader got a list
+   where a desktop reader got a process.
+
+   So: draw the line vertically instead, down through the same nodes. A
+   connector on each stage but the last, running from under its own node
+   into the top of the next one. The nodes are opaque white circles, so
+   the line passes behind them and the result reads as beads on a
+   string.
+
+   The connector takes its colour from the stage's own `data-state`,
+   which Pipeline.jsx keeps updating on a phone as the screen above
+   cycles — so the line fills downwards in step with the film, the same
+   relationship the horizontal rail has with scroll on desktop, and the
+   screen's "03 Build" label now has something on the page that agrees
+   with it.
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  .ax-pipe__stage:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    /* The node is 1.125rem tall at `top: 0.35rem`, so the line starts
+       where the node ends; `bottom` reaches past this stage's own box
+       and across the 2rem row gap into the next node. */
+    top: 1.5rem;
+    bottom: -2.4rem;
+    left: 0.5rem;
+    width: 0.125rem;
+    border-radius: 999px;
+    background: rgba(22, 29, 37, 0.12);
+    transition: background-color 0.45s var(--ax-ease, ease);
+  }
+  .ax-pipe__stage[data-state="past"]::before,
+  .ax-pipe__stage[data-state="now"]::before {
+    background: var(--ax-violet, #9248e4);
+  }
+
+  /* With the line carrying the sequence, the stages no longer need two
+     full rem of air between them to read as separate — and 162px per
+     stage over five stages was most of why this section ran 1,134px on
+     a 375px screen. */
+  .ax-pipe__stages {
+    gap: 1.5rem;
+  }
+  .ax-pipe {
+    margin-top: 2.5rem;
+  }
+}
+
+/* ================================================================
+   8 — The Featured panel
+
+   Two faults, both only visible once the two-column desktop grid
+   collapses.
+
+   1. No scrim. film.css is explicit that between these sections "what
+      differs is never the film — only the scrim, and only where copy
+      sits directly on top of it", and every other band has one
+      (`.ax-path::after` is `rgba(5, 7, 10, 0.68)`). Featured has none:
+      `.ax-featured__film` covers the violet card at `z-index: 0` and
+      the copy is lifted to `z-index: 1` directly on top of the footage.
+      On desktop the heading sits in the left column, over a part of the
+      clip that happens to be dark, and gets away with it. Stacked
+      full-width on a phone the first line crosses the lit laptop screen
+      in the middle of the shot and all but disappears — which is the
+      one line on the page that says what the company is.
+
+      The scrim goes on the card's own `::after`. Both it and the film
+      sit at `z-index: 0` inside the card's stacking context, and a
+      parent's `::after` paints after all of that parent's element
+      children, so it lands above the film and below the copy without
+      needing a third layer.
+
+   2. `row-gap: 185px`. The Webflow sheet's two-column grid falls back
+      to a flex column here and brings its desktop row gap with it,
+      measured at 185px between the heading and the paragraph and again
+      before the terminal — roughly 370px of empty footage inside a
+      942px card holding about 420px of content.
+   ================================================================ */
+
+@media screen and (max-width: 991px) {
+  #featured .featured_component {
+    row-gap: 1.75rem;
+  }
+  #featured .featured_component::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 0.625rem; /* matches `.ax-featured__film` */
+    background: linear-gradient(
+      180deg,
+      rgba(5, 7, 10, 0.72) 0%,
+      rgba(5, 7, 10, 0.58) 45%,
+      rgba(5, 7, 10, 0.74) 100%
+    );
+  }
+}

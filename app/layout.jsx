@@ -48,6 +48,12 @@ import "./hero.css";
    its own rules must outrank the Webflow navbar rules still carried in
    globals.css and refine.css. */
 import "./nav.css";
+/* touch.css last of all: the small-screen usability layer. Every rule in
+   it is inside a `max-width` media query, so it cannot affect the
+   desktop rendering — it corrects tap-target sizes, the sub-16px form
+   fields that make iOS zoom on focus, and label sizes, several of which
+   are set by compose.css and hero.css above. */
+import "./touch.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";
