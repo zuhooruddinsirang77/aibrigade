@@ -50,6 +50,9 @@ const EXPLORE = [
   { label: "What we build", target: "#services" },
   { label: "Inside the system", target: "#features" },
   { label: "Deployments", target: "#cases" },
+  /* A route rather than an anchor. `goTo` below already routes anything
+     that isn't a `#id` through the page transition. */
+  { label: "AI demos", target: "/demos" },
   { label: "Client reviews", target: "#reviews" },
 ];
 

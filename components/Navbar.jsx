@@ -69,6 +69,11 @@ const LINKS = [
     target: "#services",
     watch: ["services", "features", "reviews", "proud"],
   },
+  /* A route, not an anchor — `goTo` sends anything that isn't a `#id`
+     through the page transition, the same way Contact below does. It sits
+     after Deployments because the order is evidence first, then the thing
+     a reader can operate themselves. */
+  { id: "demos", label: "Demos", target: "/demos" },
   /* Was `mailto:contact@aibrigade.ai`. On a machine with no mail client
      registered — most browsers on most desktops now — that link does
      nothing at all when clicked, so the one item in the bar labelled

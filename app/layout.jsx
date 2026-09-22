@@ -48,6 +48,11 @@ import "./hero.css";
    its own rules must outrank the Webflow navbar rules still carried in
    globals.css and refine.css. */
 import "./nav.css";
+/* demos.css — /demos only. Every selector in it is new (`.ax-lab*`,
+   `.ax-demo*`, and one namespace per demo), so it cannot reach any other
+   page; it sits here rather than earlier because the demo panels quote
+   `.ax-console` from console.css and need to outrank it. */
+import "./demos.css";
 /* touch.css last of all: the small-screen usability layer. Every rule in
    it is inside a `max-width` media query, so it cannot affect the
    desktop rendering — it corrects tap-target sizes, the sub-16px form
