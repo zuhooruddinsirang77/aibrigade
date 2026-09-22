@@ -26,17 +26,13 @@ export default function Home() {
         <DecisionPath />
         <Cases />
         <ProjectShowcase />
-      
         <SectionSeam />
-
         <Environments />
         <Services />
         <Features />
-       
         <Infrastructure />
         <Reviews />
-                <Featured />
-
+        <Featured />
         <Cta />
         {/* <Proud /> */}
         <CtaDark />
