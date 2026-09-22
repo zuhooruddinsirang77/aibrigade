@@ -604,32 +604,11 @@ html.ax-motion:not(.ax-reduced) .ax-infra__status-dot {
    properly because all of them were fighting for the same space. Five
    half-strength effects is not atmosphere, it is mud.
 
-   This is one idea: real footage of the thing the company sells — hands on
-   a laptop, a holographic "AI AGENTS" interface — full bleed, full
-   strength, with the claim set on top of it. See components/Hero.jsx for
-   what was removed and why.
-
-   A second pass made it interactive: `.ax-hero__bg` holds one film per
-   entry in `heroModes` (components/video.data.js), stacked and crossfaded
-   exactly like `.ax-env__stage` further down this file — the active one at
-   `data-on="true"`, opacity 1, everything else at 0. Same mechanism, same
-   reason: a reader who switches Fintech/HealthTech should see a cut between
-   two pieces of footage, not seven pieces of scenery all half-visible at
-   once.
-
-   It is deliberately NOT named `.ax-hero__stage` — that class already
-   exists in app/hero.css, `#header .ax-hero__stage { position: relative }`,
-   left from the section's original two-column layout (it positioned
-   `header_dec-1`/`header_dec-2` in the right-hand gutter; both are gone
-   from Hero.jsx now, so that rule is dead code, harmless on its own). Dead
-   or not, it is an ID-qualified selector, which beats a plain class on
-   `position` regardless of source order — reusing the name here silently
-   overrode `position: absolute` back to `relative`, and an
-   auto-positioned wrapper with only absolutely-positioned children
-   collapses to zero height. Every film inside inherited that zero height
-   from its containing block and the entire hero went dark. If this ever
-   goes blank again, check for exactly this: a class colliding with a
-   stale ID-scoped rule in one of the pre-existing stylesheets. */
+   A later pass replaced the footage itself with `IntelligenceSystem`, an
+   SVG diagram — see components/Hero.jsx — so there is no video layer or
+   mode switcher here any more, just the section shell and the text scrim
+   below.
+   ================================================================ */
 .ax-hero {
   position: relative;
   isolation: isolate;
@@ -640,28 +619,6 @@ html.ax-motion:not(.ax-reduced) .ax-infra__status-dot {
   min-height: 100vh;
   overflow: hidden;
   background: #05070a;
-}
-
-.ax-hero__bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.ax-hero__film {
-  opacity: 0;
-  transition: opacity 0.9s var(--ease);
-}
-.ax-hero__film[data-on="true"] {
-  opacity: 1;
-}
-/* The subject of each of these three clips sits in the lower two-thirds of
-   the frame — hands and a laptop, a stack of coins, a lab bench. Anchoring
-   `object-position` there keeps that in view across the very wide aspect
-   ratios a browser window can be; the default centre crop was cutting the
-   subject off on anything short of ultrawide. */
-.ax-hero__film .ax-film__el {
-  object-position: 50% 68%;
 }
 
 /* The text scrim. A separate element from the film's own vignette because
@@ -852,11 +809,6 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
 .ax-hero .ax-hero__ghost:hover {
   color: #fff;
   border-color: #fff;
-}
-
-.ax-hero .ax-proof {
-  justify-content: center;
-  margin-top: 3rem;
 }
 
 /* ---- the logo ticker ----

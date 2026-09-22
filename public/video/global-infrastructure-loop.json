@@ -1,8 +1,0 @@
-{
-  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
-  "prompt": "Cinematic aerial drone shot at night of a premium modern data center, rows of illuminated server racks glowing with cyan light, connected by faint amber and cyan lines of light representing global data flow, slow deliberate camera drift, volumetric lighting, shallow depth of field, seamless loop, no text, no logos.",
-  "refs": [],
-  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
-  "cost_usd": 0.448,
-  "created": "2026-07-31T11:41:26Z"
-}

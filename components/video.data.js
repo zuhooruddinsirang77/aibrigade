@@ -148,56 +148,6 @@ export const films = {
 };
 
 /**
- * The hero's own switcher — "Overview", "Fintech", "HealthTech".
- *
- * Every `line` here is a recombination of phrases already written elsewhere
- * on the page (the WhyUs card text, `STACK` and `DETAIL` in Services.jsx) —
- * nothing new is being claimed, only resurfaced closer to the fold. That is
- * what keeps this next to licensed stock footage rather than in
- * `Deployments`, which is the one section allowed to make a claim this
- * specific: see the provenance note at the top of this file.
- *
- * Reuses `fintechGrowth` and `geneEditing` rather than owning dedicated
- * clips — both are already fetched further down the page, so a reader who
- * switches tabs here and later scrolls to WhyUs or Cases gets an instant
- * cache hit instead of a second download.
- */
-export const heroModes = [
-  {
-    id: "overview",
-    label: "Overview",
-    film: "agentsInterface",
-    // Was "production-grade AI systems — copilots, automation agents, GPT
-    // platforms, and decision intelligence workflows — from initial
-    // discovery through production deployment." Four pieces of internal
-    // vocabulary in one sentence, aimed at a reader who already knows what
-    // a "decision intelligence workflow" is. This says the same thing to
-    // someone who doesn't: what we build, who for, how far we take it.
-    line: "We build custom AI software for banks and healthcare companies — from the first idea to a system your team runs every day.",
-  },
-  {
-    id: "fintech",
-    label: "Fintech",
-    film: "fintechGrowth",
-    // Was "Real-time fraud scoring, autonomous underwriting, and compliance
-    // monitoring — decisions your risk team can defend line by line."
-    // "Scoring" and "underwriting" are the two words here a non-specialist
-    // hesitates on. Replaced with what each one is FOR.
-    line: "AI that catches fraud the moment it happens, speeds up loan decisions, and keeps your compliance team ahead of every rule — with a clear reason behind every call.",
-  },
-  {
-    id: "healthtech",
-    label: "HealthTech",
-    film: "geneEditing",
-    // Was "HIPAA-compliant documentation copilots and diagnostics support,
-    // built to fit the clinical workflow that already exists." Kept the
-    // privacy claim — it is the one line item a healthcare buyer actually
-    // checks — but named what it means instead of the acronym.
-    line: "AI that helps write clinical notes and catch health issues earlier — built to meet healthcare privacy rules and fit right into the tools your care team already uses.",
-  },
-];
-
-/**
  * "Where it runs" — the four operating environments, in the order they
  * appear in the section.
  *

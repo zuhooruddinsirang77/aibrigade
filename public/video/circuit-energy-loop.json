@@ -1,8 +1,0 @@
-{
-  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
-  "prompt": "Cinematic macro shot of a premium black silicon AI processor's circuit traces, electricity traveling rapidly along glowing cyan and amber pathways across the dark die surface, energy pulsing outward from a central point, volumetric lighting, shallow depth of field, seamless loop, no text, no logos.",
-  "refs": [],
-  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
-  "cost_usd": 0.448,
-  "created": "2026-07-31T11:35:30Z"
-}

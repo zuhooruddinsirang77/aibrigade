@@ -1,8 +1,0 @@
-{
-  "model": "kwaivgi/kling-v3-turbo-std/text-to-video (WaveSpeed AI)",
-  "prompt": "Cinematic shot of business professionals collaborating around a table in a minimal modern office, a faint holographic cyan interface quietly automating a task in the background, natural conversation and movement, soft ambient lighting, slow deliberate camera drift, shallow depth of field, seamless loop, no text, no logos, no faces in sharp focus.",
-  "refs": [],
-  "params": { "duration_seconds": 4, "aspect": "16:9", "resolution": "720p" },
-  "cost_usd": 0.448,
-  "created": "2026-07-31T11:48:54Z"
-}

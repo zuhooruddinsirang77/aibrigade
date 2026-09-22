@@ -452,14 +452,10 @@
 }
 
 /* ================================================================
-   10. Hero actions and evidence row
+   10. Hero actions
 
    The first screen used to end at a single button. What it was missing
-   was a second, lower-commitment way in — and any evidence at all that
-   the claims above it are attached to real deliveries. See
-   components/motion/ProofStrip.jsx: the figures are read from the
-   Deployments data, so the hero cannot state a number this page does
-   not also show in context further down.
+   was a second, lower-commitment way in.
    ================================================================ */
 
 .ax-hero__actions {
@@ -494,106 +490,7 @@
   transform: translateX(0.2rem);
 }
 
-.ax-proof {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem 1.5rem;
-  list-style: none;
-  margin: 2.75rem 0 0;
-  padding: 1.5rem 0 0;
-  border-top: 0.0625rem solid rgba(255, 255, 255, 0.18);
-}
-.ax-proof__item {
-  min-width: 0;
-}
-.ax-proof__btn {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
-  width: 100%;
-  padding: 0.35rem 0.5rem 0.35rem 0;
-  background: none;
-  border: 0;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  border-radius: var(--r-sm);
-  transition: transform var(--dur-2) var(--ease), opacity var(--dur-2) var(--ease);
-}
-.ax-proof__btn:hover {
-  transform: translateY(-0.125rem);
-}
-.ax-proof__figure {
-  display: flex;
-  align-items: baseline;
-  gap: 0.1rem;
-  font-size: 2rem;
-  line-height: 1;
-  font-weight: 500;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
-}
-.ax-proof__figure em {
-  font-style: normal;
-  font-size: 0.9375rem;
-  opacity: 0.7;
-}
-.ax-proof__label {
-  font-size: 0.8125rem;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.82);
-}
-/* The client and system behind the number. Revealed on approach so the
-   row reads as three clean figures at rest and explains itself the
-   moment you take an interest in one. */
-.ax-proof__where {
-  font-size: 0.6875rem;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.55);
-  opacity: 0;
-  transform: translateY(-0.2rem);
-  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
-}
-.ax-proof__btn:hover .ax-proof__where,
-.ax-proof__btn:focus-visible .ax-proof__where {
-  opacity: 1;
-  transform: none;
-}
-
-@media (max-width: 991px) {
-  .ax-proof {
-    margin-top: 2.25rem;
-  }
-  .ax-proof__figure {
-    font-size: 1.625rem;
-  }
-  .ax-proof__btn {
-    gap: 0.3rem;
-  }
-  /* No hover on touch, so the context line is simply always there — which
-     means it can't stay as faint as the hover-reveal version was. At
-     11px/55% it read as illegible fine print stacked under two much
-     louder lines; readable at rest needs more size and contrast than
-     "readable on approach" did. */
-  .ax-proof__where {
-    opacity: 1;
-    transform: none;
-    font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.72);
-  }
-}
 @media (max-width: 599px) {
-  .ax-proof {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .ax-proof__item + .ax-proof__item {
-    border-top: 0.0625rem solid rgba(255, 255, 255, 0.12);
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-  }
   .ax-hero__actions {
     gap: 0.75rem 1.25rem;
   }
