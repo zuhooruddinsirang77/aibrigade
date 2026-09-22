@@ -34,6 +34,8 @@ export default function Home() {
         <Reviews />
         <Featured />
         <Cta />
+
+        
         {/* <Proud /> */}
         <CtaDark />
         <Footer />
