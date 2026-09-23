@@ -18,8 +18,10 @@ import nodemailer from "nodemailer";
  *   SMTP_SECURE    "true" only for port 465; 587 upgrades via STARTTLS
  *   SMTP_USER      mailbox / API user
  *   SMTP_PASS      password or app-specific token
- *   CONTACT_TO     where enquiries land (comma-separated for several)
- *   CONTACT_FROM   the envelope sender — must be an address the SMTP
+ *   CONTACT_TO     where enquiries land (comma-separated for several);
+ *                  CONTACT_TO_EMAIL is accepted as an alias
+ *   CONTACT_FROM   the envelope sender (SMTP_FROM accepted as an alias,
+ *                  a bare address gets the "AI Brigade Website" name) — must be an address the SMTP
  *                  account is allowed to send as, which is why the
  *                  visitor's own address goes in Reply-To instead
  *   CONTACT_AUTOREPLY  "true" to also acknowledge to the sender
@@ -240,7 +242,10 @@ export async function POST(request) {
   }
 
   const mailer = transport();
-  const to = process.env.CONTACT_TO || process.env.SMTP_USER;
+  /* `CONTACT_TO_EMAIL` and `SMTP_FROM` are accepted as aliases: a local
+     .env was written with those names, and a deployment configured the
+     same way would otherwise fall back to SMTP_USER without saying so. */
+  const to = process.env.CONTACT_TO || process.env.CONTACT_TO_EMAIL || process.env.SMTP_USER;
   if (!mailer || !to) {
     /* Never swallow this into a fake success: a misconfigured deployment
        that answers "thank you" loses every enquiry silently, which is the
@@ -258,7 +263,10 @@ export async function POST(request) {
     );
   }
 
-  const from = process.env.CONTACT_FROM || `AI Brigade Website <${process.env.SMTP_USER}>`;
+  const fromAddress = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const from =
+    process.env.CONTACT_FROM ||
+    (fromAddress.includes("<") ? fromAddress : `AI Brigade Website <${fromAddress}>`);
   const subjectWho = data.company ? `${data.name} · ${data.company}` : data.name;
   const { text, html } = render(data);
 
