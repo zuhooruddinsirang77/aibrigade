@@ -179,8 +179,12 @@ export const projects = [
     resources: [],
   },
   {
-    id: "foodpanda",
-    name: "Foodpanda",
+    /* Listed as "Foodpanda" — another company's brand — until it was
+       renamed to what the app calls itself in its own demo ("Hello! This
+       is QuickBite AI"). The video and poster files keep their original
+       names; a visitor never sees those. */
+    id: "quickbite",
+    name: "QuickBite AI",
     type: "Mobile Application · Voice AI",
     sector: "Food delivery",
     useCase: "Order food by voice, hands-free",

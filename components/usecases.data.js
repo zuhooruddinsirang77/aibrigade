@@ -220,10 +220,10 @@ const DETAIL = {
     capabilities: ["Understand", "Reason", "Communicate"],
   },
 
-  foodpanda: {
+  quickbite: {
     headline: "Order food by voice,\n*hands-free.*",
     overview: [
-      "A voice assistant inside a food-delivery app. Say what you want — a specific meal, a deal, a drink added to the order, the nearest store — and it listens, understands and acts.",
+      "QuickBite AI is a voice assistant inside a food-delivery app. Say what you want — a specific meal, a deal, a drink added to the order, the nearest store — and it listens, understands and acts.",
       "No typing required, from the first request to the order.",
     ],
     flow: [
