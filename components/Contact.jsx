@@ -5,6 +5,7 @@ import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
 import Reveal from "@/components/motion/Reveal";
 import AgentConsole from "@/components/motion/AgentConsole";
+import { OFFICES, mapUrl } from "@/components/offices.data";
 
 /**
  * /contact.
@@ -78,12 +79,6 @@ const CHANNELS = [
       </>
     ),
   },
-];
-
-const OFFICES = [
-  { city: "Perth Amboy, NJ", country: "United States", role: "Headquarters" },
-  { city: "Dubai", country: "United Arab Emirates", role: "Middle East delivery" },
-  { city: "Islamabad", country: "Pakistan", role: "Engineering" },
 ];
 
 const NEXT_STEPS = [
@@ -640,12 +635,37 @@ export default function Contact() {
 
                 <Reveal variant="rise" className="ax-contact__block">
                   <h3 className="ax-contact__block-title">Where we are</h3>
+                  {/* Addresses from components/offices.data.js — the same
+                      list the footer prints. */}
                   <ul className="ax-contact__offices">
                     {OFFICES.map((o) => (
-                      <li key={o.city}>
-                        <span className="ax-contact__office-city">{o.city}</span>
-                        <span className="ax-contact__office-country">{o.country}</span>
+                      <li key={o.id}>
+                        <span className="ax-contact__office-city">{o.country}</span>
                         <span className="ax-contact__office-role">{o.role}</span>
+                        <address className="ax-contact__office-address">
+                          {o.address.map((line) => (
+                            <span key={line}>{line}</span>
+                          ))}
+                        </address>
+                        <a
+                          href={mapUrl(o)}
+                          className="ax-contact__office-map"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Open the ${o.city} office in Google Maps (opens in a new tab)`}
+                        >
+                          Open in Maps
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path
+                              d="M7 17L17 7M9 7h8v8"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.7"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </a>
                       </li>
                     ))}
                   </ul>

@@ -794,20 +794,57 @@
   padding-left: 0.9rem;
   border-left: 1px solid var(--line-strong);
 }
+/* Country, then what the office does, then the street address and a link
+   to the map. Pixel floors because the root font-size is fluid and 1rem
+   is about 9.5px at 1024. */
 .ax-contact__office-city {
-  font-size: 0.9375rem;
+  font-size: max(0.9375rem, 14px);
   font-weight: 600;
   color: var(--ink);
 }
-.ax-contact__office-country {
-  font-size: 0.875rem;
-  color: var(--ink-60);
-}
 .ax-contact__office-role {
-  font-size: 0.75rem;
+  font-size: max(0.75rem, 11px);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ink-45);
+}
+.ax-contact__office-address {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.45rem;
+  font-style: normal;
+  font-size: max(0.875rem, 13px);
+  line-height: 1.55;
+  color: var(--ink-60);
+}
+.ax-contact__office-map {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: fit-content;
+  margin-top: 0.35rem;
+  padding: 0.2rem 0;
+  font-size: max(0.8125rem, 12.5px);
+  font-weight: 500;
+  color: var(--violet-600);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(103, 44, 169, 0.3);
+  transition: border-color var(--dur-2) var(--ease);
+}
+.ax-contact__office-map svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  min-width: 12px;
+  min-height: 12px;
+  transition: transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-contact__office-map:hover {
+    border-bottom-color: var(--violet-600);
+  }
+  .ax-contact__office-map:hover svg {
+    transform: translate(0.1rem, -0.1rem);
+  }
 }
 
 /* ================================================================

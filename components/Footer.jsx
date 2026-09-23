@@ -7,6 +7,7 @@ import Reveal from "@/components/motion/Reveal";
 import Magnetic from "@/components/motion/Magnetic";
 import { usePopup } from "@/components/PopupContext";
 import { useCases } from "@/components/projects.data";
+import { OFFICES, mapUrl } from "@/components/offices.data";
 
 /**
  * Site footer.
@@ -27,7 +28,8 @@ import { useCases } from "@/components/projects.data";
  *   2. **Where else to go** — sections, the use cases (every product in
  *      the showcase, each linking to its own page, as the navigation's
  *      menu does), and how to reach a person.
- *   3. **Where we are** — three offices with the local time in each.
+ *   3. **Where we are** — three offices, each with its street address
+ *      (linked to the map) and the local time there.
  *      For a firm working across New Jersey, Dubai and Islamabad, "which
  *      of these is awake right now" is real information, and it is the
  *      detail that makes a distributed team read as a company rather
@@ -109,12 +111,6 @@ const SOCIALS = [
       <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
     ),
   },
-];
-
-const OFFICES = [
-  { city: "Perth Amboy", region: "New Jersey, US", role: "Headquarters", tz: "America/New_York" },
-  { city: "Dubai", region: "United Arab Emirates", role: "Middle East delivery", tz: "Asia/Dubai" },
-  { city: "Islamabad", region: "Pakistan", role: "Engineering", tz: "Asia/Karachi" },
 ];
 
 const ARROW = (
@@ -297,14 +293,32 @@ export default function Footer() {
 
           {/* ---- 3: where we are ---- */}
           <Reveal variant="stagger" selector=".ax-foot__office" className="ax-foot__offices">
+            {/* City and its local time, the street address (a link to the
+                map), then the country and what the office does. The
+                addresses live in components/offices.data.js, shared with
+                the contact page and the legal pages. */}
             {OFFICES.map((o) => (
-              <div className="ax-foot__office" key={o.city}>
+              <div className="ax-foot__office" key={o.id}>
                 <span className="ax-foot__office-city">
                   {o.city}
                   <LocalTime tz={o.tz} />
                 </span>
-                <span className="ax-foot__office-region">{o.region}</span>
-                <span className="ax-foot__office-role">{o.role}</span>
+                <a
+                  href={mapUrl(o)}
+                  className="ax-foot__office-address"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${o.address.join(", ")}, ${o.country} — open in Google Maps`}
+                >
+                  <address>
+                    {o.address.map((line) => (
+                      <span key={line}>{line}</span>
+                    ))}
+                  </address>
+                </a>
+                <span className="ax-foot__office-role">
+                  {o.country} · {o.role}
+                </span>
               </div>
             ))}
           </Reveal>

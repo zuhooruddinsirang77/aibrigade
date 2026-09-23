@@ -20,8 +20,12 @@
  * or `{ note: "..." }` for a callout.
  */
 
+import { HEADQUARTERS, fullAddress } from "@/components/offices.data";
+
 export const ENTITY = "AI Brigade";
-export const ENTITY_ADDRESS = "Perth Amboy, New Jersey, United States";
+/* The headquarters' street address, from the shared office list — the
+   same one the footer and the contact page print. */
+export const ENTITY_ADDRESS = fullAddress(HEADQUARTERS);
 export const CONTACT_EMAIL = "contact@aibrigade.ai";
 export const CONTACT_PHONE = "+1 (845) 300-2429";
 export const GOVERNING_LAW = "the State of New Jersey, United States";

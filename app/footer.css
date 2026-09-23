@@ -270,7 +270,7 @@
 .ax-foot__office {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 .ax-foot__office-city {
@@ -278,17 +278,56 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.6rem;
-  font-size: 1rem;
+  font-size: max(1rem, 15px);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
 }
-.ax-foot__office-region {
-  font-size: 0.875rem;
+/* The street address, one line per entry in components/offices.data.js,
+   and a link to the map — the rule on its left turns violet on hover, the
+   same "you are here" mark the use-case column draws. */
+.ax-foot__office-address {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  padding-left: 0.85rem;
+  text-decoration: none;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-foot__office-address::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  width: 0.125rem;
+  border-radius: var(--r-pill);
+  background: var(--line-strong);
+  transition: background var(--dur-2) var(--ease);
+}
+.ax-foot__office-address address {
+  display: flex;
+  flex-direction: column;
+  font-style: normal;
+  font-size: max(0.875rem, 13px);
+  line-height: 1.55;
   color: var(--ink-60);
+  transition: color var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-foot__office-address:hover {
+    transform: translateX(0.2rem);
+  }
+  .ax-foot__office-address:hover::before {
+    background: var(--violet-500);
+  }
+  .ax-foot__office-address:hover address {
+    color: var(--violet-600);
+  }
 }
 .ax-foot__office-role {
-  font-size: 0.6875rem;
+  font-size: max(0.6875rem, 10.5px);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-45);
@@ -299,7 +338,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.75rem;
+  font-size: max(0.75rem, 11px);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--ink-45);
@@ -524,6 +563,7 @@
   }
   .ax-foot__link:hover,
   .ax-foot__case:hover,
+  .ax-foot__office-address:hover,
   .ax-foot__social:hover,
   .ax-foot__cta:hover svg,
   .ax-foot__inline:hover svg,

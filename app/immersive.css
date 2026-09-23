@@ -506,6 +506,21 @@ html.ax-motion:not(.ax-reduced) .ax-cue__dot {
   overflow: hidden;
   background: var(--line-invert);
 }
+/* The fill and the numeral run here, from first paint, rather than from
+   Preloader.jsx: a script-driven count cannot start until the page has
+   hydrated, so on a slow load the panel read "000" with an empty rail for
+   seconds. The numeral is a counter over an animated integer, padded to
+   three digits the way the script padded it. The component waits for
+   this animation to finish before it lifts the panel. */
+@property --ax-intro-n {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+@counter-style ax-intro-pad {
+  system: extends decimal;
+  pad: 3 "0";
+}
 .ax-intro__fill {
   position: absolute;
   inset: 0 auto 0 0;
@@ -513,13 +528,25 @@ html.ax-motion:not(.ax-reduced) .ax-cue__dot {
   background: var(--grad-rail);
   transform-origin: left center;
   transform: scaleX(0);
-  transition: transform 0.25s linear;
+  animation: ax-intro-fill 1.2s linear forwards;
+}
+@keyframes ax-intro-fill {
+  to { transform: scaleX(1); }
 }
 .ax-intro__count {
   font-size: 0.6875rem;
   letter-spacing: 0.22em;
   color: rgba(255, 255, 255, 0.4);
   font-variant-numeric: tabular-nums;
+  counter-reset: ax-intro var(--ax-intro-n);
+  animation: ax-intro-count 1.2s linear forwards;
+}
+.ax-intro__count::before {
+  content: counter(ax-intro, ax-intro-pad);
+}
+@keyframes ax-intro-count {
+  from { --ax-intro-n: 0; }
+  to { --ax-intro-n: 100; }
 }
 
 /* ================================================================
@@ -547,6 +574,17 @@ html.ax-reduced .ax-intro {
 html.ax-reduced .ax-intro[data-done="true"] {
   transform: none;
   opacity: 0;
+}
+/* No counter under reduced motion, as before the count moved to CSS. */
+html.ax-reduced .ax-intro__fill,
+html.ax-reduced .ax-intro__count {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ax-intro__fill,
+  .ax-intro__count {
+    animation: none;
+  }
 }
 html.ax-reduced .button::after,
 html.ax-reduced .ax-hero__cta::after,

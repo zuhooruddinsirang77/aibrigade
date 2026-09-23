@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "@/components/Logo";
 import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 
@@ -36,20 +36,31 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
  * an unfinished paint, which is a correctness job, not a decorative one —
  * but it leaves on a short opacity fade with no counter and no travel
  * (see `.ax-intro` in app/immersive.css).
+ *
+ * The fill and the numeral are animated in CSS, not from here. They used
+ * to be written from a requestAnimationFrame loop, which cannot start
+ * until React has hydrated — so on a slow connection the server-rendered
+ * panel sat reading "000" with an empty rail for as long as the scripts
+ * took, which looks like a hung page. The CSS runs from first paint; this
+ * component now only decides when to lift, and it waits for the count to
+ * have actually reached 100 (read from the CSS animation itself) so the
+ * curtain never leaves mid-count.
  */
 
 const MIN_MS = 700;
 const MAX_MS = 1800;
+/* Lift regardless after this long, in case an animation never reports
+   finishing (a backgrounded tab can hold one indefinitely). */
+const FAILSAFE_MS = 3200;
 
 export default function Preloader() {
   const [done, setDone] = useState(false);
-  const [pct, setPct] = useState(0);
-  const fillRef = useRef(null);
 
   useEffect(() => {
     const wrapper = document.querySelector(".page-wrapper");
     const started = performance.now();
-    let raf = 0;
+    let timer = 0;
+    let cancelled = false;
     let loaded = document.readyState === "complete";
 
     const onLoad = () => { loaded = true; };
@@ -64,48 +75,41 @@ export default function Preloader() {
       wrapper && wrapper.classList.add("is-ready");
     }, 120);
 
-    const finish = () => {
-      setPct(100);
-      setDone(true);
-    };
+    const reduced = prefersReducedMotion();
 
-    if (prefersReducedMotion()) {
-      const t = setTimeout(finish, MIN_MS);
-      return () => {
-        clearTimeout(t);
-        clearTimeout(revealTimer);
-        window.removeEventListener("load", onLoad);
-      };
+    /* Has the CSS count reached 100? None to wait for (reduced motion, or
+       no Web Animations support) counts as reached. */
+    let counted = false;
+    const count = document.querySelector(".ax-intro__count");
+    const anims = (!reduced && count && count.getAnimations && count.getAnimations()) || [];
+    if (!anims.length) {
+      counted = true;
+    } else {
+      Promise.all(anims.map((a) => a.finished))
+        .catch(() => {})
+        .then(() => {
+          counted = true;
+        });
     }
 
-    const tick = () => {
+    /* The same floor and ceiling as before: never under MIN_MS, and past
+       MAX_MS stop waiting for `load` — a video still buffering is not a
+       reason to hold a reader on this panel. */
+    const check = () => {
+      if (cancelled) return;
       const elapsed = performance.now() - started;
-      /* Two clocks, whichever is further along. The time-based one
-         guarantees the bar always moves — a progress indicator that sits
-         at 12% because a video is still buffering is the failure mode this
-         is meant to avoid. The load-based one lets a warm cache finish
-         early instead of serving a fixed-length animation to someone who
-         already has every byte. */
-      const byTime = Math.min(1, elapsed / MAX_MS);
-      const byLoad = loaded ? Math.min(1, Math.max(byTime, elapsed / MIN_MS)) : byTime;
-      const p = Math.max(byTime, byLoad);
-
-      /* Written straight to the node, and only the integer is pushed
-         through React state: the fill updates every frame, the numeral at
-         most 100 times. */
-      if (fillRef.current) fillRef.current.style.transform = `scaleX(${p})`;
-      setPct(Math.round(p * 100));
-
-      if (p >= 1) {
-        finish();
+      const ready = elapsed >= MIN_MS && counted && (loaded || elapsed >= MAX_MS);
+      if (ready || elapsed >= FAILSAFE_MS) {
+        setDone(true);
         return;
       }
-      raf = requestAnimationFrame(tick);
+      timer = setTimeout(check, 50);
     };
-    raf = requestAnimationFrame(tick);
+    timer = setTimeout(check, reduced ? MIN_MS : 50);
 
     return () => {
-      cancelAnimationFrame(raf);
+      cancelled = true;
+      clearTimeout(timer);
       clearTimeout(revealTimer);
       window.removeEventListener("load", onLoad);
     };
@@ -117,9 +121,11 @@ export default function Preloader() {
         <Logo size="10rem" />
       </div>
       <div className="ax-intro__rail">
-        <span className="ax-intro__fill" ref={fillRef} />
+        <span className="ax-intro__fill" />
       </div>
-      <span className="ax-intro__count">{String(pct).padStart(3, "0")}</span>
+      {/* The numeral is drawn by CSS (a counter over an animated integer),
+          so it counts from first paint — see app/immersive.css §8. */}
+      <span className="ax-intro__count" />
     </div>
   );
 }
