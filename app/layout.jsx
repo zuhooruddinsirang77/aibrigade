@@ -63,7 +63,7 @@ import "./demos.css";
    are set by compose.css and hero.css above. */
 import "./touch.css";
 /* featured.css — the Featured chapter: its example-brief panel and the
-   lead-in to the problem cards, at every width. It replaced rules for the
+   sentence of problem-kind chips above it, at every width. It replaced rules for the
    old card in film.css, motion.css, refine.css and touch.css, so it loads
    after all four. Every selector in it is scoped by `#featured`. */
 import "./featured.css";
