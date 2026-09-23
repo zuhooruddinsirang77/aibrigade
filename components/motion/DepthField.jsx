@@ -256,13 +256,32 @@ export default function DepthField({
       let raf = 0;
       let last = performance.now();
 
+      /* Taken from events, not read in `tick`. This used to be read inside
+         the rAF loop on the grounds that `getBoundingClientRect` is cheap
+         when nothing writes to layout in the same frame — but on this page
+         GSAP's tick writes every tween's styles each frame before this loop
+         runs, so the read forced a style and layout pass mid-frame, every
+         frame the field was on screen. A scroll event arrives before any of
+         that, and the observer hands over the box it has already measured.
+         `dollyZ` eases toward the result either way. */
+      const fromBox = (r) => {
+        const span = r.height + window.innerHeight;
+        scrollN = span > 0 ? 1 - (r.bottom / span) : 0;
+      };
+      const readScroll = () => {
+        if (visible) fromBox(host.getBoundingClientRect());
+      };
+
       const io = new IntersectionObserver(
         ([entry]) => {
           visible = entry.isIntersecting;
+          fromBox(entry.boundingClientRect);
         },
         { threshold: 0 }
       );
       io.observe(host);
+      window.addEventListener("scroll", readScroll, { passive: true });
+      window.addEventListener("resize", readScroll, { passive: true });
 
       const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
       const onPointerMove = (e) => {
@@ -270,17 +289,6 @@ export default function DepthField({
         pointerY = (e.clientY / window.innerHeight - 0.5) * 2;
       };
       if (fine) window.addEventListener("pointermove", onPointerMove, { passive: true });
-
-      /* Read rather than subscribe: this runs inside the rAF loop that is
-         already pumping, so a separate throttled scroll listener would be
-         a second source of truth for the same number. `getBoundingClientRect`
-         is cheap as long as nothing writes to layout in the same frame,
-         and nothing here does. */
-      const readScroll = () => {
-        const r = host.getBoundingClientRect();
-        const span = r.height + window.innerHeight;
-        scrollN = span > 0 ? 1 - (r.bottom / span) : 0;
-      };
 
       const onResize = () => {
         width = host.clientWidth || 1;
@@ -301,7 +309,6 @@ export default function DepthField({
         last = now;
         if (!visible || document.hidden) return;
 
-        readScroll();
         material.uniforms.uTime.value += dt;
 
         /* Scroll dollies the FIELD rather than the camera, so the pointer
@@ -328,6 +335,8 @@ export default function DepthField({
         cancelAnimationFrame(raf);
         io.disconnect();
         ro.disconnect();
+        window.removeEventListener("scroll", readScroll);
+        window.removeEventListener("resize", readScroll);
         if (fine) window.removeEventListener("pointermove", onPointerMove);
         geometry.dispose();
         material.dispose();

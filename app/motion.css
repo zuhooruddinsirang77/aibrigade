@@ -346,6 +346,32 @@ html.ax-motion .ax-progress {
 }
 
 /* ----------------------------------------------------------------
+   Off-screen sections hold still
+
+   MotionProvider marks each top-level section that is well clear of the
+   viewport with `data-ax-offscreen`. A running CSS animation costs a
+   style recalculation every frame whether or not it can be seen, and
+   this page has dozens of loops; scrolling paid for all of them at once.
+   Paused, a loop holds its current frame and carries on from there when
+   its section comes back.
+
+   The chapter kicker's rule is exempt: it runs on a view timeline
+   (immersive.css), driven by scroll position rather than by time, and
+   pausing it would detach it from the scroll.
+   ---------------------------------------------------------------- */
+[data-ax-offscreen],
+[data-ax-offscreen]::before,
+[data-ax-offscreen]::after,
+[data-ax-offscreen] *,
+[data-ax-offscreen] *::before,
+[data-ax-offscreen] *::after {
+  animation-play-state: paused !important;
+}
+[data-ax-offscreen] .ax-kicker::after {
+  animation-play-state: running !important;
+}
+
+/* ----------------------------------------------------------------
    10. Marquees answer the pointer
 
    The three tickers scroll forever on a CSS animation. Pausing them on

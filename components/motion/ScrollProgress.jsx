@@ -19,19 +19,31 @@ export default function ScrollProgress() {
     if (!bar) return;
 
     let frame = 0;
+    let p = 0;
+
+    /* Measured when the event arrives, drawn on the next frame. The read
+       used to happen inside the rAF callback, which runs after GSAP's tick
+       has written the frame's tween styles — so `scrollHeight` there forced
+       a style and layout pass mid-frame, on every frame of every scroll.
+       When a scroll event is dispatched, the layout is still the one the
+       last frame painted, and reading it costs nothing. */
+    const measure = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    };
 
     const update = () => {
       frame = 0;
-      const doc = document.documentElement;
-      const max = doc.scrollHeight - window.innerHeight;
-      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
       bar.style.transform = `scaleX(${p})`;
     };
 
     const onScroll = () => {
+      measure();
       if (!frame) frame = requestAnimationFrame(update);
     };
 
+    measure();
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });

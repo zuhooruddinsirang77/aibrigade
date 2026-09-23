@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { loadGsap, prefersReducedMotion } from "@/components/motion/gsapLoader";
 
 /**
@@ -21,6 +22,8 @@ import { loadGsap, prefersReducedMotion } from "@/components/motion/gsapLoader";
  * scrolled to yet, and pop them in with no animation at all.
  */
 export default function MotionProvider() {
+  const pathname = usePathname();
+
   useEffect(() => {
     const root = document.documentElement;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -120,6 +123,41 @@ export default function MotionProvider() {
       cleanupGsap();
     };
   }, []);
+
+  /* ---- off-screen sections stop animating ----------------------------
+   *
+   * The page carries dozens of looping CSS animations — the logo
+   * marquees, the hero diagram's rings, the status dots, the capability
+   * cards' glare, the service render's float. A running CSS animation
+   * invalidates style on every frame whether or not anyone can see it, and
+   * that recalculation lands inside the first script to read layout in the
+   * frame — ScrollTrigger's scroll read — so every scroll frame paid for
+   * animations three screens away. On a 12s wheel scroll that one read
+   * cost over a second of main-thread time.
+   *
+   * Every top-level section is observed and carries `data-ax-offscreen`
+   * while it is well clear of the viewport; motion.css pauses every
+   * animation inside it. A paused loop resumes from the frame it stopped
+   * on, which nobody can tell apart from one that kept running, because
+   * nobody was looking. `DecisionPath` and `ProblemBrief` already did this
+   * for themselves; this is the same idea for the rest of the page. Keyed
+   * on the route, so a client-side navigation observes the new sections.
+   */
+  useEffect(() => {
+    const sections = document.querySelectorAll(".main-wrapper > *");
+    if (!sections.length || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.target.toggleAttribute("data-ax-offscreen", !e.isIntersecting);
+      },
+      { rootMargin: "25% 0px" }
+    );
+    sections.forEach((s) => io.observe(s));
+    return () => {
+      io.disconnect();
+      sections.forEach((s) => s.removeAttribute("data-ax-offscreen"));
+    };
+  }, [pathname]);
 
   return null;
 }

@@ -405,8 +405,15 @@ export default function DecisionPath() {
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
+    /* The contrast rail's travelling highlight is SMIL — the
+       `<animateTransform>` in `#ax-contrast-pulse` — which
+       `animation-play-state` cannot reach, so it restyled the gradient on
+       every frame of the page's life. Its SVG's own clock pauses with the
+       rest. */
+    const svg = el.querySelector("#ax-contrast-pulse")?.ownerSVGElement;
     const io = new IntersectionObserver(([e]) => {
       el.toggleAttribute("data-live", e.isIntersecting);
+      if (svg) e.isIntersecting ? svg.unpauseAnimations() : svg.pauseAnimations();
     });
     io.observe(el);
     return () => io.disconnect();
@@ -468,15 +475,21 @@ export default function DecisionPath() {
        into the packet when it stops. */
     const place = (p, v = 0) => {
       const at = len * p;
+      const gap = Math.max(-9, Math.min(9, v * 1.1));
+      /* Every point is read before any attribute is written. A write
+         dirties the SVG's style, and the next `getPointAtLength` has to
+         recalculate it before it can answer — interleaved, that was one
+         forced style recalc per trail dot per frame. */
       const pt = path.getPointAtLength(at);
+      const qs = trail.map((_, k) =>
+        path.getPointAtLength(Math.max(0, Math.min(len, at - gap * (k + 1))))
+      );
       dot.setAttribute("cx", pt.x);
       dot.setAttribute("cy", pt.y);
       dot.dataset.p = String(p);
-      const gap = Math.max(-9, Math.min(9, v * 1.1));
       trail.forEach((c, k) => {
-        const q = path.getPointAtLength(Math.max(0, Math.min(len, at - gap * (k + 1))));
-        c.setAttribute("cx", q.x);
-        c.setAttribute("cy", q.y);
+        c.setAttribute("cx", qs[k].x);
+        c.setAttribute("cy", qs[k].y);
       });
       const off = `${len * (1 - p)}`;
       draw.style.strokeDashoffset = off;
@@ -492,6 +505,13 @@ export default function DecisionPath() {
 
     let raf;
     const from = Number(dot.dataset.p || 0);
+    /* Already there — on mount, both are 0. Easing from a point to itself
+       is 620ms of identical frames, each walking the path geometry, during
+       page load; one placement draws the same thing. */
+    if (from === target) {
+      place(target);
+      return;
+    }
     const start = performance.now();
     const dur = 620;
     const ease = (t) => 1 - Math.pow(1 - t, 3);

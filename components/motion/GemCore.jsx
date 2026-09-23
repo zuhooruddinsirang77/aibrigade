@@ -190,11 +190,30 @@ export default function GemCore({
       let raf = 0;
       let last = performance.now();
 
+      /* The host's box, for the scroll roll. Taken from events rather than
+         read in `tick`: the tick is a rAF callback that runs after GSAP has
+         written the frame's tween styles, so a `getBoundingClientRect`
+         there forced a style and layout pass mid-frame, every frame the gem
+         was on screen. A scroll event arrives before any of that, and the
+         observer hands over the box it has already measured. */
+      let box = null;
+      let vh = window.innerHeight;
+      const measure = () => {
+        if (!visible) return;
+        box = host.getBoundingClientRect();
+        vh = window.innerHeight;
+      };
+
       const io = new IntersectionObserver(
-        ([entry]) => { visible = entry.isIntersecting; },
+        ([entry]) => {
+          visible = entry.isIntersecting;
+          box = entry.boundingClientRect;
+        },
         { threshold: 0 }
       );
       io.observe(host);
+      window.addEventListener("scroll", measure, { passive: true });
+      window.addEventListener("resize", measure, { passive: true });
 
       const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
       const onPointerMove = (e) => {
@@ -221,10 +240,9 @@ export default function GemCore({
         mesh.rotation.x = tiltX;
         mesh.rotation.z = tiltY;
 
-        if (spin) {
-          const r = host.getBoundingClientRect();
-          const span = r.height + window.innerHeight;
-          const p = span > 0 ? 1 - r.bottom / span : 0;
+        if (spin && box) {
+          const span = box.height + vh;
+          const p = span > 0 ? 1 - box.bottom / span : 0;
           group.rotation.x = (p - 0.5) * (spin * Math.PI) / 180;
         }
 
@@ -236,6 +254,8 @@ export default function GemCore({
         cancelAnimationFrame(raf);
         io.disconnect();
         ro.disconnect();
+        window.removeEventListener("scroll", measure);
+        window.removeEventListener("resize", measure);
         if (fine) window.removeEventListener("pointermove", onPointerMove);
         geometry.dispose();
         material.dispose();

@@ -128,7 +128,14 @@ export default function SmoothScroll() {
       const start = () => {
         if (running) return;
         running = true;
-        gsap.ticker.add(frame);
+        /* Prioritised: ahead of GSAP's own render in the same tick. Behind
+           it, every tween had just written its styles, so reading `scrollY`
+           and calling `scrollTo` here forced a full style and layout pass on
+           every scroll frame — one the browser then repeated at the end of
+           the frame anyway. In front, the page is still as the last frame
+           left it, and the scrubs this frame's `ScrollTrigger.update()`
+           retargets render in the same tick rather than the next. */
+        gsap.ticker.add(frame, false, true);
       };
 
       const onWheel = (e) => {
