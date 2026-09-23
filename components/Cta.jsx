@@ -22,6 +22,7 @@ export default function Cta() {
                 src={`${CDN}/64c100b40fcbd204b722a485_cta-gradient.webp`}
                 alt="Abstract purple geometric pattern."
                 className="cta_bg"
+                loading="lazy"
               />
               <h2 className="text-color-white heading-60pt-ipad_pro">
                 <MaskHeading text="Bring us one problem" />

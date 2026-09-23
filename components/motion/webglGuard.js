@@ -65,6 +65,35 @@ function hasWebGL() {
 }
 
 /**
+ * Run `start` once `el` comes within `rootMargin` of the viewport; returns
+ * a function that cancels the wait.
+ *
+ * Every WebGL surface on the home page sits well below the fold, and each
+ * used to call `import("three")` and build its context straight after
+ * hydration — ~180KB of gzipped library parsed, and three contexts
+ * compiling shaders, while the first screen was still becoming
+ * interactive. A screen of margin is the same lead `AmbientVideo` gives its
+ * clips: the swap from still to render still happens before the surface
+ * is on screen, so nothing a reader sees changes.
+ */
+export function whenNear(el, start, rootMargin = "100% 0px") {
+  if (typeof IntersectionObserver === "undefined") {
+    start();
+    return () => {};
+  }
+  const io = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      io.disconnect();
+      start();
+    },
+    { rootMargin }
+  );
+  io.observe(el);
+  return () => io.disconnect();
+}
+
+/**
  * Device pixel ratio, capped. Above 2 the extra fragments are invisible on
  * the kind of soft, additive, out-of-focus imagery these components draw,
  * and on a 3x phone display the cost is quadratic.

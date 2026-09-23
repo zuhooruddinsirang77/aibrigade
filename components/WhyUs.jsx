@@ -316,16 +316,34 @@ export default function WhyUs() {
         ? window.matchMedia("(prefers-reduced-motion: reduce)")
         : null;
 
+    /* Only write a value that changed. This loop runs every frame the
+       section is on screen, moving or not, and every write invalidates
+       style — which the next `getBoundingClientRect` then has to settle
+       before it can answer. Written unconditionally, with reads and writes
+       interleaved, that was a forced style recalc per card per frame, even
+       on a page standing still. */
+    const written = new WeakMap();
+    const put = (el, name, value) => {
+      let w = written.get(el);
+      if (!w) written.set(el, (w = {}));
+      if (w[name] === value) return;
+      w[name] = value;
+      el.style.setProperty(name, value);
+    };
+
     const sample = () => {
       const wr = wrap.getBoundingClientRect();
       if (wr.width <= 0) return;
       const items = list.children;
+      /* Every read before any write, so a frame lays out at most once. */
+      const rects = Array.from(items, (el) => el.getBoundingClientRect());
+      const lr = list.getBoundingClientRect();
       let firstVisible = 0;
       let seen = false;
 
       for (let i = 0; i < items.length; i++) {
         const el = items[i];
-        const r = el.getBoundingClientRect();
+        const r = rects[i];
         if (r.width <= 0) continue;
         const inside = Math.min(r.right, wr.right) - Math.max(r.left, wr.left);
         const ratio = clamp01(inside / r.width);
@@ -333,7 +351,8 @@ export default function WhyUs() {
            present, not as 10% dimmed. The ramp puts everything past ~85%
            at full strength and everything under ~35% at none, so the
            change happens at the edges of the window where it belongs. */
-        el.style.setProperty(
+        put(
+          el,
           "--ax-focus",
           reduced?.matches ? "1" : clamp01((ratio - 0.35) / 0.5).toFixed(3)
         );
@@ -350,9 +369,8 @@ export default function WhyUs() {
          into, which reads as a rendering fault rather than as "there is
          more this way". These go to zero when there is nothing past the
          edge and come up over the first 2.5rem of travel. */
-      const lr = list.getBoundingClientRect();
-      wrap.style.setProperty("--ax-fade-l", clamp01((wr.left - lr.left) / 40).toFixed(3));
-      wrap.style.setProperty("--ax-fade-r", clamp01((lr.right - wr.right) / 40).toFixed(3));
+      put(wrap, "--ax-fade-l", clamp01((wr.left - lr.left) / 40).toFixed(3));
+      put(wrap, "--ax-fade-r", clamp01((lr.right - wr.right) / 40).toFixed(3));
 
       if (seen && firstVisible !== lastIndex) {
         lastIndex = firstVisible;

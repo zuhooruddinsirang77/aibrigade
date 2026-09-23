@@ -81,10 +81,18 @@ import ScrollProgress from "@/components/motion/ScrollProgress";
 
 
 
-const WF_SHARED_CSS =
-  "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/css/fintech-auxility-ca.webflow.shared.8bf8d5ffb.min.css";
-const WF_CUSTOM_CSS =
-  "https://s3.amazonaws.com/assets.vvmd.team/Auxility/styles/3hhyvl-6.csb.app_style.css";
+/* Byte-for-byte copies of the original Webflow stylesheets, served from
+   this site. They used to be linked straight from Webflow's CDN and an S3
+   bucket, and both are render-blocking: every first paint — the preloader
+   included — waited on two extra cross-origin handshakes, S3's often close
+   to a second. Nothing in either file resolves against its own URL (every
+   `url()` in them is absolute or `data:`), so moving them changes no rule.
+   Sources, if they ever need refetching:
+     https://cdn.prod.website-files.com/64147b2316f5ef0922b44617/css/fintech-auxility-ca.webflow.shared.8bf8d5ffb.min.css
+     https://s3.amazonaws.com/assets.vvmd.team/Auxility/styles/3hhyvl-6.csb.app_style.css
+   Cached as immutable (next.config.mjs): give a changed copy a new name. */
+const WF_SHARED_CSS = "/vendor/webflow/fintech-auxility-ca.webflow.shared.8bf8d5ffb.min.css";
+const WF_CUSTOM_CSS = "/vendor/webflow/3hhyvl-6.csb.app_style.css";
 
 export const metadata = {
   title: "AIBrigade | AI That Does the Work",
@@ -115,7 +123,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en-US">
       <head>
-        {/* Exact visual parity: reuse the original Webflow stylesheets. */}
+        {/* Exact visual parity: reuse the original Webflow stylesheets.
+            The preconnect stays for what those sheets still fetch from
+            Webflow's CDN — the fonts (CORS, hence `anonymous`) and images. */}
         <link rel="preconnect" href="https://cdn.prod.website-files.com" crossOrigin="anonymous" />
         <link rel="stylesheet" href={WF_SHARED_CSS} />
         <link rel="stylesheet" href={WF_CUSTOM_CSS} />

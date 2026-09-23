@@ -22,8 +22,13 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
  *   Weight. Only the selected cut is in the DOM at all, and nothing
  *   downloads until the card is within 600px of the viewport (see the
  *   IntersectionObserver below) — `preload="none"` behind a poster frame
- *   until then, `"auto"` once seen, so playback starts instantly instead
- *   of after a buffering wait but a visitor who never scrolls to a card
+ *   until then, `"metadata"` once seen, and `"auto"` only once the
+ *   pointer or focus reaches the stage. Eight cards on `"auto"` meant the
+ *   browser buffered every card's cut in parallel the moment the grid
+ *   came near — ~195MB of mostly-4K footage competing with the rest of
+ *   the page for bandwidth and decoders — for demos most visitors never
+ *   press. Intent is still a head start on the click, so playback starts
+ *   almost at once, and a visitor who never scrolls to a card still
  *   never fetches its video. Pressing a language after playback has
  *   started carries the intent over — the new cut starts itself — but a
  *   language change on an unstarted card just swaps the poster. Only one
@@ -54,10 +59,12 @@ export default function ProjectMedia({
   const [playing, setPlaying] = useState(false);
   const [dims, setDims] = useState(() => ({ width: video?.width, height: video?.height }));
   // Nothing downloads until a card has been seen at least once — after
-  // that it stays eager, so playback starts instantly instead of after a
-  // buffering wait. Sticky rather than tied to `isIntersecting` directly,
-  // so scrolling a card back off-screen doesn't discard what it fetched.
+  // that its metadata is fetched, and `warm` (pointer or focus on the
+  // stage) lets it buffer the cut itself. Both sticky rather than tied to
+  // `isIntersecting` directly, so scrolling a card back off-screen doesn't
+  // discard what it fetched.
   const [seen, setSeen] = useState(false);
+  const [warm, setWarm] = useState(false);
 
   const lang = LANGUAGES[code] || { english: code };
   const orientation = orientationOf(dims);
@@ -170,8 +177,10 @@ export default function ProjectMedia({
 
   // Browsers only consult `preload` when the resource-selection algorithm
   // runs — on mount, or after an explicit load() call. Flipping the attribute
-  // on an already-mounted element (none -> auto, first time a card is seen)
-  // doesn't retroactively start buffering on its own, so kick it here.
+  // on an already-mounted element (none -> metadata, first time a card is
+  // seen) doesn't retroactively start fetching on its own, so kick it here.
+  // The later metadata -> auto step needs no kick: raising `preload` on an
+  // element that has already loaded is honoured as it stands.
   useEffect(() => {
     if (!seen || started) return;
     videoRef.current?.load();
@@ -208,6 +217,8 @@ export default function ProjectMedia({
       data-playing={playing || undefined}
       data-started={started || undefined}
       style={{ "--ax-ratio": ratio }}
+      onPointerEnter={() => setWarm(true)}
+      onFocus={() => setWarm(true)}
     >
       {/* A blurred copy of the poster lights the space around a cut that
           sits inset from its own frame — every portrait cut, and a
@@ -231,7 +242,7 @@ export default function ProjectMedia({
           className="ax-proj__video"
           src={video.src}
           poster={video.poster || undefined}
-          preload={seen ? "auto" : "none"}
+          preload={seen ? (warm ? "auto" : "metadata") : "none"}
           playsInline
           controls={started}
           controlsList="nodownload"

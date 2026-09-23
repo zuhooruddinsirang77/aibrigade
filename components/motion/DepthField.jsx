@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { canRunWebGL, renderScale } from "@/components/motion/webglGuard";
+import { canRunWebGL, renderScale, whenNear } from "@/components/motion/webglGuard";
 
 /**
  * A volume of light suspended in front of a film — the depth layer.
@@ -61,7 +61,7 @@ export default function DepthField({
     let cancelled = false;
     let dispose = () => {};
 
-    import("three").then((THREE) => {
+    const start = () => import("three").then((THREE) => {
       if (cancelled || !host.isConnected) return;
 
       const narrow = window.innerWidth < 700;
@@ -340,8 +340,13 @@ export default function DepthField({
       };
     });
 
+    /* Not at mount: the field is in the closing CTA, the last section
+       before the footer. See `whenNear`. */
+    const cancelWait = whenNear(host, start);
+
     return () => {
       cancelled = true;
+      cancelWait();
       dispose();
     };
   }, [intensity, dolly, sway, density]);

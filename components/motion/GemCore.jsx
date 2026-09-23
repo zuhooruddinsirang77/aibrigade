@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { canRunWebGL, renderScale } from "@/components/motion/webglGuard";
+import { canRunWebGL, renderScale, whenNear } from "@/components/motion/webglGuard";
 
 /**
  * The brand's faceted crystal, as an object rather than a picture of one.
@@ -67,7 +67,7 @@ export default function GemCore({
     let cancelled = false;
     let dispose = () => {};
 
-    import("three").then((THREE) => {
+    const start = () => import("three").then((THREE) => {
       if (cancelled || !host.isConnected) return;
 
       const canvas = document.createElement("canvas");
@@ -249,8 +249,12 @@ export default function GemCore({
       };
     });
 
+    /* Not at mount: both gems are far below the fold. See `whenNear`. */
+    const cancelWait = whenNear(host, start);
+
     return () => {
       cancelled = true;
+      cancelWait();
       dispose();
     };
   }, [size, detail, spin]);
@@ -275,6 +279,10 @@ export default function GemCore({
           ref={imgRef}
           src={src}
           alt={alt}
+          /* Both callers size this box themselves, so a late load moves
+             nothing — and without `lazy` React preloads it from the head,
+             ahead of the stylesheets. */
+          loading="lazy"
           style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
         />
       </div>

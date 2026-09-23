@@ -256,7 +256,7 @@ export default function ServiceExplorer() {
             — the swap is the feedback that the control did something. */}
         <div className="ax-svc__panel-inner" key={active}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.img} alt={item.alt} className="ax-svc__render" />
+          <img src={item.img} alt={item.alt} className="ax-svc__render" loading="lazy" />
           <div className="ax-svc__panel-copy">
             {/* Eyebrow then claim: the eyebrow confirms which tab is open,
                 the heading is the sector's own sentence from the deck. The

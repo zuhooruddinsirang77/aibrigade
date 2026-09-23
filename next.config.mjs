@@ -33,6 +33,16 @@ const nextConfig = {
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
+      // The self-hosted Webflow stylesheets (see app/layout.jsx). Their
+      // origins cached them for a year; without this, every visit would
+      // revalidate two render-blocking files. Same rule as /video: a
+      // changed file gets a new name.
+      {
+        source: "/vendor/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
     ];
   },
 };
