@@ -30,10 +30,9 @@ export default function Home() {
         <Environments />
         <Services />
         <Features />
-            <Reviews />
+        <Reviews />
         <Featured />
         <Cta />
-        
         {/* <Proud /> */}
         <CtaDark />
         <Footer />
