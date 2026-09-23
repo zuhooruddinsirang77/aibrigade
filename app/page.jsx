@@ -15,17 +15,13 @@ import Proud from "@/components/Proud";
 import CtaDark from "@/components/CtaDark";
 import Footer from "@/components/Footer";
 
+
 export default function Home() {
   return (
     <>
       <Navbar />
       <div className="main-wrapper">
         <Hero />
-        {/* The capabilities come straight after the hero: the first screen
-            claims "AI that does the work", and the next thing a reader
-            sees is what it has already been taught to do. Then the problem
-            (AI that stops at the answer), then the proof (flagship builds,
-            client cases, the portfolio). */}
         <WhyUs />
         <DecisionPath />
         <Cases />
@@ -34,14 +30,9 @@ export default function Home() {
         <Environments />
         <Services />
         <Features />
-        {/* "The part that runs at 3am" (Infrastructure.jsx) was removed: the
-            deck has no control-and-governance slide, and its three points
-            are already on the page — Decide and Operate privately in the
-            capability cards, Human control and Audit in the estate layer. */}
-        <Reviews />
+            <Reviews />
         <Featured />
         <Cta />
-
         
         {/* <Proud /> */}
         <CtaDark />
