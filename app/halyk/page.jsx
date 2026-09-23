@@ -1,11 +1,9 @@
-import CaseStudy from "@/components/CaseStudy";
+import { permanentRedirect } from "next/navigation";
+import { LEGACY_ROUTES, useCaseHref } from "@/components/usecases.data";
 
-export const metadata = {
-  title: "Meridian Capital | AI Brigade case study",
-  description:
-    "How AI Brigade built an autonomous, auditable underwriting workflow for Meridian Capital, a leading investment bank.",
-};
-
+/* Was the "Meridian Capital" client case study (underwriting for an
+   investment bank) — a placeholder client. The route is kept so old links
+   still land, on the banking product we have actually built: Axon. */
 export default function Page() {
-  return <CaseStudy slug="halyk" />;
+  permanentRedirect(useCaseHref(LEGACY_ROUTES.halyk));
 }

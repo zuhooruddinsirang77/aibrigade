@@ -427,7 +427,7 @@ export default function WhyUs() {
                     the reader is told which of six they are looking at,
                     and the means to move are in the same glance. */}
                 <div className="ax-caps__bar">
-                  <p className="ax-caps__read">
+                  <p className="ax-caps__read" style={{ "--cap": whyUs[active].color }}>
                     <span className="ax-caps__idx">{pad(active + 1)}</span>
                     <span className="ax-caps__of">/ {pad(total)}</span>
                     <span className="ax-caps__now">{whyUs[active].title}</span>
@@ -483,7 +483,14 @@ export default function WhyUs() {
                               below it, so all six cards were the same
                               three stacked blocks and the row read as a
                               grid laid on its side. */}
-                          <article className={`whyus_item ax-cap ${c.bg || ""}`}>
+                          {/* `--cap` is the capability's colour from the
+                              deck (components/data.js) — the top edge, the
+                              mark and the rail readout take it, so the
+                              eight read as eight different things. */}
+                          <article
+                            className={`whyus_item ax-cap ${c.bg || ""}`}
+                            style={{ "--cap": c.color }}
+                          >
                             {/* Always running, never gated on hover. These
                                 cards are dark (see app/film.css) so the
                                 clip is the card's surface rather than a
@@ -509,8 +516,12 @@ export default function WhyUs() {
                                 it rather than one image being skewed. */}
                             <div className="ax-cap__body" data-lift>
                               <WhyUsIcon name={c.icon} />
+                              {/* No `<Listen>` angle brackets: a code-tag
+                                  motif on the first section an executive
+                                  reads made the capabilities look like
+                                  markup. The deck names them plainly. */}
                               <h3 className="ax-cap__title heading-style-h5 _30">
-                                &lt;<span className="text-color-black">{c.title}</span>&gt;
+                                <span className="text-color-black">{c.title}</span>
                               </h3>
                               <p className="ax-cap__text body20 text-color-black">{c.text}</p>
                             </div>

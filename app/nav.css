@@ -350,13 +350,16 @@
 }
 
 /* ---------------------------------------------------------------
-   3. The case-study menu
+   3. The use-case menu
 
-   /icu, /halyk and /uub are real pages that were reachable only from the
-   Cases section. This is a short list of three, with one line each — not
-   a mega menu, because there are not enough destinations on this site to
-   justify one, and an oversized panel over three links is exactly the
-   template look this bar is getting away from.
+   Every product in the showcase, each a name, a sector and one line on
+   what it does, linking to its own card. Eight of them in the single
+   column the three case studies used to fill would run the panel off a
+   laptop screen, so they sit in two columns — still a list, not a mega
+   menu: one kind of destination, one line each.
+
+   The type has pixel floors: the root font-size is fluid, and at 1024
+   1rem is about 9.5px, where a 0.8125rem line would be under 8px.
    --------------------------------------------------------------- */
 
 .ax-nav__panel {
@@ -364,7 +367,7 @@
   top: calc(100% + 0.65rem);
   right: 0;
   z-index: 2;
-  width: 25rem;
+  width: max(40rem, 540px);
   max-width: calc(100vw - 2.5rem);
   padding: 1.15rem;
   border-radius: var(--r-lg);
@@ -397,7 +400,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  width: 25rem;
+  width: max(40rem, 540px);
   max-width: 60vw;
   height: 0.8rem;
 }
@@ -405,12 +408,15 @@
 .ax-nav__panel-label {
   margin: 0 0 0.6rem;
   padding: 0 0.6rem;
-  font-size: var(--t-detail, 0.6875rem);
+  font-size: max(var(--t-detail, 0.6875rem), 10.5px);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-45);
 }
 .ax-nav__cases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.1rem 0.4rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -436,12 +442,12 @@
   gap: 0.6rem;
 }
 .ax-nav__case-client {
-  font-size: 0.9375rem;
+  font-size: max(0.9375rem, 14px);
   font-weight: 500;
   color: var(--ink);
 }
 .ax-nav__case-sector {
-  font-size: 0.625rem;
+  font-size: max(0.625rem, 10px);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--violet-500);
@@ -449,7 +455,7 @@
 .ax-nav__case-title {
   display: block;
   margin-top: 0.15rem;
-  font-size: 0.8125rem;
+  font-size: max(0.8125rem, 12.5px);
   line-height: 1.4;
   color: var(--ink-60);
 }
@@ -462,7 +468,7 @@
   margin-top: 0.6rem;
   padding: 0.75rem 0.6rem 0.25rem;
   border-top: 1px solid var(--line);
-  font-size: 0.9375rem;
+  font-size: max(0.9375rem, 14px);
   font-weight: 500;
   text-decoration: none;
   color: var(--ink);
@@ -470,7 +476,7 @@
 .ax-nav__panel-foot small {
   display: block;
   margin-top: 0.15rem;
-  font-size: 0.75rem;
+  font-size: max(0.75rem, 12px);
   font-weight: 400;
   color: var(--ink-60);
 }

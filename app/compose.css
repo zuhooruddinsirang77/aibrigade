@@ -114,64 +114,337 @@
 
 /* ---------- the four flagship builds ----------
    Sits between the Cases heading and the three client acts. Each card is
-   a product and the chain it runs, keyed by a coloured edge — the same
-   left-rule device WhyUs and the deck both use, so a reader arriving at
-   this strip has already learned to read it. Four across on a wide
-   screen, two on a tablet, one on a phone; the `auto-fit` does that with
-   no breakpoint of its own. */
+   a product and the chain it runs. The chain is drawn as a pipeline —
+   one stage per row, joined by a thread, the last stage (what the system
+   actually does) filled in — because a chain is a sequence and a
+   sentence with arrows typed into it made the reader do the parsing.
+
+   Each card owns one tone (`--tone`): the icon tile, the thread, a faint
+   wash in the top corner and the pointer spotlight are all drawn in it.
+   That replaced a 3px bar on the left edge, which sat flat while the
+   card's corners curved away from it, so it read as a separate line
+   standing next to the card rather than part of it.
+
+   The pipeline can be run — see `ProofCard` in components/Cases.jsx for
+   when. Running lights the stages in order, so the card demonstrates its
+   chain instead of only listing it.
+
+   Four across on a wide screen, two on a tablet, one on a phone; the
+   `auto-fit` does that with no breakpoint of its own. */
+
+/* A quiet label over the strip, set like `.ax-act__meta`, so the four
+   read as a named set rather than as cards that drifted up under the
+   heading's rule. */
+.ax-proof__label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: var(--sp-7) 0 0;
+  font-size: var(--t-detail);
+  font-weight: 500;
+  letter-spacing: var(--track-detail);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+.ax-proof__label-rule {
+  width: 2.25rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
 .ax-proof {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
   gap: var(--sp-4);
-  margin: var(--rhythm-1) 0 0;
+  margin: var(--sp-5) 0 0;
   padding: 0;
   list-style: none;
 }
 
+/* The `li` is only a grid cell; the card is the element inside it, so
+   that `TiltCard` can rotate it without fighting `Reveal`, which moves
+   the `li` in on scroll. */
 .ax-proof__item {
-  position: relative;
-  /* Deep enough that a one-line chain still reads as a card rather than
-     as a label with a rule beside it. The three client acts below are
-     generous blocks; four squat tiles above them looked like a legend. */
-  min-height: 7.5rem;
-  padding: var(--sp-5) var(--sp-5) var(--sp-5) calc(var(--sp-5) + 0.5rem);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface-sunken);
+  --tone: var(--violet-500);
+  /* Stroke colour for anything that has to be read on white. The teal and
+     blue are bright enough to vanish as a 1.6px line; pulling each tone a
+     quarter of the way toward the ink keeps the hue and gains contrast. */
+  --tone-ink: color-mix(in srgb, var(--tone) 72%, var(--ink));
+  display: flex;
 }
-/* The coloured edge. A pseudo-element rather than a `border-left` so it
-   inherits the card's corner radius on the side that has one. */
-.ax-proof__item::before {
+.ax-proof__item[data-tone="teal"] {
+  --tone: #2fd3c0;
+}
+.ax-proof__item[data-tone="coral"] {
+  --tone: var(--coral);
+}
+.ax-proof__item[data-tone="blue"] {
+  --tone: #4d7cf5;
+}
+
+.ax-proof__card {
+  position: relative;
+  isolation: isolate;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-3) var(--ease),
+    box-shadow var(--dur-3) var(--ease);
+}
+
+/* Two light layers behind the content (`isolation` keeps the negative
+   z-index inside the card):
+     ::before - the resting wash in the top corner, brought up on run;
+     ::after  - a spotlight in the card's tone that sits under the
+                pointer. It reads `--ax-tx`/`--ax-ty`/`--ax-tilt`, which
+                TiltCard publishes, so it costs no listener of its own -
+                and where TiltCard is inert (touch, reduced motion)
+                `--ax-tilt` stays 0 and the spotlight never shows. */
+.ax-proof__card::before,
+.ax-proof__card::after {
   content: "";
   position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  border-radius: var(--r-lg) 0 0 var(--r-lg);
-  background: var(--violet);
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
 }
-.ax-proof__item[data-tone="coral"]::before {
-  background: var(--coral);
+.ax-proof__card::before {
+  background: radial-gradient(
+    120% 70% at 0% 0%,
+    color-mix(in srgb, var(--tone) 10%, transparent),
+    transparent 62%
+  );
+  opacity: 0.8;
+  transition: opacity var(--dur-3) var(--ease);
 }
-.ax-proof__item[data-tone="teal"]::before {
-  background: #2fd3c0;
+.ax-proof__card::after {
+  background: radial-gradient(
+    22rem circle at calc(50% + var(--ax-tx, 0) * 50%) calc(50% + var(--ax-ty, 0) * 50%),
+    color-mix(in srgb, var(--tone) 10%, transparent),
+    transparent 70%
+  );
+  opacity: var(--ax-tilt, 0);
 }
-.ax-proof__item[data-tone="blue"]::before {
-  background: #4d7cf5;
+
+.ax-proof__card[data-run] {
+  border-color: color-mix(in srgb, var(--tone) 40%, transparent);
+  box-shadow: var(--shadow-2);
+}
+.ax-proof__card[data-run]::before {
+  opacity: 1;
+}
+
+.ax-proof__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+/* The icon floats a few px against the tilt, so the tile reads as sitting
+   slightly off the card's face rather than printed on it. */
+.ax-proof__icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--r-md);
+  border: 1px solid color-mix(in srgb, var(--tone) 22%, transparent);
+  background: color-mix(in srgb, var(--tone) 12%, var(--surface));
+  color: var(--tone-ink);
+  translate: calc(var(--ax-tx, 0) * 4px) calc(var(--ax-ty, 0) * 4px);
+  transition:
+    background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+.ax-proof__icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+/* `pathLength="1"` on every path, so one dash of length 1 is the whole
+   stroke whatever the icon - and the draw-in below is the same keyframe
+   for all four. */
+.ax-proof__icon path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.ax-proof__card[data-run] .ax-proof__icon {
+  background: var(--tone-ink);
+  border-color: transparent;
+  color: var(--surface);
+  box-shadow: 0 0.5rem 1.25rem color-mix(in srgb, var(--tone) 35%, transparent);
+}
+.ax-proof__card[data-run] .ax-proof__icon path {
+  animation: ax-proof-draw 0.9s var(--ease) both;
+}
+
+.ax-proof__index {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-45);
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-proof__card[data-run] .ax-proof__index {
+  color: var(--tone-ink);
 }
 
 .ax-proof__name {
-  margin: 0 0 0.5rem;
-  font-size: 0.9375rem;
+  margin: var(--sp-5) 0 0;
+  font-size: 1.375rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  line-height: 1.2;
+  letter-spacing: var(--track-title);
   color: var(--ink);
 }
-.ax-proof__chain {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.55;
+
+/* ---- the pipeline ----
+   Each stage is a row with a node on the left. `::before` is the thread's
+   faint track down to the next node; `::after` is the signal filling it.
+   Offsets are in `em` against the row's own line box (line-height 1.5 ->
+   the node centres at 0.75em), so a stage that wraps to two lines still
+   joins up cleanly.
+
+   On run, stage `--i` lights at `--i x --step` and the segment below it
+   fills over the following `--step`, arriving exactly as the next stage
+   lights. At rest every delay is 0, so letting go settles the whole card
+   at once instead of un-running it backwards. */
+.ax-proof__steps {
+  margin: var(--sp-5) 0 0;
+  padding: var(--sp-5) 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+.ax-proof__step {
+  --at: calc(var(--i, 0) * var(--step, 240ms));
+  position: relative;
+  padding: 0 0 0.7rem 1.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: var(--ink-60);
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-proof__step:last-child {
+  padding-bottom: 0;
+  font-weight: 500;
+  color: var(--ink);
+}
+.ax-proof__card[data-run] .ax-proof__step {
+  color: var(--ink);
+  transition-delay: var(--at);
+}
+
+/* The node. Hollow for every stage the system passes through, solid for
+   the one it ends on - and on run, each fills as the signal reaches it. */
+.ax-proof__node {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: calc(0.75em - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tone-ink);
+  background: var(--surface);
+  box-sizing: border-box;
+  transition:
+    background-color var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+.ax-proof__step:last-child .ax-proof__node {
+  background: var(--tone-ink);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 18%, transparent);
+}
+.ax-proof__card[data-run] .ax-proof__node {
+  background: var(--tone-ink);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tone) 18%, transparent);
+  transform: scale(1.15);
+  transition-delay: var(--at);
+}
+/* The outcome keeps pinging for as long as the card is running - the
+   system has done its thing and is still live. */
+.ax-proof__step:last-child .ax-proof__node::after {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  border: 1.5px solid var(--tone-ink);
+  opacity: 0;
+}
+.ax-proof__card[data-run] .ax-proof__step:last-child .ax-proof__node::after {
+  animation: ax-proof-ping 1.8s var(--ease-out) calc(var(--at) + 0.2s) infinite;
+}
+
+.ax-proof__step:not(:last-child)::before,
+.ax-proof__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: calc(0.75em + 6px);
+  bottom: calc(6px - 0.75em);
+}
+.ax-proof__step:not(:last-child)::before {
+  left: 3.5px;
+  width: 1px;
+  background: color-mix(in srgb, var(--tone) 30%, transparent);
+}
+.ax-proof__step:not(:last-child)::after {
+  left: 3px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--tone-ink);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--tone) 60%, transparent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-proof__card[data-run] .ax-proof__step:not(:last-child)::after {
+  transform: scaleY(1);
+  transition: transform var(--step, 240ms) linear var(--at);
+}
+
+@keyframes ax-proof-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ax-proof-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: running is still a state - the card lights, the thread
+   is filled - it just arrives all at once instead of as a sequence. */
+@media (prefers-reduced-motion: reduce) {
+  .ax-proof__card,
+  .ax-proof__card *,
+  .ax-proof__card *::before,
+  .ax-proof__card *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation: none !important;
+  }
+  .ax-proof__icon {
+    translate: none;
+  }
 }
 
 /* The portfolio claim under the strip. Centred and ruled off, because it
@@ -194,118 +467,22 @@
 }
 
 @media (max-width: 767px) {
+  .ax-proof__card {
+    padding: var(--sp-5);
+    border-radius: var(--r-lg);
+  }
   .ax-proof__note p {
     text-align: left;
   }
 }
 
-/* ---------- the five problems, and what happens to one ----------
-   Under the Featured band, on the white body — so these are the light
-   counterpart of `.ax-path__contrast`, same shapes, opposite ground.
-   Five across at full width and they get narrow, which is right: each
-   one is two or three words plus a line, and a reader is scanning for
-   the one that describes them rather than reading all five. */
-/* Pulled up tight under the violet band. These five are the band's own
-   argument continued — the heading inside it asks for a business
-   problem, and these are the five shapes one takes — so a full section
-   gap below the band left them reading as an unrelated strip that had
-   drifted in from somewhere else. */
-.ax-problems {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-  gap: var(--sp-4);
-  margin: var(--sp-7) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ax-problems__item {
-  position: relative;
-  min-height: 7rem;
-  padding: var(--sp-5) var(--sp-4) var(--sp-5) calc(var(--sp-4) + 0.5rem);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  background: var(--surface-sunken);
-}
-/* Five edges across the brand's own range rather than five of one hue:
-   these are five different kinds of pain, and a single colour would say
-   they are five degrees of the same one. */
-.ax-problems__item::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  border-radius: var(--r-lg) 0 0 var(--r-lg);
-  background: var(--violet);
-}
-.ax-problems__item:nth-child(1)::before {
-  background: #2fd3c0;
-}
-.ax-problems__item:nth-child(2)::before {
-  background: #f0a83c;
-}
-.ax-problems__item:nth-child(3)::before {
-  background: #4d7cf5;
-}
-.ax-problems__item:nth-child(4)::before {
-  background: var(--coral);
-}
-
-.ax-problems__k {
-  margin: 0 0 0.45rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.ax-problems__d {
-  margin: 0;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  color: var(--ink-60);
-}
-
-/* The route out: what happens to a problem once it is brought. Ruled off
-   above so it closes the block rather than trailing off it, and set at
-   pill weight so a chain of five reads as a sequence at a glance. */
-.ax-route {
-  margin: var(--sp-7) 0 0;
-  padding-top: var(--sp-6);
-  border-top: 1px solid var(--line);
-}
-.ax-route__chain {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ax-route__chain li {
-  padding: 0.45rem 0.85rem;
-  border: 1px solid color-mix(in srgb, var(--violet) 26%, transparent);
-  border-radius: var(--r-pill);
-  background: color-mix(in srgb, var(--violet) 6%, transparent);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--violet);
-}
-/* Trailing arrow, so a wrapped chain never opens a line with one. */
-.ax-route__chain li:not(:last-child)::after {
-  content: "→";
-  margin-left: 0.85rem;
-  color: var(--ink-45);
-}
-
-@media (max-width: 767px) {
-  .ax-route__chain {
-    justify-content: flex-start;
-  }
-}
+/* ---------- the five problems, and the route out ----------
+   Both lived here while they were strips under the Featured band: a row
+   of five problem cards and a five-station route. The cards repeated the
+   sentence above them word for word, and the route was drawn again by the
+   example-brief panel. The five kinds are now chips in the deck's own
+   sentence (`.ax-kind`), and the route is the spine of that panel
+   (`.ax-brief__route`) — both in app/featured.css. */
 
 .ax-acts {
   display: grid;
@@ -591,7 +768,8 @@
 
 .section_features .padding-section-features,
 .section_services .padding-section-services,
-.section_whyus .padding-section-whyus {
+.section_whyus .padding-section-whyus,
+.section_featured .padding-section-featured {
   padding-top: var(--rhythm-2);
   padding-bottom: var(--rhythm-2);
 }
@@ -607,8 +785,8 @@
 /* ================================================================
    4. One opening for every chapter
 
-   `._3-columns-grid` is the head wrapper WhyUs, Features, Services and
-   Reviews already share; `.ax-cases__headline` is the Cases equivalent,
+   `._3-columns-grid` is the head wrapper WhyUs, Features, Services,
+   Reviews and Featured share; `.ax-cases__headline` is the Cases equivalent,
    and the two dark bands have their own (`.ax-reels__head`). They were
    four different shapes with eight different heading sizes between them.
 
@@ -622,7 +800,8 @@
 #whyus ._3-columns-grid,
 #features ._3-columns-grid,
 #services ._3-columns-grid,
-#reviews ._3-columns-grid {
+#reviews ._3-columns-grid,
+#featured ._3-columns-grid {
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   column-gap: var(--rhythm-1);
   row-gap: var(--sp-5);
@@ -638,7 +817,8 @@
 #whyus ._3-columns-grid h2,
 #features ._3-columns-grid h2,
 #services ._3-columns-grid h2,
-#reviews ._3-columns-grid h2 {
+#reviews ._3-columns-grid h2,
+#featured ._3-columns-grid h2 {
   margin: 0;
   font-size: var(--t-display);
   line-height: 0.98;
@@ -649,7 +829,8 @@
 #whyus ._3-columns-grid p,
 #features ._3-columns-grid p,
 #services ._3-columns-grid p,
-#reviews ._3-columns-grid p {
+#reviews ._3-columns-grid p,
+#featured ._3-columns-grid p {
   margin: 0;
   max-width: 34ch;
   font-size: var(--t-body);
@@ -692,7 +873,8 @@
   #whyus ._3-columns-grid,
   #features ._3-columns-grid,
   #services ._3-columns-grid,
-  #reviews ._3-columns-grid {
+  #reviews ._3-columns-grid,
+  #featured ._3-columns-grid {
     grid-template-columns: 1fr;
     align-items: start;
     padding-bottom: var(--sp-6);
@@ -1482,12 +1664,15 @@ html.ax-reduced .ax-thread {
 }
 .ax-caps__idx {
   /* The one number on this line that changes, so it is the one that gets
-     the colour and the size. Tabular figures because it counts. */
+     the colour and the size. Tabular figures because it counts. The
+     colour is the card in view's (`--cap`), darkened: this line sits on
+     the white section, where teal, amber and green wash out. */
   font-size: 1.125rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--violet-500);
+  color: color-mix(in srgb, var(--cap, var(--violet-500)) 70%, #0b0d12);
+  transition: color var(--dur-2) var(--ease);
 }
 .ax-caps__of {
   font-variant-numeric: tabular-nums;
@@ -1625,8 +1810,14 @@ html.ax-reduced .ax-thread {
   height: auto;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(90deg, var(--coral) 0%, var(--violet-400) 100%) top left / 100%
-    0.125rem no-repeat;
+  /* The capability's own colour (`--cap`, set per card in WhyUs.jsx),
+     fading along the edge. */
+  background: linear-gradient(
+      90deg,
+      var(--cap, var(--coral)) 0%,
+      color-mix(in srgb, var(--cap, var(--violet-400)) 25%, transparent) 100%
+    )
+    top left / 100% 0.1875rem no-repeat;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, calc(0.04 + var(--ax-focus, 1) * 0.09));
   opacity: calc(0.4 + var(--ax-focus, 1) * 0.6);
 }
@@ -1664,13 +1855,14 @@ html.ax-reduced .ax-thread {
   height: 1px;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.04));
 }
+/* Neutral, so the capability's colour is the only colour on the card. */
 .ax-cap__domain {
   flex: none;
   padding: 0.22rem 0.55rem;
   border-radius: var(--r-pill);
-  border: 1px solid rgba(199, 155, 245, 0.34);
-  background: rgba(146, 72, 228, 0.18);
-  color: #d7bcfa;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(8, 10, 18, 0.45);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 0.625rem;
   letter-spacing: 0.16em;
 }
@@ -1712,8 +1904,25 @@ html.ax-reduced .ax-thread {
   height: 2.75rem;
   flex: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--violet-500), var(--violet-600));
-  color: #fff;
+  /* Tinted in the capability's colour, glyph in the colour itself — the
+     same treatment as the step chips in the hero's eyebrow. A white glyph
+     on a solid teal or amber disc would not hold contrast. */
+  border: 1px solid color-mix(in srgb, var(--cap, var(--violet-400)) 60%, transparent);
+  background: color-mix(in srgb, var(--cap, var(--violet-500)) 20%, rgba(8, 10, 18, 0.6));
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--cap, #fff);
+}
+/* film.css gives the disc a resting glow at ID specificity, which also
+   outranked refine.css's hover glow — the hover never showed. Both
+   restated here, in the capability's colour. */
+#whyus .whyus-icon-disc {
+  box-shadow: 0 0.5rem 1.5rem color-mix(in srgb, var(--cap, var(--violet-500)) 22%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  #whyus .whyus-box_item:hover .whyus-icon-disc {
+    box-shadow: 0 0.875rem 2rem color-mix(in srgb, var(--cap, var(--violet-500)) 38%, transparent);
+  }
 }
 .whyus-icon-disc__glyph {
   display: block;
@@ -1740,8 +1949,8 @@ html.ax-reduced .ax-thread {
     opacity: 1;
   }
   #whyus .whyus-box_item:hover .ax-cap__domain {
-    border-color: rgba(199, 155, 245, 0.6);
-    background: rgba(146, 72, 228, 0.3);
+    border-color: color-mix(in srgb, var(--cap, #fff) 60%, transparent);
+    background: color-mix(in srgb, var(--cap, #fff) 14%, rgba(8, 10, 18, 0.45));
   }
 }
 

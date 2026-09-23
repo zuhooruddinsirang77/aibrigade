@@ -5,10 +5,10 @@ import Reveal from "@/components/motion/Reveal";
 import MaskHeading from "@/components/motion/MaskHeading";
 
 /**
- * The beat after the five stages: what "Scale" actually means once the
+ * The beat after the four stages: what "Scale" actually means once the
  * engagement is over.
  *
- * `Features` ends on Discover → Design → Build → Deploy → Scale, drawn as a
+ * `Features` ends on Identify → Prove → Measure → Scale, drawn as a
  * pipeline, and then the page went straight to testimonials. The stage that
  * matters most to a buyer is the one after handover — the thing is still
  * running at 3am and somebody is watching it — and nothing on the page said

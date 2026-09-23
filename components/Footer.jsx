@@ -6,7 +6,7 @@ import Logo from "@/components/Logo";
 import Reveal from "@/components/motion/Reveal";
 import Magnetic from "@/components/motion/Magnetic";
 import { usePopup } from "@/components/PopupContext";
-import { caseStudies } from "@/components/casestudies.data";
+import { useCases } from "@/components/projects.data";
 
 /**
  * Site footer.
@@ -24,9 +24,9 @@ import { caseStudies } from "@/components/casestudies.data";
  *   1. **Who we are and how to start** — the brand, the one line, the
  *      action, and the reply time stated as a live status rather than a
  *      promise buried in a paragraph.
- *   2. **Where else to go** — sections, the three case studies (they
- *      were reachable from the navigation and the Cases section and from
- *      nowhere at the bottom of the page), and how to reach a person.
+ *   2. **Where else to go** — sections, the use cases (every product in
+ *      the showcase, each linking to its own page, as the navigation's
+ *      menu does), and how to reach a person.
  *   3. **Where we are** — three offices with the local time in each.
  *      For a firm working across New Jersey, Dubai and Islamabad, "which
  *      of these is awake right now" is real information, and it is the
@@ -43,8 +43,6 @@ import { caseStudies } from "@/components/casestudies.data";
  * footer with a heading in the middle.
  */
 
-const CASES = ["icu", "halyk", "uub"].map((slug) => caseStudies[slug]).filter(Boolean);
-
 const EXPLORE = [
   { label: "Capability", target: "#whyus" },
   { label: "Digital workforce", target: "#services" },
@@ -52,7 +50,7 @@ const EXPLORE = [
   { label: "Proof", target: "#cases" },
   /* A route rather than an anchor. `goTo` below already routes anything
      that isn't a `#id` through the page transition. */
-  { label: "AI demos", target: "/demos" },
+  { label: "AI Lab", target: "/demos" },
   { label: "Client reviews", target: "#reviews" },
 ];
 
@@ -255,18 +253,14 @@ export default function Footer() {
               </ul>
             </nav>
 
-            <nav className="ax-foot__col" aria-label="Case studies">
-              <h2 className="ax-foot__head">Case studies</h2>
-              <ul className="ax-foot__list">
-                {CASES.map((c) => (
-                  <li key={c.slug}>
-                    <a
-                      href={`/${c.slug}`}
-                      className="ax-foot__case"
-                      onClick={goTo(`/${c.slug}`)}
-                    >
-                      <span className="ax-foot__case-client">{c.client}</span>
-                      <span className="ax-foot__case-sector">{c.sector}</span>
+            <nav className="ax-foot__col" aria-label="Use cases">
+              <h2 className="ax-foot__head">Use cases</h2>
+              <ul className="ax-foot__list ax-foot__list--cases">
+                {useCases.map((u) => (
+                  <li key={u.id}>
+                    <a href={u.href} className="ax-foot__case" onClick={goTo(u.href)}>
+                      <span className="ax-foot__case-client">{u.name}</span>
+                      <span className="ax-foot__case-sector">{u.sector}</span>
                     </a>
                   </li>
                 ))}

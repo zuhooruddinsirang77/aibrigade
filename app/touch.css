@@ -450,50 +450,7 @@
 /* ================================================================
    8 — The Featured panel
 
-   Two faults, both only visible once the two-column desktop grid
-   collapses.
-
-   1. No scrim. film.css is explicit that between these sections "what
-      differs is never the film — only the scrim, and only where copy
-      sits directly on top of it", and every other band has one
-      (`.ax-path::after` is `rgba(5, 7, 10, 0.68)`). Featured has none:
-      `.ax-featured__film` covers the violet card at `z-index: 0` and
-      the copy is lifted to `z-index: 1` directly on top of the footage.
-      On desktop the heading sits in the left column, over a part of the
-      clip that happens to be dark, and gets away with it. Stacked
-      full-width on a phone the first line crosses the lit laptop screen
-      in the middle of the shot and all but disappears — which is the
-      one line on the page that says what the company is.
-
-      The scrim goes on the card's own `::after`. Both it and the film
-      sit at `z-index: 0` inside the card's stacking context, and a
-      parent's `::after` paints after all of that parent's element
-      children, so it lands above the film and below the copy without
-      needing a third layer.
-
-   2. `row-gap: 185px`. The Webflow sheet's two-column grid falls back
-      to a flex column here and brings its desktop row gap with it,
-      measured at 185px between the heading and the paragraph and again
-      before the terminal — roughly 370px of empty footage inside a
-      942px card holding about 420px of content.
+   Superseded by app/featured.css, which now owns the Featured chapter's
+   layout at every width. The Webflow grid card whose 185px row gap this
+   section used to correct is no longer in the markup.
    ================================================================ */
-
-@media screen and (max-width: 991px) {
-  #featured .featured_component {
-    row-gap: 1.75rem;
-  }
-  #featured .featured_component::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    border-radius: 0.625rem; /* matches `.ax-featured__film` */
-    background: linear-gradient(
-      180deg,
-      rgba(5, 7, 10, 0.72) 0%,
-      rgba(5, 7, 10, 0.58) 45%,
-      rgba(5, 7, 10, 0.74) 100%
-    );
-  }
-}

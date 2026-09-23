@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
+import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
 import Kicker from "@/components/motion/Kicker";
@@ -11,18 +13,20 @@ import GemCore from "@/components/motion/GemCore";
 import AmbientVideo from "@/components/motion/AmbientVideo";
 import ActReveal from "@/components/motion/ActReveal";
 import { filmFor } from "@/components/video.data";
+import { useCaseHref } from "@/components/usecases.data";
 
 const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 /**
- * The three cases, as data.
+ * The three acts, as data — three of the flagship builds, each told as
+ * the chain it runs and linking to its own use-case page.
  *
- * `title` and `body` are the homepage's own copy, moved out of the markup
- * unchanged — deliberately NOT sourced from `casestudies.data.js`, whose
- * `dek` for each client is written differently for the long-form page.
- * `sector` and `client` are the only things read across from there, and
- * both are facts that file already states and both case-study pages
- * already print; nothing is claimed here that wasn't claimed before.
+ * These were three client case studies (ICU Capital, Meridian Capital,
+ * UUB Health) whose clients and metrics were placeholders. The acts now
+ * tell products we have built: `body` is each product's own copy (its
+ * overview document where there is one, components/projects.data.js
+ * otherwise), and `title` is the same chain the flagship strip above and
+ * the use-case page both draw.
  *
  * `decs` are the Webflow decoration classes each row already carried —
  * large blurred colour blobs (coral, violet, green) that sit behind the
@@ -34,62 +38,214 @@ const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
    client stories below read as delivery rather than as the only four
    things we have ever done. The chains are deliberately terse: a reader
    scanning this strip should be able to tell in one line what the system
-   takes in and what it does about it. */
+   takes in and what it does about it.
+
+   `steps` is that chain split into its stages so the card can draw it as
+   a pipeline — input at the top, outcome at the bottom — rather than as
+   a sentence with arrows typed into it. `icon` is one or more 24×24
+   stroke paths, the same line weight as the act links' arrow. */
 const PROOF = [
   {
     name: "AXON",
-    chain: "Voice → understand → execute supported banking workflows",
+    steps: ["Voice", "Understand", "Execute supported banking workflows"],
     tone: "teal",
+    // waveform
+    icon: ["M4 10v4", "M8 7v10", "M12 4v16", "M16 7v10", "M20 10v4"],
   },
   {
     name: "Live Fraud",
-    chain: "Transaction → score → explain → intervene / route",
+    steps: ["Transaction", "Score", "Explain", "Intervene / route"],
     tone: "coral",
+    // shield
+    icon: ["M12 3l7 3v5c0 4.5-3 8.4-7 10-4-1.6-7-5.5-7-10V6l7-3z", "M9 12l2 2 4-4"],
   },
   {
     name: "Outbound AI",
-    chain: "Call → converse → capture → update → escalate",
+    steps: ["Call", "Converse", "Capture", "Update", "Escalate"],
     tone: "blue",
+    // outgoing call
+    icon: [
+      "M5 4h3.5l1.8 4.5-2.3 1.4a11 11 0 005.1 5.1l1.4-2.3 4.5 1.8V18a2 2 0 01-2 2A15 15 0 013 6a2 2 0 012-2z",
+      "M15 3h6v6",
+      "M21 3l-6 6",
+    ],
   },
   {
     name: "Private LLM",
-    chain: "Retrieve private knowledge → reason → assist",
+    steps: ["Retrieve private knowledge", "Reason", "Assist"],
     tone: "violet",
+    // lock
+    icon: [
+      "M7 11h10a2 2 0 012 2v6a2 2 0 01-2 2H7a2 2 0 01-2-2v-6a2 2 0 012-2z",
+      "M8.5 11V8a3.5 3.5 0 017 0v3",
+    ],
   },
 ];
 
+/* How long the signal takes to travel from one stage to the next. Passed
+   to the stylesheet as `--step`, so the CSS delays and the JS hold below
+   are working from the same number. */
+const STEP_MS = 240;
+/* How long each card stays lit during the intro. One value for all four,
+   sized to the longest chain, so the wave leaves left to right in the
+   same order it arrived instead of the short chains dropping out first. */
+const INTRO_HOLD_MS = Math.max(...PROOF.map((p) => p.steps.length)) * STEP_MS + 600;
+
+/**
+ * One flagship build, as a pipeline that can be run.
+ *
+ * "Running" is a single `data-run` flag; everything it does — the stages
+ * lighting in order, the thread filling between them, the outcome node
+ * pinging, the icon redrawing — is CSS keyed off it and off each stage's
+ * `--i`. What this component decides is only WHEN it runs:
+ *
+ *   - Fine pointer: while hovered. And once, unprompted, the first time
+ *     the strip comes into view — the four cards run one after another
+ *     and settle — because a card that only moves under the cursor gives
+ *     no sign it will until someone happens to cross it.
+ *   - Touch: while the card sits in the middle band of the screen, which
+ *     is the closest thing a phone has to pointing at something.
+ *
+ * Under reduced motion the one-time intro is skipped, and the stylesheet
+ * turns the rest into an instant state change rather than a sequence.
+ */
+function ProofCard({ p, i }) {
+  const ref = useRef(null);
+  const hovered = useRef(false);
+  const [run, setRun] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const timers = [];
+    let io;
+
+    if (fine) {
+      if (prefersReducedMotion()) return;
+      io = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry.isIntersecting) return;
+          io.disconnect();
+          timers.push(
+            setTimeout(() => {
+              setRun(true);
+              timers.push(
+                setTimeout(() => {
+                  if (!hovered.current) setRun(false);
+                }, INTRO_HOLD_MS)
+              );
+            }, 450 + i * 380)
+          );
+        },
+        { threshold: 0.6 }
+      );
+    } else {
+      io = new IntersectionObserver(([entry]) => setRun(entry.isIntersecting), {
+        rootMargin: "-32% 0px -32% 0px",
+      });
+    }
+
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      timers.forEach(clearTimeout);
+    };
+  }, [i]);
+
+  /* Touch fires enter/leave around every tap; on touch the observer above
+     is the only thing that should be driving this. */
+  const onEnter = (e) => {
+    if (e.pointerType === "touch") return;
+    hovered.current = true;
+    setRun(true);
+  };
+  const onLeave = (e) => {
+    if (e.pointerType === "touch") return;
+    hovered.current = false;
+    setRun(false);
+  };
+
+  return (
+    <li className="ax-proof__item" data-tone={p.tone}>
+      <TiltCard max={5} lift={6} perspective={1200} glare={false}>
+        <div
+          ref={ref}
+          className="ax-proof__card"
+          data-run={run ? "" : undefined}
+          style={{ "--step": `${STEP_MS}ms` }}
+          onPointerEnter={onEnter}
+          onPointerLeave={onLeave}
+        >
+          <div className="ax-proof__top">
+            <span className="ax-proof__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                {p.icon.map((d) => (
+                  <path
+                    key={d}
+                    d={d}
+                    pathLength="1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ))}
+              </svg>
+            </span>
+            <span className="ax-proof__index">{String(i + 1).padStart(2, "0")}</span>
+          </div>
+
+          <h3 className="ax-proof__name">{p.name}</h3>
+
+          <ol className="ax-proof__steps" aria-label={`${p.name} pipeline`}>
+            {p.steps.map((s, n) => (
+              <li className="ax-proof__step" key={s} style={{ "--i": n }}>
+                <span className="ax-proof__node" aria-hidden="true" />
+                {s}
+              </li>
+            ))}
+          </ol>
+        </div>
+      </TiltCard>
+    </li>
+  );
+}
+
 const ACTS = [
   {
-    id: "icu",
-    href: "/icu",
+    id: "fraud-detection",
+    href: useCaseHref("fraud-detection"),
     sector: "Fintech",
-    client: "ICU Capital",
+    name: "Fraud Detection",
     title: "Transaction → score → explain → intervene",
-    body: "Live fraud detection for a self-contained asset and investment management company. The agent scores activity as it happens, builds the explainable context a reviewer needs to act, and routes the case — rather than filling a queue somebody has to work through afterwards.",
-    film: filmFor.cases.icu,
+    body: "Real-time fraud detection for banks and financial platforms. Every transaction is scored as it is submitted, the factors behind the score are written out in plain language, and risky activity is blocked, sent for review or stepped up to multi-factor authentication — without slowing a legitimate trade.",
+    film: filmFor.cases["fraud-detection"],
     visual: "stream",
     decs: ["cases_dec-1", "cases_dec-2"],
   },
   {
-    id: "halyk",
-    href: "/halyk",
-    sector: "Fintech",
-    client: "Meridian Capital",
-    title: "Request → reason → decide → write back",
-    body: "Underwriting for a leading investment bank. The clear files are decided straight through against a policy the risk team owns; the files that need judgement arrive at an analyst with the reasoning already assembled. Every decision stays auditable.",
-    film: filmFor.cases.halyk,
-    visual: "split",
+    id: "axon",
+    href: useCaseHref("axon"),
+    sector: "Banking",
+    name: "Axon",
+    title: "Voice → understand → execute",
+    body: "An AI assistant inside a mobile banking app. Customers ask about balances, transactions and spending in their own words, then move money and settle bills by voice or chat — in English, Arabic or Urdu.",
+    film: filmFor.cases.axon,
+    visual: "assist",
     decs: ["cases_dec-3", "cases_dec-4"],
   },
   {
-    id: "uub",
-    href: "/uub",
-    sector: "Healthtech",
-    client: "UUB Health",
-    title: "Listen → draft → approve → write back",
-    body: "A documentation agent inside a multi-site clinical network. It drafts in the chart the clinician already has open, integrated with Epic via HL7 FHIR, and never writes back without a human approving the write.",
-    film: filmFor.cases.uub,
-    visual: "draft",
+    id: "incall",
+    href: useCaseHref("incall"),
+    sector: "Call center",
+    name: "InCall",
+    title: "Call → converse → capture → update → escalate",
+    body: "An outbound voice agent that speaks naturally across languages and reads intent in real time — qualifying leads, booking appointments and answering queries, and transferring the calls that need a person to the right representative.",
+    film: filmFor.cases.incall,
+    visual: "call",
     decs: [],
   },
 ];
@@ -148,12 +304,14 @@ export default function Cases() {
               </p>
             </Reveal>
 
+            <p className="ax-proof__label">
+              <span>Flagship builds</span>
+              <span className="ax-proof__label-rule" aria-hidden="true" />
+            </p>
+
             <Reveal variant="stagger" selector=".ax-proof__item" className="ax-proof" as="ul">
-              {PROOF.map((p) => (
-                <li className="ax-proof__item" key={p.name} data-tone={p.tone}>
-                  <h3 className="ax-proof__name">{p.name}</h3>
-                  <p className="ax-proof__chain">{p.chain}</p>
-                </li>
+              {PROOF.map((p, i) => (
+                <ProofCard key={p.name} p={p} i={i} />
               ))}
             </Reveal>
 
@@ -184,7 +342,7 @@ export default function Cases() {
                 <span className="ax-act__index">{String(i + 1).padStart(2, "0")}</span>
                 <span className="ax-act__rule" aria-hidden="true" />
                 <span>
-                  {act.sector} &middot; {act.client}
+                  {act.sector} &middot; {act.name}
                 </span>
               </p>
 
@@ -192,7 +350,7 @@ export default function Cases() {
               <p className="ax-act__body">{act.body}</p>
 
               <a href={act.href} className="ax-act__link" onClick={go(act.href)}>
-                <span>learn more</span>
+                <span>see the use case</span>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M5 12h13M13 6l6 6-6 6"
@@ -220,7 +378,7 @@ export default function Cases() {
               <a
                 href={act.href}
                 className="ax-act__media"
-                aria-label={`${act.title} — read the case study`}
+                aria-label={`${act.name}: ${act.title} — see the use case`}
                 onClick={go(act.href)}
               >
                 <AmbientVideo film={act.film} className="ax-case__film" data-lift="far" />

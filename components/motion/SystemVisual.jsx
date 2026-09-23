@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { prefersReducedMotion } from "@/components/motion/gsapLoader";
 
 /**
- * The three case studies, as the systems they actually are.
+ * The three flagship use cases on the home page, as the systems they are.
  *
  * What stood here was three screenshots of a bond-trading app, inherited
  * from the Webflow fintech template this site was ported from. They were
@@ -16,13 +16,20 @@ import { prefersReducedMotion } from "@/components/motion/gsapLoader";
  *
  * Each variant here is the system in its own card, running:
  *
- *   stream — transactions arriving and being scored, one referred
- *   split  — an underwriting queue separating auto from referred
- *   draft  — a clinical note being written, then held for approval
+ *   stream — Fraud Detection: transactions arriving and being scored,
+ *            one referred
+ *   call   — InCall: an outbound campaign, each call handled end to end
+ *            or transferred to a representative
+ *   assist — Axon: a spoken banking request understood, the fields
+ *            pulled out of it, the workflow executed
  *
- * They are illustrations, not dashboards: the figures are shaped like the
- * outcome each case study already claims in its own copy, and no number
- * appears here that is not already stated in words on the same card.
+ * `call` and `assist` are the `Split` and `Draft` panels, which were
+ * written for two placeholder client case studies (underwriting, a
+ * clinical note) and now take their words as data.
+ *
+ * They are illustrations, not dashboards: each shows what the product's
+ * own copy says it does, and the running tallies are there to show the
+ * split moving, not to state a result.
  *
  * SSR safety: the first frame is a fixed, hand-written state — no
  * Math.random or Date at module scope — so the server and the client
@@ -97,46 +104,57 @@ function Stream() {
 
 /* ---------------------------------------------------------------- */
 
-const RULES = [
-  { rule: "UW-204", label: "income verified · LTV 61%", to: "auto" },
-  { rule: "UW-118", label: "thin file · no bureau match", to: "refer" },
-  { rule: "UW-204", label: "income verified · LTV 44%", to: "auto" },
-  { rule: "UW-331", label: "DTI above policy ceiling", to: "refer" },
-  { rule: "UW-204", label: "income verified · LTV 52%", to: "auto" },
-  { rule: "UW-207", label: "clean file · repeat borrower", to: "auto" },
-];
+/* A queue splitting two ways — what the system finished on its own, and
+   what it handed to a person. Written for underwriting first; the words
+   are data now so the same panel can tell InCall's outbound campaign. */
+const CALLS = {
+  head: "outbound campaign",
+  unit: "calls today",
+  start: { auto: 21, refer: 4 },
+  dest: { auto: "handled on the call", refer: "to a representative" },
+  legend: { auto: "handled end to end", refer: "transferred to a person" },
+  items: [
+    { rule: "call 0412", label: "lead qualified · meeting booked", to: "auto" },
+    { rule: "call 0413", label: "asks for a person · transferring", to: "refer" },
+    { rule: "call 0414", label: "query answered from verified info", to: "auto" },
+    { rule: "call 0415", label: "appointment rescheduled", to: "auto" },
+    { rule: "call 0416", label: "complaint · right representative", to: "refer" },
+    { rule: "call 0417", label: "support request logged", to: "auto" },
+  ],
+};
 
-function Split() {
+function Split({ config }) {
+  const { items, start } = config;
   const [i, setI] = useState(0);
-  const [tally, setTally] = useState({ auto: 18, refer: 6 });
+  const [tally, setTally] = useState(start);
 
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const t = setInterval(() => {
       setI((n) => {
-        const next = (n + 1) % RULES.length;
+        const next = (n + 1) % items.length;
         setTally((c) => {
-          const to = RULES[next].to;
+          const to = items[next].to;
           const bumped = { ...c, [to]: c[to] + 1 };
           // Reset before the numbers stop looking like a morning's work.
-          return bumped.auto + bumped.refer > 60 ? { auto: 18, refer: 6 } : bumped;
+          return bumped.auto + bumped.refer > 60 ? start : bumped;
         });
         return next;
       });
     }, 2100);
     return () => clearInterval(t);
-  }, []);
+  }, [items, start]);
 
-  const current = RULES[i];
+  const current = items[i];
   const total = tally.auto + tally.refer;
   const autoPct = Math.round((tally.auto / total) * 100);
 
   return (
     <>
       <div className="ax-sysv__head">
-        <span className="ax-sysv__head-label">underwriting queue</span>
+        <span className="ax-sysv__head-label">{config.head}</span>
         <span className="ax-sysv__head-stat">
-          {total} <i>today</i>
+          {total} <i>{config.unit}</i>
         </span>
       </div>
 
@@ -148,9 +166,7 @@ function Split() {
             <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
-        <span className="ax-sysv__case-dest">
-          {current.to === "auto" ? "straight through" : "to analyst"}
-        </span>
+        <span className="ax-sysv__case-dest">{config.dest[current.to]}</span>
       </div>
 
       <div className="ax-sysv__split" aria-hidden="true">
@@ -160,10 +176,10 @@ function Split() {
       </div>
       <div className="ax-sysv__legend">
         <span data-k="auto">
-          <b>{tally.auto}</b> decided automatically
+          <b>{tally.auto}</b> {config.legend.auto}
         </span>
         <span data-k="refer">
-          <b>{tally.refer}</b> sent to an analyst
+          <b>{tally.refer}</b> {config.legend.refer}
         </span>
       </div>
     </>
@@ -172,21 +188,31 @@ function Split() {
 
 /* ---------------------------------------------------------------- */
 
-const NOTE =
-  "58yo established patient, follow-up for type 2 diabetes. Reports improved adherence since last visit. Denies hypoglycaemic episodes. Plan: continue metformin 1g BD, repeat HbA1c in 12 weeks.";
+/* A request being written out, the structured fields pulled from it
+   appearing as the sentence reaches them, then the action. Written for a
+   clinical note first; now Axon's voice request, where the "write-back"
+   is the supported banking workflow it runs. */
+const AXON_REQUEST = {
+  head: "voice request",
+  busy: "listening",
+  done: "executed",
+  text: "Pay this month's electricity bill from my current account, then tell me what I spent on groceries.",
+  reply: "Done — your electricity bill is paid from your current account. Here is this month's grocery spending.",
+  fieldsLabel: "Supported banking workflow",
+  fields: [
+    { res: "intent", val: "bill payment" },
+    { res: "biller", val: "electricity · saved" },
+    { res: "from", val: "current account" },
+    { res: "then", val: "spending · groceries" },
+  ],
+};
 
-const FHIR = [
-  { res: "Encounter", val: "follow-up · ambulatory" },
-  { res: "Condition", val: "E11.9 type 2 diabetes" },
-  { res: "MedicationStatement", val: "metformin 1g BD" },
-  { res: "ServiceRequest", val: "HbA1c · 12 weeks" },
-];
-
-function Draft() {
-  // First frame is the finished note, so the server and a reduced-motion
+function Draft({ config }) {
+  const { text, fields } = config;
+  // First frame is the finished request, so the server and a reduced-motion
   // reader both get the complete picture rather than an empty box.
-  const [n, setN] = useState(NOTE.length);
-  const [approved, setApproved] = useState(true);
+  const [n, setN] = useState(text.length);
+  const [done, setDone] = useState(true);
   const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
@@ -195,52 +221,60 @@ function Draft() {
     let i = 0;
     let hold;
     setN(0);
-    setApproved(false);
+    setDone(false);
 
     const t = setInterval(() => {
       i += 2;
-      if (i < NOTE.length) {
+      if (i < text.length) {
         setN(i);
         return;
       }
-      setN(NOTE.length);
-      setApproved(true);
+      setN(text.length);
+      setDone(true);
       clearInterval(t);
-      // Hold the finished note on screen, then write it again. Bumping
+      // Hold the finished request on screen, then write it again. Bumping
       // `cycle` is what re-runs this effect — deriving the dependency
-      // from `n`/`approved` instead would restart the typing on every
-      // single character.
+      // from `n`/`done` instead would restart the typing on every single
+      // character.
       hold = setTimeout(() => setCycle((c) => c + 1), 4200);
-    }, 28);
+    }, 32);
 
     return () => {
       clearInterval(t);
       clearTimeout(hold);
     };
-  }, [cycle]);
+  }, [cycle, text]);
 
-  // How many FHIR resources have been extracted so far, revealed as the
-  // note reaches the part of the sentence each one comes from.
-  const shown = Math.floor((n / NOTE.length) * (FHIR.length + 0.4));
+  // How many fields have been pulled out so far, revealed as the sentence
+  // reaches the part each one comes from.
+  const shown = Math.floor((n / text.length) * (fields.length + 0.4));
 
   return (
     <>
       <div className="ax-sysv__head">
-        <span className="ax-sysv__head-label">note · draft</span>
-        <span className="ax-sysv__head-stat" data-on={approved}>
-          {approved ? "awaiting clinician" : "drafting"}
+        <span className="ax-sysv__head-label">{config.head}</span>
+        <span className="ax-sysv__head-stat" data-on={done}>
+          {done ? config.done : config.busy}
         </span>
       </div>
 
       <p className="ax-sysv__note">
-        {NOTE.slice(0, n)}
-        {n < NOTE.length ? <i className="ax-sysv__caret" aria-hidden="true" /> : null}
+        {text.slice(0, n)}
+        {n < text.length ? <i className="ax-sysv__caret" aria-hidden="true" /> : null}
       </p>
 
+      {/* The answer back, once the work is done. Always in the layout and
+          only faded in, so the card doesn't jump when it arrives. */}
+      {config.reply ? (
+        <p className="ax-sysv__reply" data-on={done}>
+          {config.reply}
+        </p>
+      ) : null}
+
       <div className="ax-sysv__fhir">
-        <span className="ax-sysv__fhir-label">HL7 FHIR write-back</span>
+        <span className="ax-sysv__fhir-label">{config.fieldsLabel}</span>
         <ul>
-          {FHIR.map((f, i) => (
+          {fields.map((f, i) => (
             <li key={f.res} data-on={i < shown}>
               <code>{f.res}</code>
               <span>{f.val}</span>
@@ -257,21 +291,21 @@ function Draft() {
 const VARIANTS = {
   stream: {
     Body: Stream,
-    chrome: "fraud-scoring · production",
+    chrome: "fraud-detection · live",
     label:
       "A live transaction feed being scored: five transactions with risk scores, one referred for review.",
   },
-  split: {
-    Body: Split,
-    chrome: "underwriting · production",
+  call: {
+    Body: () => <Split config={CALLS} />,
+    chrome: "incall · outbound",
     label:
-      "An underwriting queue splitting into decisions made automatically and files sent to an analyst.",
+      "An outbound calling campaign: each call either handled end to end by the voice agent or transferred to a representative.",
   },
-  draft: {
-    Body: Draft,
-    chrome: "clinical-copilot · production",
+  assist: {
+    Body: () => <Draft config={AXON_REQUEST} />,
+    chrome: "axon · banking assistant",
     label:
-      "A clinical note being drafted, with the structured FHIR resources extracted from it, held for clinician approval.",
+      "A customer's spoken banking request being understood: the intent, biller and account pulled out of it, then the payment executed.",
   },
 };
 

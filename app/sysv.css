@@ -297,6 +297,29 @@ html.ax-motion:not(.ax-reduced) .ax-sysv__row {
      not walk up and down the card while the text types in. */
   min-height: 7.5rem;
 }
+/* assist — Axon's spoken request is two lines, not a clinical note's
+   five, so it needs less reserved room; the reply takes the rest. */
+.ax-sysv--assist .ax-sysv__note {
+  min-height: 3.6rem;
+}
+.ax-sysv__reply {
+  margin: 0 0 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(199, 155, 245, 0.25);
+  background: rgba(146, 72, 228, 0.16);
+  font-size: max(0.6875rem, 10.5px);
+  line-height: 1.55;
+  color: #fff;
+  opacity: 0.15;
+  transform: translateY(0.25rem);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+.ax-sysv__reply[data-on="true"] {
+  opacity: 1;
+  transform: none;
+}
+
 .ax-sysv__caret {
   display: inline-block;
   width: 0.4rem;

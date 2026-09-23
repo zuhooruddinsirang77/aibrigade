@@ -428,7 +428,8 @@ html.ax-motion .ax-progress {
 
 .ax-pipe__stages {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* One column per stage; Pipeline.jsx sets the count. */
+  grid-template-columns: repeat(var(--ax-pipe-n, 4), minmax(0, 1fr));
   gap: 1.75rem;
   list-style: none;
   margin: 0;
@@ -570,15 +571,3 @@ html.ax-motion .ax-progress {
   }
 }
 
-/* Featured-section terminal. Sized here rather than inline so it can be a
-   full-width panel with a sane ceiling instead of the sliver the Webflow
-   grid's own column tracks gave it (see Featured.jsx). */
-.ax-featured-terminal {
-  grid-column: 1 / -1;
-  width: 100%;
-  max-width: 32rem;
-  margin-top: 2.5rem;
-}
-.ax-featured-terminal .ax-terminal__body {
-  min-height: 9.5rem;
-}

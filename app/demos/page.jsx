@@ -4,21 +4,23 @@ import DemoLab from "@/components/demos/DemoLab";
 import { demos } from "@/components/demos/demos.data";
 
 /**
- * /demos — the AI demo lab.
+ * /demos — the AI Lab. The route keeps its original name so links already
+ * shared to it keep working; everything a reader sees says "AI Lab".
  *
  * Same shell as every other route on this site: the shared navigation, the
  * page body, the shared footer, inside `.main-wrapper` so the preloader's
  * reveal and the page transition both apply here as they do elsewhere.
  */
 
-const TITLE = "AI Demos | AI Brigade";
+const TITLE = "AI Lab | AI Brigade";
 const DESCRIPTION =
-  "Interactive demonstrations of the AI capabilities behind our systems — real-time fraud decisioning, document intelligence, agent intent routing and grounded retrieval over a private corpus. Read what each one does, then run your own input through it.";
+  "Four live modules from the AI systems we build — real-time fraud decisioning, document intelligence, agent intent routing and grounded retrieval over a private corpus. Each one shows its working. Run your own input through it.";
 
 export const metadata = {
   title: TITLE,
   description: DESCRIPTION,
   keywords: [
+    "AI lab",
     "AI demo",
     "fraud detection demo",
     "document AI",
@@ -51,7 +53,7 @@ export const metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
-  name: "AI Brigade interactive AI demos",
+  name: "AI Brigade AI Lab — live modules",
   description: DESCRIPTION,
   numberOfItems: demos.length,
   itemListElement: demos.map((d, i) => ({

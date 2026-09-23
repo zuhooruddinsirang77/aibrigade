@@ -414,14 +414,10 @@
 /* ================================================================
    7. Featured
 
-   The terminal panel reserves 9.5rem of body for a log that starts
-   empty and types in, so on arrival it was a large empty black box
-   beside the copy. Sized to the content it actually holds.
+   Superseded by app/featured.css, which now owns the whole Featured
+   chapter — kept here as a pointer so this section number isn't silently
+   reused for something else.
    ================================================================ */
-
-.ax-featured-terminal .ax-terminal__body {
-  min-height: 7rem;
-}
 
 /* ================================================================
    8. Reviews
@@ -534,26 +530,8 @@
 /* ================================================================
    14. Featured
 
-   The panel was laid out as heading (left, row 1), paragraph (right,
-   row 1), terminal (row 2, pinned left by its own max-width) — which
-   left the entire bottom-right quadrant of a 1386 x 495 violet panel
-   empty. Stacking the terminal under the paragraph it belongs with, and
-   centring the heading against the full height of that column, closes
-   the hole without moving a word.
+   Superseded by app/featured.css — see the note at section 7.
    ================================================================ */
-
-@media (min-width: 992px) {
-  #featured .featured_component > h3 {
-    grid-row: 1 / span 2;
-    align-self: center;
-  }
-  #featured .ax-featured-terminal {
-    grid-column: 9 / -1;
-    grid-row: 2;
-    max-width: none;
-    margin-top: 1.5rem;
-  }
-}
 
 /* The closing "Will your app be next?" panel is an invitation, not a
    fourth case study — it spans the row on its own instead of sitting in

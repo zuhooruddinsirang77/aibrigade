@@ -89,36 +89,52 @@
   overflow: clip;
 }
 
-/* Heading left, lede right, kicker across the top — the same band every
-   other section on this page opens on (`._3-columns-grid` in WhyUs,
-   Services and Features). It was a 44rem stack in a 1386px container,
-   which left the right 60% of the widest band on the page empty and made
-   the section read as a column of left-hung blocks rather than as a
-   composition. The lede sits on the heading's last baseline rather than
-   at the top of the column, so the two read as one line of thought. */
+/* Heading left, lede right, kicker across the top, closed by a hairline —
+   the same head every other dark band opens on (`.ax-reels__head` in
+   system.css) at the same display size (`--t-display`, compose.css). This
+   one used to run its own smaller clamp, which made the section open
+   quieter than its peers, and its lede sat at the start of the right
+   column, floating mid-band with 600px of nothing either side of it.
+   Pinned to the right edge instead, it lines up with the edge of the
+   comparison below, and the head reads as a frame rather than as two
+   blocks that happen to share a row. */
 .ax-path__head {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   align-items: end;
-  column-gap: var(--sp-8);
+  column-gap: var(--sp-7);
 }
 .ax-path__head > .ax-kicker {
   grid-column: 1 / -1;
 }
 .ax-path__title {
   margin: 0;
-  font-size: clamp(2.25rem, 4vw, 3.75rem);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
+  font-size: var(--t-display, clamp(2.5rem, 4.6vw, 4.6rem));
+  line-height: 0.98;
+  letter-spacing: var(--track-display, -0.035em);
   font-weight: 500;
   color: #fff;
 }
+/* The second line is the turn in the sentence, so it carries the
+   lavender the agentic card below is drawn in. */
+.ax-path__title span {
+  background: linear-gradient(90deg, #dcc2fb 0%, var(--violet-300) 40%, #a45ee9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* Set off from the heading by a vertical hairline rather than floating
+   in the right-hand column on its own. */
 .ax-path__lede {
+  justify-self: end;
+  align-self: center;
   margin: 0;
-  max-width: 42ch;
-  padding-bottom: 0.45rem;
-  font-size: 1.0625rem;
-  line-height: 1.6;
+  max-width: 40ch;
+  padding: 0.25rem 0 0.25rem var(--sp-6);
+  border-left: 1px solid var(--line-invert);
+  text-wrap: pretty;
+  font-size: var(--t-body, 1.0625rem);
+  line-height: 1.65;
   color: rgba(255, 255, 255, 0.6);
 }
 @media (max-width: 59.999rem) {
@@ -128,191 +144,414 @@
     row-gap: var(--sp-4);
   }
   .ax-path__lede {
-    padding-bottom: 0;
+    justify-self: start;
+    padding-left: 1.25rem;
   }
 }
 
 /* ---------- the two shapes ----------
    Traditional vs agentic, stated once at the top of the section so the
-   long trace below has something to be the second half of. Two panels,
-   each holding a row of boxes that fills it; the left chain ends on a
-   link a person has to do, and that link is the only thing in either
-   panel carrying the warning hue. The boxes are the same hairline-on-dark
-   vocabulary the node diagram below already uses, at the same radius —
-   this block is the half-second version of that diagram and should look
-   like it. */
+   long trace below has something to be the second half of.
+
+   Two cards on one shared four-column route. Each opens with its own
+   claim — who finishes the job — and then draws the route: the
+   traditional one runs from the question to the answer, breaks at the
+   value gap and lands on a person; the agentic one is a single charged
+   line from the request to "Acts". The fourth column is where the work
+   happens in both, so "Human does the work" sits directly over "Acts". */
 .ax-path__contrast {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
-  gap: var(--sp-5);
+  gap: 1.25rem;
   margin: var(--sp-7) 0 0;
 }
-/* Two surfaces, not two rows of chips in shared blackness. A hairline
-   divider between them was the earlier attempt at saying "these are two
-   different things", and it failed for a simple reason: each chain only
-   filled about 40% of its half, so both floated at the left edge of an
-   oversized column and the rule in the middle related to nothing on
-   either side. A panel bounds the comparison — the eye gets two objects
-   to weigh against each other, and the chain inside can be told to fill
-   the object it is in. */
-.ax-path__contrast-col {
-  padding: var(--sp-5);
+.ax-path__contrast-row {
+  --mark: 3.5rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(15rem, 24rem) minmax(0, 1fr);
+  align-items: center;
+  column-gap: clamp(2rem, 4vw, 4.5rem);
+  padding: 2.5rem clamp(1.5rem, 3vw, 3rem);
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--r-lg);
-  background: rgba(255, 255, 255, 0.016);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.035) 0%,
+    rgba(255, 255, 255, 0.012) 100%
+  );
+  overflow: hidden;
 }
-/* The right-hand panel is the one this company builds, so it carries the
-   violet the lit route below uses. Faint: it marks which of the two the
-   section is arguing for without deciding it before the reader has read
-   the chains. */
-.ax-path__contrast-col[data-kind="new"] {
-  border-color: rgba(146, 72, 228, 0.3);
-  background: rgba(146, 72, 228, 0.05);
+/* The kind this company builds is the lit one: violet border, a violet
+   bloom behind the route, and a warm edge of coral where it ends. */
+.ax-path__contrast-row[data-kind="new"] {
+  border-color: rgba(159, 72, 228, 0.5);
+  background:
+    radial-gradient(60% 130% at 62% 45%, rgba(146, 72, 228, 0.24), transparent 70%),
+    radial-gradient(30% 90% at 96% 50%, rgba(248, 119, 86, 0.1), transparent 70%),
+    linear-gradient(135deg, rgba(146, 72, 228, 0.16) 0%, rgba(22, 14, 38, 0.55) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2rem 5rem -2rem rgba(146, 72, 228, 0.55);
 }
 
-.ax-path__contrast-label {
-  margin: 0 0 0.9rem;
-  font-size: 0.6875rem;
+/* ---------- the card's own claim ---------- */
+.ax-path__contrast-kind {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  font-size: var(--t-detail, 0.6875rem);
+  font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.55);
 }
-.ax-path__contrast-col[data-kind="new"] .ax-path__contrast-label {
-  color: var(--violet-200, #b79cf0);
+.ax-path__contrast-kind::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.06);
+}
+.ax-path__contrast-kind::after {
+  content: "";
+  flex: none;
+  width: 2.5rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.ax-path__contrast-title {
+  margin: 1rem 0 0;
+  font-family: Ppneuemachina, sans-serif;
+  font-size: clamp(1.5rem, 1.9vw, 1.875rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  font-weight: 500;
+  color: #fff;
+  text-wrap: balance;
+}
+.ax-path__contrast-note {
+  margin: 0.9rem 0 0;
+  max-width: 30ch;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.58);
+  text-wrap: pretty;
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-kind {
+  color: var(--violet-300);
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-kind::before {
+  background: var(--violet-400);
+  box-shadow: 0 0 0 0.25rem rgba(146, 72, 228, 0.22),
+    0 0 0.75rem rgba(159, 72, 228, 0.8);
+}
+/* Same coral → lavender as "the second kind" in the verdict below, which
+   is the line this card is the picture of. */
+.ax-path__contrast-title span {
+  background: linear-gradient(90deg, #fb9a7f, var(--violet-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-note {
+  color: rgba(255, 255, 255, 0.66);
 }
 
-/* `flex: 1 1 0` on every link, so three links split the panel in three
-   and four split it in four. That is the whole fix for this block: the
-   links were `flex-wrap` pills sized to their own text, so "Ask" was a
-   48px tag and the row stopped a third of the way across a 674px column.
-   Sized from the container instead, the chain fills the panel by
-   construction and reads as the deck's own row of boxes rather than as a
-   row of filter chips.
-
-   The step number comes from a counter rather than from markup — the
-   links are a list, and a list that has to carry its own indices in the
-   DOM stops being one. */
+/* ---------- the route ---------- */
+.ax-path__contrast-track {
+  position: relative;
+}
 .ax-path__contrast-chain {
-  display: flex;
-  align-items: stretch;
-  gap: 1.9rem;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 0;
   padding: 0;
   list-style: none;
-  counter-reset: link;
 }
 .ax-path__contrast-chain li {
-  counter-increment: link;
   position: relative;
-  flex: 1 1 0;
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 0.35rem;
-  min-height: 4.75rem;
-  padding: 0.8rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.035);
-  font-size: 0.875rem;
-  line-height: 1.25;
-  text-align: center;
-  color: rgba(255, 255, 255, 0.88);
-}
-.ax-path__contrast-chain li::before {
-  content: counter(link, decimal-leading-zero);
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.3);
+  min-width: 0;
+  padding-right: 1.25rem;
 }
 
-/* The arrow sits in the gap, not inside the box — `left: 100%` with the
-   gap's own width, so it is centred between two links whatever they
-   measure. Drawn as content rather than as extra markup so the chain
-   stays a list for a screen reader. */
-.ax-path__contrast-chain li:not(:last-child)::after {
-  content: "→";
+/* Each step's outgoing link, from just clear of its node to just short of
+   the next one (nodes sit at the left edge of their column, so the next
+   one starts exactly one column along). */
+.ax-path__contrast-link {
   position: absolute;
-  top: 50%;
-  left: 100%;
-  width: 1.9rem;
+  top: calc(var(--mark) / 2);
+  left: calc(var(--mark) + 0.75rem);
+  width: calc(100% - var(--mark) - 1.5rem);
+  display: flex;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.32);
   transform: translateY(-50%);
-  text-align: center;
-  font-size: 0.9375rem;
-  line-height: 1;
-  color: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+.ax-path__contrast-link i {
+  flex: 1 1 auto;
+  height: 1px;
+  background: currentColor;
+}
+.ax-path__contrast-link svg {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-left: -0.45rem;
+}
+/* From the answer on, a person is carrying it. */
+.ax-path__contrast-link[data-style="dashed"] {
+  color: rgba(248, 119, 86, 0.65);
+}
+.ax-path__contrast-link[data-style="dashed"] i {
+  background: repeating-linear-gradient(
+    90deg,
+    currentColor 0 5px,
+    transparent 5px 10px
+  );
+}
+/* The agentic row's links are only its phone-width fallback: across the
+   full width it draws one continuous wave instead. */
+.ax-path__contrast-link[data-style="wave"] {
+  display: none;
 }
 
-/* The link a person has to do. It is the only reason this block exists,
-   so it is the only thing in either panel carrying the warning hue —
-   and it is the one box with no arrow leaving it. */
-.ax-path__contrast-chain li[data-stop="true"] {
-  border-color: rgba(248, 119, 86, 0.55);
-  background: rgba(248, 119, 86, 0.1);
-  color: #f9a78c;
+/* One charged line through all four nodes, centre to centre. It sits
+   under the list, so the opaque nodes cover it where it passes. */
+.ax-path__contrast-wave {
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--mark) / 2 - 1.25rem);
+  left: calc(var(--mark) / 2);
+  width: 75%;
+  height: 2.5rem;
+  overflow: visible;
+  filter: drop-shadow(0 0 3px rgba(159, 72, 228, 0.95))
+    drop-shadow(0 0 10px rgba(146, 72, 228, 0.6));
+  pointer-events: none;
 }
-.ax-path__contrast-chain li[data-stop="true"]::before {
-  color: rgba(249, 167, 140, 0.6);
+.ax-path__contrast-wave-line {
+  fill: none;
+  stroke: url(#ax-contrast-wave);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+/* A request running the line, left to right — the gradient's own
+   animation moves it (see ContrastWave). Only shown once motion is known
+   to be allowed; SMIL doesn't read the reduced-motion preference. */
+.ax-path__contrast-wave-pulse {
+  fill: none;
+  stroke: url(#ax-contrast-pulse);
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0;
+}
+html.ax-motion:not(.ax-reduced) .ax-path__contrast-wave-pulse {
+  opacity: 0.9;
 }
 
-/* Below the width where the two panels stack, the chains stack too.
-   Wrapping was the old behaviour and it produced two-and-a-half links on
-   one line — at that point the row has stopped drawing a sequence. Turned
-   vertical, each link keeps its full measure and the arrow turns with
-   it. */
-@media (max-width: 59.999rem) {
+/* ---------- nodes ---------- */
+.ax-path__contrast-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--mark);
+  height: var(--mark);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 30%, #1e232c 0%, #11141a 70%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0.5rem 1.25rem rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.82);
+}
+.ax-path__contrast-mark svg {
+  display: block;
+  width: 1.375rem;
+  height: 1.375rem;
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-mark {
+  border-color: rgba(199, 155, 245, 0.55);
+  background: radial-gradient(circle at 50% 30%, #3b2068 0%, #1a0f2e 72%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 0 0.35rem rgba(146, 72, 228, 0.12),
+    0 0 1.5rem rgba(146, 72, 228, 0.55);
+  color: #ead9ff;
+}
+/* Where the agentic route ends: filled with the route's own gradient. */
+.ax-path__contrast-row[data-kind="new"] li[data-end="true"] .ax-path__contrast-mark {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, var(--coral) 0%, var(--violet-500) 70%);
+  box-shadow: 0 0 0 0.4rem rgba(248, 119, 86, 0.12),
+    0 0 1.75rem rgba(248, 119, 86, 0.45),
+    0 0 3rem rgba(146, 72, 228, 0.5);
+  color: #fff;
+}
+.ax-path__contrast-row[data-kind="new"] li[data-end="true"] .ax-path__contrast-mark svg {
+  stroke-width: 2.2;
+}
+/* The gap: not a step, a hole in the route. */
+.ax-path__contrast-gap .ax-path__contrast-mark {
+  border: 1px dashed rgba(248, 119, 86, 0.7);
+  background: #140e0d;
+  box-shadow: 0 0 1.25rem rgba(248, 119, 86, 0.18);
+  color: var(--coral);
+}
+
+/* ---------- labels ---------- */
+.ax-path__contrast-step {
+  margin-top: 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.92);
+}
+.ax-path__contrast-hint {
+  margin-top: 0.5rem;
+  max-width: 24ch;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.55);
+  text-wrap: pretty;
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-step {
+  color: #fff;
+}
+.ax-path__contrast-row[data-kind="new"] .ax-path__contrast-hint {
+  color: rgba(255, 255, 255, 0.62);
+}
+.ax-path__contrast-gap .ax-path__contrast-step {
+  font-size: 0.75rem;
+  line-height: 1.38rem; /* the same box as a step name, so the hints align */
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f98f72;
+}
+
+/* Narrower than the full band, the claim moves above its route so the
+   route keeps the width four steps need. */
+@media (max-width: 74.999rem) {
+  .ax-path__contrast-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.25rem;
+  }
+  .ax-path__contrast-note {
+    max-width: 52ch;
+  }
+}
+
+/* Phone width: four columns would each get ~70px, so the route turns
+   vertical — node on the left, name and hint beside it — and each link
+   runs down from its node to the next. The agentic row swaps its wave for
+   the same links, drawn in the route's gradient. */
+@media (max-width: 47.999rem) {
+  .ax-path__contrast-row {
+    --mark: 3rem;
+    padding: 1.75rem 1.25rem;
+  }
   .ax-path__contrast-chain {
-    flex-direction: column;
-    gap: 1.6rem;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 1.75rem;
   }
   .ax-path__contrast-chain li {
-    /* Back to content sizing. `flex: 1 1 0` is what makes the links share
-       the row at desktop, but `flex-basis` resolves against the main
-       axis — so the moment this container turns vertical that same
-       declaration sets each box's *height* to zero and lets it grow only
-       into free space there isn't any of. The boxes collapsed under their
-       own content and the step number rendered on top of the border. */
-    flex: 0 0 auto;
-    min-height: 0;
-    padding: 0.7rem 0.75rem;
-  }
-  .ax-path__contrast-chain li:not(:last-child)::after {
-    content: "↓";
-    top: 100%;
-    left: 50%;
-    width: auto;
-    height: 1.6rem;
     display: grid;
-    place-items: center;
+    grid-template-columns: var(--mark) minmax(0, 1fr);
+    column-gap: 1rem;
+    padding-right: 0;
+  }
+  .ax-path__contrast-mark {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: start;
+  }
+  .ax-path__contrast-step {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: 0;
+    padding-top: 0.8rem; /* first line centred on the node */
+  }
+  .ax-path__contrast-hint {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0.25rem;
+    max-width: none;
+  }
+  .ax-path__contrast-link,
+  .ax-path__contrast-link[data-style="wave"] {
+    display: flex;
+    flex-direction: column;
+    top: calc(var(--mark) + 0.4rem);
+    left: calc(var(--mark) / 2);
+    width: auto;
+    height: calc(100% - var(--mark) - 0.8rem + 1.75rem); /* through the row-gap */
     transform: translateX(-50%);
+  }
+  .ax-path__contrast-link i {
+    width: 1px;
+    height: auto;
+  }
+  .ax-path__contrast-link svg {
+    margin: -0.45rem 0 0;
+    transform: rotate(90deg);
+  }
+  .ax-path__contrast-link[data-style="dashed"] i {
+    background: repeating-linear-gradient(
+      180deg,
+      currentColor 0 5px,
+      transparent 5px 10px
+    );
+  }
+  .ax-path__contrast-link[data-style="wave"] i {
+    width: 2px;
+    background: linear-gradient(180deg, var(--coral), var(--violet-400));
+    box-shadow: 0 0 0.5rem rgba(146, 72, 228, 0.8);
+  }
+  .ax-path__contrast-wave {
+    display: none;
   }
 }
 
-/* The conclusion drawn from both columns, so it is not allowed to look
-   like a footnote to the left one. It gets the full measure, its own
-   vertical room, and a size that sits between the section heading and
-   the body — the only piece of type in this section at that weight. */
+/* The conclusion drawn from both rows. Set in the display face — it was
+   the body face at a synthetic-looking 600, the one piece of large type in
+   the section that didn't match the heading above it or the step titles
+   below. The Webflow sheet only applies that face to h1–h6, and this line
+   is a statement rather than a heading, so it names the family itself.
+   The second half carries the route's own gradient, which is what ties
+   "the second kind" back to the row it means. */
 .ax-path__verdict {
-  margin: var(--sp-7) auto var(--sp-9);
-  max-width: 46rem;
+  margin: var(--sp-8) auto var(--sp-9);
+  max-width: 48rem;
   text-align: center;
 }
 .ax-path__verdict-line {
   margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  line-height: 1.15;
-  letter-spacing: -0.015em;
-  font-weight: 600;
+  font-family: Ppneuemachina, sans-serif;
+  font-size: var(--t-title, clamp(1.625rem, 2.5vw, 2.625rem));
+  line-height: 1.1;
+  letter-spacing: var(--track-title, -0.02em);
+  font-weight: 500;
   color: #fff;
 }
+.ax-path__verdict-line span {
+  background: linear-gradient(90deg, #fb9a7f, var(--violet-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 .ax-path__verdict-sub {
-  margin: 0.85rem auto 0;
-  max-width: 52ch;
-  font-size: 1rem;
+  margin: 0.9rem auto 0;
+  max-width: 40rem;
+  text-wrap: balance;
+  font-size: var(--t-body, 1.0625rem);
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .ax-path__body {
@@ -367,25 +606,80 @@
   height: 0.375rem;
   border-radius: 50%;
   background: var(--coral);
+  box-shadow: 0 0 0.5rem rgba(248, 119, 86, 0.7);
+  transition: background var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
+}
+.ax-path__panel-live b {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.34);
+}
+.ax-path__panel-live b::before {
+  content: "·";
+  margin-right: 0.4rem;
 }
 html.ax-motion:not(.ax-reduced) .ax-path__panel-live i {
   animation: ax-path-blink 2.2s ease-in-out infinite;
+}
+/* At the last stage the run is over: the light stops blinking and turns
+   from "in flight" coral to the violet everything finished is drawn in. */
+.ax-path__panel-live[data-done] {
+  color: var(--violet-300);
+}
+.ax-path__panel-live[data-done] i {
+  background: var(--violet-300);
+  box-shadow: 0 0 0.5rem rgba(199, 155, 245, 0.8);
+  animation: none;
 }
 @keyframes ax-path-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.2; }
 }
 
+/* A faint dot grid under the diagram, fading out toward the edges. It
+   reads as a canvas the system is drawn on rather than boxes floating on
+   a flat fill. */
+.ax-path__canvas {
+  position: relative;
+  padding: 1rem 0.75rem 0.5rem;
+}
+/* The grid is its own layer so the fade only thins the dots, never the
+   diagram drawn over them. */
+.ax-path__canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.4px);
+  background-size: 1rem 1rem;
+  background-position: center;
+  -webkit-mask-image: radial-gradient(75% 90% at 50% 50%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(75% 90% at 50% 50%, #000 40%, transparent 100%);
+  pointer-events: none;
+}
+/* The SVG's own box, exactly: the tooltip is placed in percentages of
+   the viewBox, so nothing may pad this element. */
+.ax-path__plot {
+  position: relative;
+}
 .ax-path__svg {
   display: block;
   width: 100%;
   height: auto;
-  padding: 1rem 0.75rem 0.25rem;
+  overflow: visible;
+}
+
+/* ---------- spotlight ---------- */
+.ax-path__spot {
+  pointer-events: none;
+  transition: transform 0.7s var(--ease);
+}
+html.ax-reduced .ax-path__spot {
+  transition: none;
 }
 
 /* ---------- route ---------- */
 .ax-path__route,
-.ax-path__route-lit {
+.ax-path__route-lit,
+.ax-path__route-flow {
   fill: none;
   stroke-width: 2;
   stroke-linecap: round;
@@ -396,9 +690,45 @@ html.ax-motion:not(.ax-reduced) .ax-path__panel-live i {
 }
 .ax-path__route-lit {
   stroke: url(#ax-path-grad);
+  filter: drop-shadow(0 0 4px rgba(159, 72, 228, 0.6));
+}
+/* The mask that limits the flow to the travelled part of the route. Its
+   dash length and offset are set from JS alongside the lit route's. */
+.ax-path__route-mask {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 10;
+}
+/* Light moving along the route the request has already crossed: short
+   dashes marching toward the live stage. Only once motion is known to be
+   allowed; with none, the lit route alone says the same thing. */
+.ax-path__route-flow {
+  stroke: #fff;
+  stroke-dasharray: 0.5 13.5;
+  opacity: 0;
+}
+html.ax-motion:not(.ax-reduced) .ax-path__route-flow {
+  opacity: 0.7;
+  animation: ax-path-flow 0.9s linear infinite;
+}
+@keyframes ax-path-flow {
+  to { stroke-dashoffset: -14; }
 }
 
 /* ---------- nodes ---------- */
+.ax-path__node {
+  cursor: pointer;
+}
+/* Lift on hover goes on an inner group: a CSS transform on the outer one
+   would replace its `transform` attribute, which is its position. */
+.ax-path__node-body {
+  transition: transform var(--dur-2) var(--ease);
+}
+.ax-path__node:hover .ax-path__node-body,
+.ax-path__node[data-peek] .ax-path__node-body {
+  transform: translateY(-2px);
+}
+
 /* Opaque, not translucent: the route is drawn between node centres, so
    it passes underneath every box. A see-through fill let that line show
    through the labels and the diagram read as wired-up scribble rather
@@ -409,10 +739,17 @@ html.ax-motion:not(.ax-reduced) .ax-path__panel-live i {
   stroke-width: 1;
   transition: fill var(--dur-3) var(--ease), stroke var(--dur-3) var(--ease);
 }
-.ax-path__node-index {
-  fill: rgba(255, 255, 255, 0.3);
+.ax-path__node-meta {
   font-size: 10px;
   letter-spacing: 0.08em;
+}
+.ax-path__node-index {
+  fill: rgba(255, 255, 255, 0.3);
+  transition: fill var(--dur-3) var(--ease);
+}
+.ax-path__node-status {
+  fill: rgba(255, 255, 255, 0.22);
+  letter-spacing: 0.04em;
   transition: fill var(--dur-3) var(--ease);
 }
 .ax-path__node-label {
@@ -420,38 +757,290 @@ html.ax-motion:not(.ax-reduced) .ax-path__panel-live i {
   font-size: 13px;
   transition: fill var(--dur-3) var(--ease);
 }
+.ax-path__node-tile {
+  fill: rgba(255, 255, 255, 0.04);
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+  transition: fill var(--dur-3) var(--ease), stroke var(--dur-3) var(--ease);
+}
+.ax-path__node-icon {
+  color: rgba(255, 255, 255, 0.4);
+  transition: color var(--dur-3) var(--ease);
+}
+
+.ax-path__node:hover .ax-path__node-box,
+.ax-path__node[data-peek] .ax-path__node-box {
+  stroke: rgba(199, 155, 245, 0.6);
+}
+.ax-path__node:hover .ax-path__node-label,
+.ax-path__node[data-peek] .ax-path__node-label {
+  fill: #fff;
+}
 
 .ax-path__node[data-state="past"] .ax-path__node-box {
   fill: #241a38;
   stroke: rgba(159, 122, 234, 0.45);
 }
 .ax-path__node[data-state="past"] .ax-path__node-label {
-  fill: rgba(255, 255, 255, 0.78);
+  fill: rgba(255, 255, 255, 0.8);
 }
+.ax-path__node[data-state="past"] .ax-path__node-status {
+  fill: var(--violet-300);
+}
+.ax-path__node[data-state="past"] .ax-path__node-tile {
+  fill: rgba(146, 72, 228, 0.16);
+  stroke: rgba(199, 155, 245, 0.3);
+}
+.ax-path__node[data-state="past"] .ax-path__node-icon {
+  color: var(--violet-300);
+}
+
+/* The live stage: brightest box, a glow, and its mark filled with the
+   route's own gradient — the same way "Acts" is filled in the contrast
+   row above, where the route ends. */
 .ax-path__node[data-state="now"] .ax-path__node-box {
   fill: #35225f;
   stroke: var(--violet-300);
+  filter: drop-shadow(0 0 14px rgba(159, 72, 228, 0.55));
 }
 .ax-path__node[data-state="now"] .ax-path__node-label {
   fill: #fff;
 }
-.ax-path__node[data-state="now"] .ax-path__node-index {
+.ax-path__node[data-state="now"] .ax-path__node-index,
+.ax-path__node[data-state="now"] .ax-path__node-status {
   fill: var(--coral);
+}
+.ax-path__node[data-state="now"] .ax-path__node-tile {
+  fill: url(#ax-path-grad);
+  stroke: rgba(255, 255, 255, 0.35);
+}
+.ax-path__node[data-state="now"] .ax-path__node-icon {
+  color: #fff;
 }
 
-/* ---------- the request ---------- */
+/* A ring that leaves the live node and fades, so the eye finds it even
+   when reading the text column. It restarts each time a stage goes live,
+   which doubles as the arrival beat for the packet. */
+.ax-path__node-ring {
+  fill: none;
+  stroke: var(--violet-300);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+}
+html.ax-motion:not(.ax-reduced) .ax-path__node[data-state="now"] .ax-path__node-ring {
+  animation: ax-path-ring 2.4s var(--ease) infinite;
+}
+@keyframes ax-path-ring {
+  0% { opacity: 0.75; transform: scale(1); }
+  70%, 100% { opacity: 0; transform: scale(1.1, 1.3); }
+}
+
+/* ---------- the request ----------
+   Drawn under the nodes, so it shows in transit and slips into the node
+   it arrives at. */
 .ax-path__dot {
-  fill: var(--coral);
-  stroke: rgba(248, 119, 86, 0.28);
-  stroke-width: 6;
+  fill: #fff;
+  stroke: var(--coral);
+  stroke-width: 3;
   paint-order: stroke;
+  filter: drop-shadow(0 0 6px rgba(248, 119, 86, 0.9));
+  pointer-events: none;
 }
-html.ax-motion:not(.ax-reduced) .ax-path__dot {
-  animation: ax-path-pulse 1.8s ease-in-out infinite;
+.ax-path__trail {
+  fill: var(--coral);
+  pointer-events: none;
 }
-@keyframes ax-path-pulse {
-  0%, 100% { stroke-width: 6; }
-  50% { stroke-width: 11; }
+
+/* ---------- node card ---------- */
+.ax-path__tip {
+  --tx: -50%;
+  --ty: calc(-100% - 0.6rem);
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  gap: 0.3rem;
+  width: max-content;
+  max-width: 17.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(199, 155, 245, 0.35);
+  border-radius: var(--r-md);
+  background: linear-gradient(180deg, rgba(40, 26, 68, 0.97), rgba(20, 16, 32, 0.97));
+  box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transform: translate(var(--tx), var(--ty));
+  pointer-events: none;
+  animation: ax-path-tip-in var(--dur-2) var(--ease) both;
+}
+.ax-path__tip[data-align="start"] { --tx: 0%; }
+.ax-path__tip[data-align="end"] { --tx: -100%; }
+.ax-path__tip[data-below] { --ty: 0.6rem; }
+@keyframes ax-path-tip-in {
+  from { opacity: 0; translate: 0 0.25rem; }
+}
+html.ax-reduced .ax-path__tip {
+  animation: none;
+}
+.ax-path__tip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+.ax-path__tip-head b {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.35);
+}
+.ax-path__tip-head em {
+  margin-left: auto;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--r-pill);
+  font-style: normal;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-path__tip-head em[data-state="past"] {
+  background: rgba(146, 72, 228, 0.2);
+  color: var(--violet-300);
+}
+.ax-path__tip-head em[data-state="now"] {
+  background: rgba(248, 119, 86, 0.16);
+  color: #fb9a7f;
+}
+.ax-path__tip-title {
+  font-family: Ppneuemachina, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  font-weight: 500;
+  color: #fff;
+  text-wrap: balance;
+}
+.ax-path__tip-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.625rem;
+}
+.ax-path__tip-foot code {
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--r-pill);
+  background: rgba(248, 119, 86, 0.12);
+  color: #fb9a7f;
+  font-family: inherit;
+}
+.ax-path__tip-foot i {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- trace ---------- */
+.ax-path__trace {
+  --trace-row: 1.625rem;
+  --rows: 3;
+  padding: 0.5rem 1.1rem;
+  border-top: 1px solid var(--line-invert);
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 0.6875rem;
+}
+.ax-path__trace-view {
+  height: calc(var(--trace-row) * var(--rows));
+  overflow: hidden;
+  /* older lines fade as they scroll up and out */
+  -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), #000 55%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.35), #000 55%);
+}
+/* The newest line sits on the bottom row once the window is full. */
+.ax-path__trace-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateY(
+    calc(max(0, var(--i) - var(--rows) + 1) * var(--trace-row) * -1)
+  );
+  transition: transform var(--dur-3) var(--ease);
+}
+.ax-path__trace-list li {
+  display: grid;
+  grid-template-columns: 0.875rem 6.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  height: var(--trace-row);
+  white-space: nowrap;
+  transition: opacity var(--dur-3) var(--ease);
+}
+.ax-path__trace-list li[data-state="next"] {
+  opacity: 0;
+}
+.ax-path__trace-node {
+  color: rgba(255, 255, 255, 0.5);
+}
+.ax-path__trace-payload {
+  justify-self: start;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.42);
+}
+.ax-path__trace-status {
+  color: var(--violet-300);
+  letter-spacing: 0.04em;
+}
+.ax-path__trace-mark {
+  position: relative;
+  width: 0.625rem;
+  height: 0.625rem;
+}
+/* done: a check */
+.ax-path__trace-list li[data-state="past"] .ax-path__trace-mark::before {
+  content: "";
+  position: absolute;
+  left: 0.12rem;
+  top: 0.05rem;
+  width: 0.28rem;
+  height: 0.45rem;
+  border: solid var(--violet-300);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+/* running: a spinner */
+.ax-path__trace-list li[data-state="now"] .ax-path__trace-mark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(248, 119, 86, 0.25);
+  border-top-color: var(--coral);
+}
+html.ax-motion:not(.ax-reduced) .ax-path__trace-list li[data-state="now"] .ax-path__trace-mark::before {
+  animation: ax-path-spin 0.8s linear infinite;
+}
+@keyframes ax-path-spin {
+  to { transform: rotate(1turn); }
+}
+.ax-path__trace-list li[data-state="now"] .ax-path__trace-node {
+  color: #fff;
+}
+.ax-path__trace-list li[data-state="now"] .ax-path__trace-payload {
+  color: var(--violet-300);
+}
+.ax-path__trace-list li[data-state="now"] .ax-path__trace-status {
+  color: var(--coral);
+}
+/* The live line types itself in, one character per step. */
+html.ax-motion:not(.ax-reduced) .ax-path__trace-list li[data-state="now"] .ax-path__trace-payload {
+  animation: ax-path-type calc(var(--n) * 22ms) steps(var(--n), end) 0.12s both;
+}
+@keyframes ax-path-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 
 /* ---------- readout ---------- */
@@ -459,27 +1048,89 @@ html.ax-motion:not(.ax-reduced) .ax-path__dot {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  padding: 0.85rem 1.1rem 1.1rem;
+  padding: 0.7rem 1.1rem 0.85rem;
   border-top: 1px solid var(--line-invert);
 }
-.ax-path__readout-payload {
-  font-size: 0.75rem;
-  color: var(--violet-300);
-  white-space: nowrap;
+.ax-path__nav {
+  display: inline-flex;
+  gap: 0.35rem;
 }
+.ax-path__nav-btn {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--line-invert);
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+.ax-path__nav-btn svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+.ax-path__nav-btn:hover:not(:disabled) {
+  background: rgba(146, 72, 228, 0.22);
+  border-color: rgba(199, 155, 245, 0.5);
+  color: #fff;
+}
+.ax-path__nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+/* Under reduced motion the stage doesn't follow scroll, so "next" would
+   have nothing to advance. The segments still jump to the text. */
+html.ax-reduced .ax-path__nav {
+  display: none;
+}
+
+/* Six segments, one per stage. Each is a button with a tall hit area
+   around a thin bar. Together the bars carry one continuous coral →
+   violet gradient: each shows its own slice of a background six times
+   its width. */
 .ax-path__meter {
   flex: 1 1 auto;
+  display: flex;
+  gap: 0.3rem;
+}
+.ax-path__seg {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.6rem 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.ax-path__seg span {
+  display: block;
   height: 0.1875rem;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.09);
-  overflow: hidden;
+  background: rgba(255, 255, 255, 0.1);
+  background-size: 600% 100%;
+  background-position: calc(var(--k) * 20%) 0;
+  transition: background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
 }
-.ax-path__meter-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--grad-rail);
-  transition: width var(--dur-3) var(--ease);
+.ax-path__seg[data-state="past"] span,
+.ax-path__seg[data-state="now"] span {
+  background-image: var(--grad-rail);
+}
+.ax-path__seg[data-state="now"] span {
+  box-shadow: 0 0 0.6rem rgba(159, 72, 228, 0.85);
+}
+.ax-path__seg:hover span {
+  transform: scaleY(1.8);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.ax-path__panel .ax-path__seg:focus-visible,
+.ax-path__panel .ax-path__nav-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 0.375rem;
 }
 .ax-path__readout-ms {
   font-size: 0.6875rem;
@@ -523,11 +1174,39 @@ html.ax-reduced .ax-path__step {
   opacity: 1;
 }
 
+/* Progress down the list, in the route's gradient: full height through
+   every finished step, and down to the marker on the live one. */
+.ax-path__step {
+  --marker: 3.5rem;
+}
+.ax-path__step:first-child {
+  --marker: 0rem;
+}
+.ax-path__step::before {
+  content: "";
+  position: absolute;
+  left: -1.5px;
+  top: 0;
+  width: 2px;
+  height: 0;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--coral), var(--violet-400));
+  box-shadow: 0 0 0.5rem rgba(146, 72, 228, 0.5);
+  transition: height var(--dur-3) var(--ease);
+}
+.ax-path__step[data-state="past"]::before {
+  height: 100%;
+}
+.ax-path__step[data-state="now"]::before {
+  height: calc(var(--marker) + 0.875rem);
+}
+
 .ax-path__step-index {
   position: absolute;
+  z-index: 1;
   left: 0;
   transform: translateX(-50%);
-  top: 3.5rem;
+  top: var(--marker);
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
@@ -540,15 +1219,47 @@ html.ax-reduced .ax-path__step {
   font-variant-numeric: tabular-nums;
   color: rgba(255, 255, 255, 0.55);
   transition: border-color var(--dur-3) var(--ease), color var(--dur-3) var(--ease),
-    box-shadow var(--dur-3) var(--ease);
+    box-shadow var(--dur-3) var(--ease), background var(--dur-3) var(--ease);
 }
-.ax-path__step:first-child .ax-path__step-index {
-  top: 0;
+.ax-path__step-index b {
+  font-weight: inherit;
+}
+.ax-path__step-index svg {
+  display: none;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+.ax-path__step[data-state="past"] .ax-path__step-index {
+  background: #2a1d45;
+  border-color: rgba(199, 155, 245, 0.5);
+  color: var(--violet-300);
+}
+.ax-path__step[data-state="past"] .ax-path__step-index b {
+  display: none;
+}
+.ax-path__step[data-state="past"] .ax-path__step-index svg {
+  display: block;
 }
 .ax-path__step[data-state="now"] .ax-path__step-index {
-  border-color: var(--violet-400);
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--coral), var(--violet-500));
   color: #fff;
-  box-shadow: 0 0 0 0.3rem rgba(146, 72, 228, 0.18);
+  box-shadow: 0 0 0 0.3rem rgba(146, 72, 228, 0.18), 0 0 1rem rgba(159, 72, 228, 0.55);
+}
+/* Under reduced motion every step is lit and the list is a plain list;
+   a finished-state check on all six would be claiming a run happened. */
+html.ax-reduced .ax-path__step::before,
+html.ax-reduced .ax-path__step[data-state="past"] .ax-path__step-index svg {
+  display: none;
+}
+html.ax-reduced .ax-path__step[data-state="past"] .ax-path__step-index b {
+  display: inline;
+}
+
+/* Off screen, nothing in the panel keeps animating. */
+.ax-path:not([data-live]) .ax-path__panel *,
+.ax-path:not([data-live]) .ax-path__panel *::before {
+  animation-play-state: paused !important;
 }
 
 .ax-path__step-title {
@@ -599,17 +1310,39 @@ html.ax-reduced .ax-path__step {
     top: 5rem;
     z-index: 2;
   }
+  /* The steps scroll underneath the panel here, so it can't be even
+     slightly see-through: at 92% the paragraph behind it ghosts through
+     the diagram. */
   .ax-path__panel {
+    background: linear-gradient(180deg, #171d26 0%, #0d1116 100%);
     box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.55);
   }
   .ax-path__step {
+    --marker: 2.5rem;
     padding: 2.5rem 0 2.5rem 1.75rem;
   }
-  .ax-path__step-index {
-    top: 2.5rem;
+  .ax-path__step:first-child {
+    --marker: 0rem;
   }
   .ax-path__step-title {
     font-size: 1.25rem;
+  }
+  /* The panel sticks over the top of the screen here, so it has to stay
+     short: the log keeps only its live line, and the step buttons go —
+     the segments do the same job in less room. */
+  .ax-path__trace {
+    --rows: 1;
+    padding: 0.35rem 1rem;
+  }
+  .ax-path__trace-view {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .ax-path__nav {
+    display: none;
+  }
+  .ax-path__readout {
+    padding: 0.4rem 1rem 0.55rem;
   }
 }
 
@@ -617,11 +1350,19 @@ html.ax-reduced .ax-path__step {
   .ax-path__node-label {
     font-size: 15px;
   }
-  .ax-path__node-index {
+  .ax-path__node-meta {
     font-size: 11px;
   }
-  .ax-path__readout-payload {
-    font-size: 0.6875rem;
+  /* "02 · running" collides with the icon at this scale; the tile and
+     the box colour already say which state a node is in. */
+  .ax-path__node-status {
+    display: none;
+  }
+  .ax-path__trace-list li {
+    grid-template-columns: 0.875rem minmax(0, 1fr) auto;
+  }
+  .ax-path__trace-node {
+    display: none;
   }
 }
 

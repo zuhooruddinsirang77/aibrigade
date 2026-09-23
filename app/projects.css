@@ -523,6 +523,37 @@ html.ax-motion:not(.ax-reduced) .ax-proj__frame {
   color: rgba(255, 255, 255, 0.36);
 }
 
+/* The way from a card to the product's own page (/use-cases/<id>). */
+.ax-proj__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(199, 155, 245, 0.45);
+  color: #fff;
+  font-size: max(0.9375rem, 14px);
+  font-weight: 500;
+  text-decoration: none;
+  transition: border-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+}
+.ax-proj__more svg {
+  width: 1rem;
+  height: 1rem;
+  min-width: 14px;
+  min-height: 14px;
+  color: var(--violet-300);
+  transition: transform var(--dur-2) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ax-proj__more:hover {
+    border-bottom-color: #fff;
+  }
+  .ax-proj__more:hover svg {
+    transform: translateX(0.2rem);
+  }
+}
+
 /* A project that is only a document. */
 .ax-proj__doc {
   display: flex;

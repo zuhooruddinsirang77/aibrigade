@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DemoShell from "@/components/demos/DemoShell";
 import useDemoRun from "@/components/demos/useDemoRun";
+import KbdHint from "@/components/demos/KbdHint";
+import { submitOnModEnter, useRunOnView } from "@/components/demos/labHooks";
 
 /**
  * Unstructured document in, structured record out — with the source span
@@ -19,6 +21,12 @@ import useDemoRun from "@/components/demos/useDemoRun";
  * `dangerouslySetInnerHTML`. That matters here more than anywhere else on
  * the page, because the content being rendered is whatever the visitor
  * pasted in.
+ *
+ * Pointing at a field does more than colour its span: the source pane
+ * scrolls to it. Rows are matched to spans by key and offset, not key
+ * alone — a remittance has four monetary amounts, and pointing at one
+ * should light that one. A highlight below the fold of a scrolled pane is a
+ * highlight nobody sees, and "find it in the document" should mean found.
  */
 
 const SAMPLES = [
@@ -103,7 +111,22 @@ const MAX = 6000;
  * highlight is a rendering bug waiting to happen and the dropped one is
  * always the lower-value duplicate.
  */
+const spanId = (f) => `${f.key}-${f.start}`;
+
 function Highlighted({ text, spans, activeKey }) {
+  const preRef = useRef(null);
+
+  // Bring the active span into the middle of the pane. The pane scrolls,
+  // never the page — `scrollIntoView` would drag the whole window along.
+  useEffect(() => {
+    const pre = preRef.current;
+    if (!pre || !activeKey) return;
+    const mark = pre.querySelector('mark[data-on="true"]');
+    if (!mark) return;
+    const top = mark.offsetTop - pre.clientHeight / 2 + mark.offsetHeight / 2;
+    pre.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, [activeKey]);
+
   const nodes = useMemo(() => {
     const out = [];
     let cursor = 0;
@@ -118,7 +141,7 @@ function Highlighted({ text, spans, activeKey }) {
         <mark
           key={`${span.key}-${span.start}`}
           className="ax-doc__mark"
-          data-on={activeKey && span.key === activeKey ? "true" : undefined}
+          data-on={activeKey === spanId(span) ? "true" : undefined}
         >
           {text.slice(span.start, span.end)}
         </mark>
@@ -130,15 +153,25 @@ function Highlighted({ text, spans, activeKey }) {
     return out;
   }, [text, spans, activeKey]);
 
-  return <pre className="ax-doc__source">{nodes}</pre>;
+  return (
+    <pre ref={preRef} className="ax-doc__source">
+      {nodes}
+    </pre>
+  );
 }
 
 export default function DocumentExtractionDemo() {
   const [text, setText] = useState(SAMPLES[0].text);
   const [activeKey, setActiveKey] = useState(null);
-  const { status, result, error, run, reset } = useDemoRun("extraction");
+  const { status, result, ranInput, error, run, reset } = useDemoRun("extraction");
+  const rootRef = useRef(null);
 
   const tooShort = text.trim().length < 20;
+  const picked = SAMPLES.find((s) => s.text === text);
+
+  useRunOnView(rootRef, () => {
+    if (status === "idle" && !tooShort) run({ text });
+  });
 
   const submit = (e) => {
     e.preventDefault();
@@ -148,12 +181,18 @@ export default function DocumentExtractionDemo() {
 
   const loadSample = (sample) => {
     setText(sample.text);
-    reset();
     setActiveKey(null);
+    run({ text: sample.text });
   };
 
+  // The text the result on screen was extracted from. During a re-run the
+  // panel still shows the previous result, and its offsets belong to the
+  // previous text.
+  const shownText = ranInput?.text ?? text;
+  const avg = result ? Math.round(result.stats.avgConfidence * 100) : 0;
+
   return (
-    <div className="ax-demo__split">
+    <div className="ax-demo__split" ref={rootRef}>
       <form className="ax-demo__controls" onSubmit={submit} aria-label="Document text">
         <div className="ax-demo__presets" role="group" aria-label="Sample documents">
           {SAMPLES.map((s) => (
@@ -161,6 +200,7 @@ export default function DocumentExtractionDemo() {
               key={s.id}
               type="button"
               className="ax-demo__preset"
+              aria-pressed={picked?.id === s.id}
               onClick={() => loadSample(s)}
             >
               {s.label}
@@ -181,6 +221,7 @@ export default function DocumentExtractionDemo() {
             maxLength={MAX}
             rows={12}
             spellCheck="false"
+            onKeyDown={submitOnModEnter}
             onChange={(e) => {
               setText(e.target.value);
               if (status !== "idle") reset();
@@ -197,8 +238,10 @@ export default function DocumentExtractionDemo() {
           >
             {status === "running" ? "Extracting…" : "Extract fields"}
           </button>
-          {tooShort && (
+          {tooShort ? (
             <p className="ax-demo__hint">Paste at least 20 characters to run.</p>
+          ) : (
+            <KbdHint action="to extract" />
           )}
         </div>
 
@@ -216,6 +259,8 @@ export default function DocumentExtractionDemo() {
         emptyTitle="No document parsed yet"
         emptyHint="Load a sample or paste your own, then run the extraction."
         runningLabel="Parsing document"
+        steps={["Classify document", "Match field patterns", "Score confidence"]}
+        raw={result}
         footer={
           result && (
             <>
@@ -239,6 +284,21 @@ export default function DocumentExtractionDemo() {
               </span>
             </div>
 
+            <ul className="ax-doc__stats" aria-label="Extraction summary">
+              <li>
+                <strong>{result.stats.entities}</strong>
+                <span>fields found</span>
+              </li>
+              <li>
+                <strong>{avg}%</strong>
+                <span>avg confidence</span>
+              </li>
+              <li data-tone={result.reviewRequired ? "review" : "ok"}>
+                <strong>{result.reviewRequired ? "Review" : "Straight through"}</strong>
+                <span>{result.reviewRequired ? "a person signs off" : "no touch needed"}</span>
+              </li>
+            </ul>
+
             {result.fields.length === 0 ? (
               <p className="ax-demo__none">
                 No recognisable fields in that text. The extractor reports nothing
@@ -254,16 +314,23 @@ export default function DocumentExtractionDemo() {
                     {result.fields.map((f) => (
                       <li
                         key={`${f.key}-${f.start}`}
-                        onMouseEnter={() => setActiveKey(f.key)}
+                        data-on={activeKey === spanId(f) ? "true" : undefined}
+                        onMouseEnter={() => setActiveKey(spanId(f))}
                         onMouseLeave={() => setActiveKey(null)}
-                        onFocus={() => setActiveKey(f.key)}
+                        onFocus={() => setActiveKey(spanId(f))}
                         onBlur={() => setActiveKey(null)}
                         tabIndex={0}
                       >
                         <span className="ax-doc__field-name">{f.label}</span>
                         <span className="ax-doc__field-value">{f.value}</span>
                         <span className="ax-doc__field-meta">
-                          {f.method} · {Math.round(f.confidence * 100)}%
+                          {f.method}
+                          <span
+                            className="ax-doc__conf"
+                            style={{ "--c": `${Math.round(f.confidence * 100)}%` }}
+                            aria-hidden="true"
+                          />
+                          {Math.round(f.confidence * 100)}%
                         </span>
                       </li>
                     ))}
@@ -272,7 +339,7 @@ export default function DocumentExtractionDemo() {
 
                 <div className="ax-demo__block">
                   <h3 className="ax-demo__block-title">Source</h3>
-                  <Highlighted text={text} spans={result.fields} activeKey={activeKey} />
+                  <Highlighted text={shownText} spans={result.fields} activeKey={activeKey} />
                 </div>
               </>
             )}

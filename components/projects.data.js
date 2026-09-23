@@ -12,6 +12,11 @@
  *   id          stable key; also the DOM id the hero can scroll to
  *   name        the product
  *   type        what kind of thing it is — one short line, kept quiet
+ *   sector      the market it is sold into, one or two words — what the
+ *               navigation and footer print beside the name
+ *   useCase     the job it does, in one short line for those same menus
+ *               (the tagline is the card's voice and some of them are
+ *               slogans; this one always says what the product is for)
  *   tagline     optional one-liner under the name
  *   description optional paragraph — what the product does, in the
  *               words the product's own demo and overview support
@@ -61,6 +66,8 @@ export const projects = [
     id: "fitzy",
     name: "Fitzy",
     type: "Conversational AI · E-commerce",
+    sector: "E-commerce",
+    useCase: "Shop, size and check out by voice",
     tagline: "Conversational AI Shopping Assistant",
     description:
       "A voice-driven shopping guide for clothing and apparel platforms. Shoppers discover items, refine preferences, settle on a size, update the cart and check out by talking.",
@@ -82,6 +89,8 @@ export const projects = [
     id: "incall",
     name: "InCall",
     type: "Voice AI · Call Center",
+    sector: "Call center",
+    useCase: "Outbound calls that qualify and book",
     tagline: "The call that starts every deal.",
     description:
       "An outbound voice agent that speaks naturally across languages and reads intent in real time — qualifying leads, booking appointments, answering queries, transferring calls.",
@@ -96,6 +105,8 @@ export const projects = [
     id: "fraud-detection",
     name: "Fraud Detection",
     type: "AI · Security · Web Application",
+    sector: "Fintech",
+    useCase: "Real-time transaction risk scoring",
     tagline: "Real-time transaction risk scoring",
     description:
       "An autonomous system that scores every transaction as it happens, flagging anomalous activity in real time, explaining the reason behind each call and stepping up checks.",
@@ -111,6 +122,8 @@ export const projects = [
     id: "autovista",
     name: "AutoVista",
     type: "Mobile Application · Voice AI",
+    sector: "Automotive",
+    useCase: "Find the right car by voice",
     tagline: "Voice-driven car shopping assistant",
     description:
       "A car shopping assistant you talk to. Describe the budget, body style and mileage you want, and it narrows the listings, answers questions and remembers what you asked for.",
@@ -125,6 +138,8 @@ export const projects = [
     id: "axon",
     name: "Axon",
     type: "Mobile Application · Banking",
+    sector: "Banking",
+    useCase: "An AI assistant inside the banking app",
     tagline: "AI assistant inside a mobile banking app",
     description:
       "An assistant built into a mobile banking app. Customers ask about balances, transactions and spending in their own words, then move money and settle bills by voice or chat.",
@@ -139,6 +154,8 @@ export const projects = [
     id: "rm2",
     name: "RM2",
     type: "Mobile Application · Conversational AI",
+    sector: "Retail",
+    useCase: "Ask the retail database, hear the answer",
     tagline: "Ask your retail database a question, get the answer",
     description:
       "Ask your retail database anything by voice or text — top sellers last week, the branch with the highest fuel sales yesterday — and get spoken and written answers in seconds.",
@@ -151,6 +168,8 @@ export const projects = [
     id: "zakat",
     name: "AI Zakat Engine",
     type: "Web Application · Islamic Finance",
+    sector: "Islamic finance",
+    useCase: "Zakat by school of thought, with a guide",
     tagline: "Zakat, calculated by school of thought — with an AI guide",
     description:
       "A Zakat calculator that works the way a scholar would: pick a school of thought, enter cash, gold and short-term liabilities, and it works out what's owed. An AI guide sits alongside it for the Islamic finance questions a plain number can't answer.",
@@ -163,6 +182,8 @@ export const projects = [
     id: "foodpanda",
     name: "Foodpanda",
     type: "Mobile Application · Voice AI",
+    sector: "Food delivery",
+    useCase: "Order food by voice, hands-free",
     tagline: "Order food by voice, hands-free",
     description:
       "A voice assistant inside a food-delivery app. Say what you want — a specific meal, a deal, a drink added to the order, the nearest store — and it listens, understands and acts, no typing required.",
@@ -206,3 +227,15 @@ export const formatDuration = (s) => {
 
 export const findProject = (id) =>
   projects.find((p) => p.id === id || (p.aliases || []).includes(id)) || null;
+
+/** The use cases, as the navigation and the footer list them: every
+ *  product, in showcase order, each linking to its own page
+ *  (`/use-cases/<id>`, components/UseCase.jsx). These took the place of
+ *  the three client case studies in both menus. */
+export const useCases = projects.map((p) => ({
+  id: p.id,
+  name: p.name,
+  sector: p.sector,
+  line: p.useCase,
+  href: `/use-cases/${p.id}`,
+}));

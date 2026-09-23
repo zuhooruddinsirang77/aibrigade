@@ -75,21 +75,36 @@ const DECISIONS = [
 const DEC_X = 500;
 const ACT_X = 684;
 
+/* The rail is the hero eyebrow's spine — Listen → Understand → Reason →
+   Act, slide 1 of the deck — in the deck's colours, under the column each
+   step happens in: the sources are listened to, the core understands them
+   against what the organisation knows, the decisions are the reasoning's
+   verdict, and the trays are where the work is done. It used to read Data
+   / Intelligence / Decision / Action, four different words for the same
+   four steps the eyebrow named two inches to the left. `SPINE` in Hero.jsx
+   carries the same colours. */
 const STAGES = [
-  { x: SRC_X, n: "01", label: "Data" },
-  { x: CORE.x, n: "02", label: "Intelligence" },
-  { x: DEC_X, n: "03", label: "Decision" },
-  { x: ACT_X, n: "04", label: "Action" },
+  { x: SRC_X, n: "01", label: "Listen", color: "#2fd3c0" },
+  { x: CORE.x, n: "02", label: "Understand", color: "#6f95ff" },
+  { x: DEC_X, n: "03", label: "Reason", color: "#c79bf5" },
+  { x: ACT_X, n: "04", label: "Act", color: "#4ade80" },
 ];
 
-/* The log line — AgentConsole's traces, one per beat. */
+/* The log line — AgentConsole's traces, one per beat. The id stays as a
+   quiet reference; the event itself is written as a sentence, because the
+   first screen is read by the people who sign off on this, not by the
+   people who operate it. */
 const EVENTS = [
-  "txn_8f2a41 · risk 0.94 · refer to analyst",
-  "app_31c7 · within appetite · approve, straight-through",
-  "enc_5d90 · note drafted · hold for clinician",
-  "call_0e47 · intent: booking · appointment confirmed",
-  "win_0442 · 2 candidates · alert raised, evidence attached",
+  { id: "txn_8f2a41", text: "Transaction risk 0.94 — referred to an analyst" },
+  { id: "app_31c7", text: "Application within appetite — approved straight-through" },
+  { id: "enc_5d90", text: "Clinical note drafted — held for clinician sign-off" },
+  { id: "call_0e47", text: "Booking intent recognised — appointment confirmed" },
+  { id: "win_0442", text: "Two candidates matched — alert raised with evidence" },
 ];
+
+/* Column accents, from the rail above. */
+const LISTEN = STAGES[0].color;
+const ACT = STAGES[3].color;
 
 const pct = (v, of) => `${(v / of) * 100}%`;
 
@@ -227,13 +242,16 @@ export default function IntelligenceSystem({ className = "" }) {
               <stop offset="60%" stopColor="#672ca9" />
               <stop offset="100%" stopColor="#3f166e" />
             </linearGradient>
+            {/* Each connection runs from one step's colour into the next:
+                listen (teal) into the core, the core (violet) out to the
+                decisions. */}
             <linearGradient id="ax-sys-line-in" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.2" />
+              <stop offset="0%" stopColor={LISTEN} stopOpacity="0.35" />
               <stop offset="100%" stopColor="#c79bf5" stopOpacity="0.85" />
             </linearGradient>
             <linearGradient id="ax-sys-line-out" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#c79bf5" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#fff" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#c79bf5" stopOpacity="0.4" />
             </linearGradient>
           </defs>
 
@@ -251,7 +269,7 @@ export default function IntelligenceSystem({ className = "" }) {
               <path key={i} id={`ax-out-${i}`} d={outPath(d.y, i)} pathLength="1" style={{ "--i": i + 4 }} />
             ))}
           </g>
-          <g className="ax-sys__lines ax-sys__lines--act" stroke="rgba(255,255,255,0.34)" strokeWidth="1">
+          <g className="ax-sys__lines ax-sys__lines--act" stroke={ACT} strokeOpacity="0.5" strokeWidth="1">
             {DECISIONS.map((d, i) => (
               <path key={i} id={`ax-act-${i}`} d={actPath(d.y)} pathLength="1" style={{ "--i": i + 7 }} />
             ))}
@@ -319,8 +337,8 @@ export default function IntelligenceSystem({ className = "" }) {
             {SOURCES.map((s, i) => (
               <g key={i}>
                 <line x1={SRC_X - 28} y1={s.y} x2={SRC_X - 13} y2={s.y} stroke="rgba(255,255,255,0.32)" strokeWidth="1" />
-                <circle cx={SRC_X} cy={s.y} r="10" fill="rgba(5,7,10,0.85)" stroke="rgba(255,255,255,0.34)" strokeWidth="1" />
-                <circle cx={SRC_X} cy={s.y} r="3.5" fill="#fff" />
+                <circle cx={SRC_X} cy={s.y} r="10" fill="rgba(5,7,10,0.85)" stroke={LISTEN} strokeOpacity="0.5" strokeWidth="1" />
+                <circle cx={SRC_X} cy={s.y} r="3.5" fill={LISTEN} />
               </g>
             ))}
             {DECISIONS.map((d, i) => (
@@ -336,21 +354,23 @@ export default function IntelligenceSystem({ className = "" }) {
                   width="16"
                   height="16"
                   rx="3.5"
-                  stroke="rgba(255,255,255,0.4)"
+                  stroke={ACT}
+                  strokeOpacity="0.55"
                   strokeWidth="1"
                   fill="rgba(5,7,10,0.9)"
                 />
                 <path
                   d={`M ${ACT_X} ${d.y - 4.5} v 5.5 m -2.6 -2.4 2.6 2.6 2.6 -2.6`}
                   fill="none"
-                  stroke="rgba(255,255,255,0.8)"
+                  stroke={ACT}
                   strokeWidth="1.1"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
                   d={`M ${ACT_X - 4} ${d.y + 4} h 8`}
-                  stroke="rgba(255,255,255,0.45)"
+                  stroke={ACT}
+                  strokeOpacity="0.5"
                   strokeWidth="1"
                   strokeLinecap="round"
                 />
@@ -361,21 +381,21 @@ export default function IntelligenceSystem({ className = "" }) {
           {/* ---- signals ---- */}
           <g className="ax-sys__pulses">
             {SOURCES.map((s, i) => (
-              <circle key={`in-${i}`} r="2.6" fill="#c79bf5" className="ax-sys__pulse">
+              <circle key={`in-${i}`} r="2.6" fill={LISTEN} className="ax-sys__pulse">
                 <animateMotion dur="3.6s" repeatCount="indefinite" begin={`${i * 0.9}s`} calcMode="spline" keySplines="0.4 0 0.6 1" keyTimes="0;1" keyPoints="0;1">
                   <mpath href={`#ax-in-${i}`} />
                 </animateMotion>
               </circle>
             ))}
             {DECISIONS.map((d, i) => (
-              <circle key={`out-${i}`} r="2.6" fill="#f87756" className="ax-sys__pulse">
+              <circle key={`out-${i}`} r="2.6" fill="#c79bf5" className="ax-sys__pulse">
                 <animateMotion dur="3s" repeatCount="indefinite" begin={`${1.4 + i * 1.0}s`} calcMode="spline" keySplines="0.4 0 0.6 1" keyTimes="0;1" keyPoints="0;1">
                   <mpath href={`#ax-out-${i}`} />
                 </animateMotion>
               </circle>
             ))}
             {DECISIONS.map((d, i) => (
-              <circle key={`act-${i}`} r="2" fill="#f87756" fillOpacity="0.9" className="ax-sys__pulse">
+              <circle key={`act-${i}`} r="2" fill={ACT} fillOpacity="0.9" className="ax-sys__pulse">
                 <animateMotion dur="1.5s" repeatCount="indefinite" begin={`${3.2 + i * 1.0}s`}>
                   <mpath href={`#ax-act-${i}`} />
                 </animateMotion>
@@ -425,7 +445,7 @@ export default function IntelligenceSystem({ className = "" }) {
 
           <div className="ax-sys__rail">
             {STAGES.map((s) => (
-              <span key={s.n} className="ax-sys__stage" style={{ left: pct(s.x, W) }}>
+              <span key={s.n} className="ax-sys__stage" style={{ left: pct(s.x, W), "--c": s.color }}>
                 <b>{s.n}</b>
                 {s.label}
               </span>
@@ -438,14 +458,17 @@ export default function IntelligenceSystem({ className = "" }) {
           running. Both decorative — the `role="img"` label above carries
           the meaning for assistive tech. */}
       <div className="ax-sys__hud" aria-hidden="true">
-        <p className="ax-sys__event" key={event}>
-          <span className="ax-sys__event-mark" />
-          <code>{EVENTS[event]}</code>
-        </p>
+        {/* Green, not coral: coral is this site's "needs a human" colour
+            (see sysv.css), and a pulsing coral dot beside "system active"
+            read as an alarm. */}
         <span className="ax-sys__status">
           <span className="ax-sys__status-dot" />
-          system active
+          Live
         </span>
+        <p className="ax-sys__event" key={event}>
+          <code>{EVENTS[event].id}</code>
+          <span>{EVENTS[event].text}</span>
+        </p>
       </div>
     </div>
   );

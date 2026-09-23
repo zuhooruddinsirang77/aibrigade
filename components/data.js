@@ -15,6 +15,10 @@ const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
  * these is sector-specific); it names which of the four phases the card
  * belongs to, so the row reads in groups of two as it scrolls.
  *
+ * `color` is the deck's colour for each capability (slide 4): teal, blue,
+ * violet, amber, green, teal, coral, blue. The first four match the chips
+ * in the hero's eyebrow, so Listen is the same teal in both places.
+ *
  * `bg`, `animWrapCls`, `animCls` and `grad` are layout decoration carried
  * over positionally from the six that were here: there is no bg7/bg8 in the
  * stylesheet, so the last two reuse earlier backgrounds rather than pointing
@@ -29,6 +33,7 @@ export const whyUs = [
     animWrapCls: "_1",
     animCls: "hide-tablet",
     icon: "waveform",
+    color: "#2fd3c0",
   },
   {
     title: "Understand",
@@ -38,6 +43,7 @@ export const whyUs = [
     animWrapCls: "_12-col-grid",
     animCls: "lottie2 hide-tablet",
     icon: "document",
+    color: "#6f95ff",
   },
   {
     title: "Reason",
@@ -46,6 +52,7 @@ export const whyUs = [
     text: "Models, rules and business context together. The reasoning step is where a policy your team owns meets a model's output.",
     animCls: "lottie width hide-tablet",
     icon: "pulse",
+    color: "#c79bf5",
   },
   {
     title: "Decide",
@@ -53,6 +60,7 @@ export const whyUs = [
     text: "Risk, policy, confidence and approvals. Where the threshold sits is a business decision, and it lives somewhere your risk team can change it.",
     grad: true,
     icon: "scale",
+    color: "#f0a83c",
   },
   {
     title: "Act",
@@ -61,6 +69,7 @@ export const whyUs = [
     text: "APIs, applications and workflows. This is the step most enterprise AI skips: the system does the thing, in the system of record, and the record proves it did.",
     animCls: "lottie hide-tablet",
     icon: "automation",
+    color: "#4ade80",
   },
   {
     title: "Communicate",
@@ -69,6 +78,7 @@ export const whyUs = [
     text: "Voice, web, mobile and outbound. The agent closes its own loop — it tells the customer, the queue and the operator what just happened.",
     animCls: "lottie _2 hide-tablet",
     icon: "network",
+    color: "#2fd3c0",
   },
   {
     title: "Escalate",
@@ -76,6 +86,7 @@ export const whyUs = [
     bg: "bg1",
     text: "Human-in-the-loop wherever judgement is required. The handoff is designed first, not added after the first incident.",
     icon: "shield",
+    color: "#f87756",
   },
   {
     title: "Operate privately",
@@ -83,6 +94,7 @@ export const whyUs = [
     bg: "bg3",
     text: "Cloud, on-prem, hybrid or air-gapped. Regulated teams get the capability without sending sensitive data to public AI.",
     icon: "lock",
+    color: "#6f95ff",
   },
 ];
 
@@ -114,17 +126,18 @@ export const services = [
 ];
 
 /**
- * The engagement, as five stages plus a closing claim.
+ * The engagement, as four stages plus a closing claim.
  *
- * Renamed from Discover → Design → Build → Deploy → Scale. The pipeline has
- * five slots and every deployment reel has five chapters, so rather than
- * collapsing to the four steps this is argued in, `Prove` is split into the
- * design of the workflow and the proving of it — which maps 1:1 onto the
- * chapters already written in deployments.data.js.
+ * The deck's own four steps — Identify → Prove → Measure → Scale — with
+ * nothing added. This used to split a `Design` stage out of `Prove` so the
+ * pipeline had five slots; that put a step on the site the deck does not
+ * have, so the design work is now stated inside `Prove`, where the deck
+ * puts it ("build against real business conditions").
  *
- * `STAGE_TITLES` in Features.jsx and `STAGES` in deployments.data.js index
- * these titles by string, so all three move together or the reels caption
- * with stage names the pipeline no longer has.
+ * `STAGE_TITLES` in Features.jsx, `STAGES` in deployments.data.js and
+ * `filmFor.stages` in video.data.js index these titles by string, so all
+ * four move together or the reels caption with stage names the pipeline no
+ * longer has.
  */
 export const features = [
   {
@@ -133,14 +146,9 @@ export const features = [
     text: "Choose one meaningful workflow with measurable pain — slow, expensive, manual, risky or frustrating. We'll tell you whether AI can materially improve it.",
   },
   {
-    title: "Design",
-    img: `${CDN}/641afc135a8ad482432bdf73_abstract_glass_1.webp`,
-    text: "Workflow design, then agent architecture: what the agent decides, what the policy decides, and where a human has to.",
-  },
-  {
     title: "Prove",
     img: `${CDN}/641afc139a2175af6696cfd1_globe_spiral_glass_1.webp`,
-    text: "Built against real business conditions and the systems you actually permit us to reach — not a sandbox with synthetic data.",
+    text: "Design the workflow and the agent, then build it against real business conditions and the systems you permit us to reach.",
   },
   {
     title: "Measure",
@@ -161,14 +169,14 @@ export const features = [
 
 const F = (n) => `${CDN}/${n}`;
 
+/* Three reviews were cut from this list: two attributed to "Meridian
+   Capital" and one to "ICU Capital", the placeholder clients of the case
+   studies the use-case pages replaced. A review attributed to a client
+   that does not exist is the one claim on a site a buyer can disprove,
+   so they were removed rather than re-attributed. Add real ones here —
+   `highlight: true` marks the one the section opens on (the first entry
+   opens when none is marked). */
 export const reviews = [
-  {
-    name: "Sarah Whitfield",
-    role: "Chief Risk Officer, Meridian Capital",
-    img: F("641b009a26680896a915ea8d_face%20(1).webp"),
-    text: "AIBrigade's real-time fraud detection system flagged anomalous transactions within weeks of deployment. Fraud losses dropped significantly, and our compliance team finally has an auditable decision trail. The demand for this kind of decision intelligence is huge, and AIBrigade delivered a production-grade system we could trust from day one.",
-    highlight: true,
-  },
   {
     name: "Dr. Michael Ansari",
     role: "CMIO, Lakeside Health Network",
@@ -181,12 +189,6 @@ export const reviews = [
     img: F("641b009abf851cd682dcf9f1_face%20(2).webp"),
     text: "We partnered with AIBrigade to build an underwriting automation agent. AIBrigade provided a flawless architecture and then crafted a fast, scalable decision intelligence workflow.",
     project: "UnderwritePro",
-  },
-  {
-    name: "Elena Grishchenko",
-    role: "Head of Trading Operations, ICU Capital",
-    img: F("641b009a8f1ef81b6463c8c8_face.webp"),
-    text: "We partnered with AIBrigade to build a compliance monitoring agent that connects to our trading systems. The team took great care in developing an intuitive review interface, and built a middleware layer to unify data from multiple trading venues.",
   },
   {
     name: "Dan Webster",
@@ -205,12 +207,6 @@ export const reviews = [
     role: "Founder, Sevilmis Financial Group",
     img: F("641b009a8450f9260b091c5c_face%20(7).webp"),
     text: "AIBrigade successfully built a robust, accessible, and well-designed underwriting platform. Their team committed to a tight schedule and regularly gave project updates. Professional and prepared, they guided us through the process effectively.",
-  },
-  {
-    name: "Assel Marchenko",
-    role: "CTO, Meridian Capital",
-    img: F("641b009a41f94aa1658dc16e_face%20(3).webp"),
-    text: "AIBrigade was approached to develop a new fraud detection solution, driving the model design in tandem with the advanced backend towards a more accurate and explainable approach. The AIBrigade team was responsive and demonstrated impressive background in production ML deployment.",
   },
   {
     name: "Yuriy Kogutiak",

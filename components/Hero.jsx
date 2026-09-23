@@ -29,6 +29,15 @@ const tickerLogos = [
 
 ];
 
+/* Slide 1's spine. Colours are the deck's (teal, blue, violet, green) and
+   match `STAGES` in IntelligenceSystem.jsx. */
+const SPINE = [
+  { label: "Listen", color: "#2fd3c0" },
+  { label: "Understand", color: "#6f95ff" },
+  { label: "Reason", color: "#c79bf5" },
+  { label: "Act", color: "#4ade80" },
+];
+
 /**
  * The first screen.
  *
@@ -85,10 +94,35 @@ export default function Hero() {
           <div className="container-large">
             <div className="ax-hero__grid">
               <div className="ax-hero__copy">
-                <Kicker id="header" label="Listen → Understand → Reason → Act" tone="hero" />
+                {/* The deck's four steps in the deck's four colours — the
+                    same colours the diagram's rail uses for the same words,
+                    so the eyebrow and the drawing read as one spine. */}
+                <Kicker
+                  id="header"
+                  tone="hero"
+                  label={
+                    <span className="ax-hero__spine">
+                      {SPINE.map((s, i) => (
+                        <span key={s.label} className="ax-hero__spine-item">
+                          {i > 0 ? (
+                            <i className="ax-hero__spine-arrow" aria-hidden="true">
+                              →
+                            </i>
+                          ) : null}
+                          <span className="ax-hero__spine-step" style={{ "--c": s.color }}>
+                            {s.label}
+                          </span>
+                        </span>
+                      ))}
+                    </span>
+                  }
+                />
 
+                {/* Two lines, not three: at three the claim was a narrow
+                    column with a screen-wide gap beside it. The accent is
+                    the deck's own emphasis — "Does REAL WORK". */}
                 <h1 className="ax-hero__title">
-                  <MaskHeading text={"AI that\ndoes the\nwork."} delay={0.15} />
+                  <MaskHeading text={"AI that does\n*the work.*"} delay={0.15} />
                 </h1>
 
                 {/* `immediate`: the first screen reveals as a function of

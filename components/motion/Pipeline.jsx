@@ -6,14 +6,15 @@ import AmbientVideo from "@/components/motion/AmbientVideo";
 import { films, filmFor } from "@/components/video.data";
 
 /**
- * "How we run it" — the five stages of an engagement, as a line being drawn
- * rather than a grid being listed.
+ * "How we run it" — the stages of an engagement (the deck's four: Identify,
+ * Prove, Measure, Scale), as a line being drawn rather than a grid being
+ * listed. Nothing here assumes a count; the column count is passed to the
+ * stylesheet as `--ax-pipe-n`.
  *
- * The content was already on the page: Discover, Design, Build, Deploy,
- * Scale, laid out as six equal tiles in a 3x2 grid (the sixth,
- * the closing claim, is not a stage and is handled separately by the
- * caller). Nothing in that layout said these happen in order, which is the
- * single most important thing about them — and it is the same five-stage
+ * The content was already on the page, laid out as equal tiles in a grid
+ * (the last, the closing claim, is not a stage and is handled separately by
+ * the caller). Nothing in that layout said these happen in order, which is
+ * the single most important thing about them — and it is the same stage
  * spine the Deployments section already scrubs its reels along, so the page
  * was telling the same story twice in two unrelated shapes.
  *
@@ -36,18 +37,18 @@ import { films, filmFor } from "@/components/video.data";
  *
  * Above the rail sits one screen, showing the stage the line has reached —
  * the same scroll position saying the same thing a third way: the line
- * reaches Deploy, Deploy lights, and the screen becomes a rack of servers.
+ * reaches Measure, Measure lights, and the screen becomes a rack of servers.
  * Pointing at any stage takes the screen over from the scroll, so a reader
  * can look ahead at Scale without scrolling there and losing their place.
  *
- * One screen rather than a clip behind each of the five stages, and that is
- * a legibility decision before an aesthetic one: this section sits on white
- * with dark text, so five films behind five paragraphs would mean five
- * paragraphs to keep readable over moving footage. A single screen that
- * carries no text over it can be graded as hard as the footage needs.
+ * One screen rather than a clip behind each stage, and that is a legibility
+ * decision before an aesthetic one: this section sits on white with dark
+ * text, so a film behind every paragraph would mean every paragraph to keep
+ * readable over moving footage. A single screen that carries no text over
+ * it can be graded as hard as the footage needs.
  *
- * Clips arm one at a time as the line reaches them, never all five at once,
- * and all five are files already used elsewhere on the page (see `filmFor`
+ * Clips arm one at a time as the line reaches them, never all at once, and
+ * all of them are files already used elsewhere on the page (see `filmFor`
  * in components/video.data.js), so most come from cache.
  */
 export default function Pipeline({ stages }) {
@@ -66,10 +67,10 @@ export default function Pipeline({ stages }) {
     setSeen((prev) => (prev.has(lit) ? prev : new Set(prev).add(lit)));
   }, [lit]);
 
-  /* Autoplay: cycle the screen through Discover → Design → Build → Deploy →
-     Scale on its own, looping back to Discover after. Each stage's dwell is
-     that stage's own clip's runtime, so the screen holds Discover only as
-     long as its footage actually plays before Design takes over.
+  /* Autoplay: cycle the screen through Identify → Prove → Measure → Scale
+     on its own, looping back to Identify after. Each stage's dwell is that
+     stage's own clip's runtime, so the screen holds Identify only as long
+     as its footage actually plays before Prove takes over.
      Hovering/focusing a stage wins immediately (the effect just re-schedules
      from wherever the pointer leaves it), and scrolling still wins too —
      ScrollTrigger's onUpdate sets `active` on every scroll tick, and this
@@ -196,7 +197,7 @@ export default function Pipeline({ stages }) {
         />
       </div>
 
-      <ol className="ax-pipe__stages">
+      <ol className="ax-pipe__stages" style={{ "--ax-pipe-n": stages.length }}>
         {stages.map((s, i) => (
           <li
             key={s.title}

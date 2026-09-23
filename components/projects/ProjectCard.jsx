@@ -11,6 +11,7 @@ import {
 import ProjectMedia from "@/components/projects/ProjectMedia";
 import LanguageSwitcher from "@/components/projects/LanguageSwitcher";
 import ProjectResources from "@/components/projects/ProjectResources";
+import { usePopup } from "@/components/PopupContext";
 
 /**
  * One project. The product is the unit: its name and what it is, the demo
@@ -25,6 +26,7 @@ import ProjectResources from "@/components/projects/ProjectResources";
  * presentation instead of an empty player — see `DocumentOnly` below.
  */
 export default function ProjectCard({ project, index, variant = "card" }) {
+  const { startTransition } = usePopup();
   const codes = languageCodes(project);
   const [code, setCode] = useState(() => defaultLanguage(project));
   /* A language change while the demo is running should keep running in
@@ -112,6 +114,28 @@ export default function ProjectCard({ project, index, variant = "card" }) {
             {meta.join(" · ")}
           </p>
         )}
+        {/* Every product has its own page — the chain it runs, what it
+            brings, the demo again at full size. */}
+        <a
+          href={`/use-cases/${project.id}`}
+          className="ax-proj__more"
+          onClick={(e) => {
+            e.preventDefault();
+            startTransition(`/use-cases/${project.id}`);
+          }}
+        >
+          Explore the use case
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M5 12h13M13 6l6 6-6 6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </a>
       </footer>
     </article>
   );

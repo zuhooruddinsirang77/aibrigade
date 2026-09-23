@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import DemoShell from "@/components/demos/DemoShell";
 import useDemoRun from "@/components/demos/useDemoRun";
+import { useCountUp } from "@/components/demos/labHooks";
 
 /**
  * Transaction risk scoring, with the reasons.
@@ -16,6 +17,10 @@ import useDemoRun from "@/components/demos/useDemoRun";
  * It re-runs on change rather than on a submit button because the
  * cause-and-effect is the content. The hook supersedes in-flight runs, so
  * dragging the amount slider is one settled answer, not twenty queued.
+ *
+ * The meter is drawn against the engine's own thresholds (38 refer, 72
+ * decline), so a reader can see not just the score but how close it sits
+ * to the line that would change the outcome.
  */
 
 const PRESETS = [
@@ -57,6 +62,13 @@ const CATEGORIES = [
   { id: "crypto", label: "Crypto / transfer" },
 ];
 
+/* The engine's cut-offs, as a percentage of the score. Mirrors
+   `meta.thresholds` in app/api/demos/_engines/fraud.js. */
+const REFER_AT = 38;
+const DECLINE_AT = 72;
+
+const sameInput = (a, b) => Object.keys(a).every((k) => a[k] === b[k]);
+
 const DECISIONS = {
   approve: { label: "Approve", note: "Straight through — no analyst touch" },
   review: { label: "Refer", note: "Queued for an analyst with the reasons attached" },
@@ -66,6 +78,7 @@ const DECISIONS = {
 export default function FraudDecisionDemo() {
   const [input, setInput] = useState(PRESETS[0].input);
   const { status, result, error, run } = useDemoRun("fraud");
+  const score = useCountUp(result ? result.score * 100 : 0);
 
   // Keep the latest input in a ref so the debounce effect can fire without
   // re-subscribing on every keystroke.
@@ -80,6 +93,10 @@ export default function FraudDecisionDemo() {
   const set = useCallback((patch) => setInput((prev) => ({ ...prev, ...patch })), []);
 
   const decision = result ? DECISIONS[result.decision] : null;
+  const preset = PRESETS.find((p) => sameInput(p.input, input));
+  const maxWeight = result
+    ? Math.max(...result.reasons.map((r) => Math.abs(r.weight)), 0.001)
+    : 1;
 
   return (
     <div className="ax-demo__split">
@@ -94,11 +111,13 @@ export default function FraudDecisionDemo() {
               key={p.id}
               type="button"
               className="ax-demo__preset"
+              aria-pressed={preset?.id === p.id}
               onClick={() => setInput(p.input)}
             >
               {p.label}
             </button>
           ))}
+          {!preset && <span className="ax-demo__custom">Custom</span>}
         </div>
 
         <label className="ax-demo__field">
@@ -210,6 +229,8 @@ export default function FraudDecisionDemo() {
         emptyTitle="Adjust a control"
         emptyHint="The decision re-runs as you change the transaction."
         runningLabel="Scoring transaction"
+        steps={["Normalise 8 features", "Score AB-SCORE-1", "Apply policy set PS-4"]}
+        raw={result}
         footer={
           result && (
             <>
@@ -225,16 +246,41 @@ export default function FraudDecisionDemo() {
           <div className="ax-demo__result">
             <div className={`ax-fraud__verdict ax-fraud__verdict--${result.decision}`}>
               <div className="ax-fraud__verdict-head">
-                <span className="ax-fraud__decision">{decision.label}</span>
+                <span className="ax-fraud__decision">
+                  <i aria-hidden="true" />
+                  {decision.label}
+                </span>
                 <span className="ax-fraud__score">
-                  {(result.score * 100).toFixed(1)}
+                  {score.toFixed(1)}
                   <em>/100 risk</em>
                 </span>
               </div>
               <p className="ax-fraud__note">{decision.note}</p>
-              <span className="ax-fraud__meter" aria-hidden="true">
-                <i style={{ width: `${Math.min(100, result.score * 100)}%` }} />
-              </span>
+
+              {/* Three zones at the engine's thresholds, the score as a
+                  marker travelling across them. */}
+              <div
+                className="ax-fraud__meter"
+                style={{
+                  "--refer": `${REFER_AT}%`,
+                  "--decline": `${DECLINE_AT}%`,
+                  "--at": `${Math.min(100, Math.max(0, result.score * 100))}%`,
+                }}
+                aria-hidden="true"
+              >
+                <span className="ax-fraud__zones">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <span className="ax-fraud__needle" />
+                <span className="ax-fraud__ticks">
+                  <span style={{ left: "0%" }}>0</span>
+                  <span style={{ left: `${REFER_AT}%` }}>{REFER_AT}</span>
+                  <span style={{ left: `${DECLINE_AT}%` }}>{DECLINE_AT}</span>
+                  <span style={{ left: "100%" }}>100</span>
+                </span>
+              </div>
             </div>
 
             <div className="ax-demo__block">
@@ -244,6 +290,11 @@ export default function FraudDecisionDemo() {
                   <li key={r.label} data-dir={r.direction}>
                     <span className="ax-fraud__reason-label">{r.label}</span>
                     <span className="ax-fraud__reason-detail">{r.detail}</span>
+                    {/* Diverging from a centre line: left lowers risk,
+                        right raises it, length is share of the largest. */}
+                    <span className="ax-fraud__reason-bar" aria-hidden="true">
+                      <i style={{ "--w": `${(Math.abs(r.weight) / maxWeight) * 50}%` }} />
+                    </span>
                     <span className="ax-fraud__reason-weight">
                       {r.weight > 0 ? "+" : ""}
                       {r.weight}

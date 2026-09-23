@@ -1,11 +1,9 @@
-import CaseStudy from "@/components/CaseStudy";
+import { permanentRedirect } from "next/navigation";
+import { LEGACY_ROUTES, useCaseHref } from "@/components/usecases.data";
 
-export const metadata = {
-  title: "UUB Health | AI Brigade case study",
-  description:
-    "How AI Brigade built a HIPAA-compliant clinical documentation copilot for UUB Health, integrated with Epic via HL7 FHIR.",
-};
-
+/* Was the "UUB Health" client case study — a placeholder client. The
+   route is kept so old links still land, on InCall, the third of the
+   flagship builds the home page's Cases section now tells. */
 export default function Page() {
-  return <CaseStudy slug="uub" />;
+  permanentRedirect(useCaseHref(LEGACY_ROUTES.uub));
 }

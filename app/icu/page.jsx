@@ -1,11 +1,9 @@
-import CaseStudy from "@/components/CaseStudy";
+import { permanentRedirect } from "next/navigation";
+import { LEGACY_ROUTES, useCaseHref } from "@/components/usecases.data";
 
-export const metadata = {
-  title: "ICU Capital | AI Brigade case study",
-  description:
-    "How AI Brigade built a real-time, explainable fraud detection system for ICU Capital, an asset and investment management company.",
-};
-
+/* Was the "ICU Capital" client case study — a placeholder client with a
+   placeholder metric. The route is kept so old links still land: it opens
+   the product that page was about, real-time fraud detection. */
 export default function Page() {
-  return <CaseStudy slug="icu" />;
+  permanentRedirect(useCaseHref(LEGACY_ROUTES.icu));
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DemoShell from "@/components/demos/DemoShell";
 import useDemoRun from "@/components/demos/useDemoRun";
+import KbdHint from "@/components/demos/KbdHint";
+import { submitOnModEnter, useRunOnView } from "@/components/demos/labHooks";
 
 /**
  * What an agent decides to DO with what it just heard.
@@ -12,6 +14,10 @@ import useDemoRun from "@/components/demos/useDemoRun";
  * an ambiguous one gets a question, and one carrying distress goes to a
  * person no matter how confident the classifier was. Most agent demos only
  * ever show the first.
+ *
+ * Picking an example routes it straight away; typing your own waits for
+ * the button (or ⌘/Ctrl + Enter), because routing half a sentence on every
+ * keystroke would show the classifier guessing at words not yet written.
  */
 
 const EXAMPLES = [
@@ -22,9 +28,9 @@ const EXAMPLES = [
 ];
 
 const ACTIONS = {
-  act: { label: "Act", tone: "act" },
-  clarify: { label: "Ask", tone: "clarify" },
-  escalate: { label: "Hand over", tone: "escalate" },
+  act: { label: "Act", tone: "act", hint: "Call the tool" },
+  clarify: { label: "Ask", tone: "clarify", hint: "One question" },
+  escalate: { label: "Hand over", tone: "escalate", hint: "To a person" },
 };
 
 const MAX = 400;
@@ -32,8 +38,14 @@ const MAX = 400;
 export default function IntentRouterDemo() {
   const [utterance, setUtterance] = useState(EXAMPLES[0].text);
   const { status, result, error, run, reset } = useDemoRun("intent");
+  const rootRef = useRef(null);
 
   const tooShort = utterance.trim().length < 3;
+  const picked = EXAMPLES.find((ex) => ex.text === utterance);
+
+  useRunOnView(rootRef, () => {
+    if (status === "idle" && !tooShort) run({ utterance });
+  });
 
   const submit = (e) => {
     e.preventDefault();
@@ -44,7 +56,7 @@ export default function IntentRouterDemo() {
   const action = result ? ACTIONS[result.route.action] : null;
 
   return (
-    <div className="ax-demo__split">
+    <div className="ax-demo__split" ref={rootRef}>
       <form className="ax-demo__controls" onSubmit={submit} aria-label="Customer utterance">
         <div className="ax-demo__presets" role="group" aria-label="Example utterances">
           {EXAMPLES.map((ex) => (
@@ -52,9 +64,10 @@ export default function IntentRouterDemo() {
               key={ex.label}
               type="button"
               className="ax-demo__preset"
+              aria-pressed={picked?.label === ex.label}
               onClick={() => {
                 setUtterance(ex.text);
-                reset();
+                run({ utterance: ex.text });
               }}
             >
               {ex.label}
@@ -74,6 +87,7 @@ export default function IntentRouterDemo() {
             value={utterance}
             maxLength={MAX}
             rows={4}
+            onKeyDown={submitOnModEnter}
             onChange={(e) => {
               setUtterance(e.target.value);
               if (status !== "idle") reset();
@@ -90,7 +104,11 @@ export default function IntentRouterDemo() {
           >
             {status === "running" ? "Routing…" : "Route it"}
           </button>
-          {tooShort && <p className="ax-demo__hint">Type a few words to run.</p>}
+          {tooShort ? (
+            <p className="ax-demo__hint">Type a few words to run.</p>
+          ) : (
+            <KbdHint action="to route" />
+          )}
         </div>
       </form>
 
@@ -102,6 +120,8 @@ export default function IntentRouterDemo() {
         emptyTitle="Nothing routed yet"
         emptyHint="Pick an example or write your own, then route it."
         runningLabel="Classifying and planning"
+        steps={["Tokenise utterance", "Score intents", "Apply routing policy"]}
+        raw={result}
         footer={
           result && (
             <>
@@ -113,6 +133,21 @@ export default function IntentRouterDemo() {
       >
         {result && (
           <div className="ax-demo__result">
+            {/* The three outcomes the policy can reach, the chosen one lit. */}
+            <ol className="ax-intent__paths" aria-label="Possible outcomes">
+              {Object.entries(ACTIONS).map(([k, a]) => (
+                <li
+                  key={k}
+                  data-tone={a.tone}
+                  data-on={result.route.action === k ? "true" : undefined}
+                  aria-current={result.route.action === k ? "true" : undefined}
+                >
+                  <strong>{a.label}</strong>
+                  <span>{a.hint}</span>
+                </li>
+              ))}
+            </ol>
+
             <div className={`ax-intent__route ax-intent__route--${action.tone}`}>
               <span className="ax-intent__action">{action.label}</span>
               <div className="ax-intent__route-body">
@@ -153,7 +188,14 @@ export default function IntentRouterDemo() {
                         {r.label}
                         <em>{r.domain}</em>
                       </span>
-                      <span className="ax-intent__bar" aria-hidden="true">
+                      <span
+                        className="ax-intent__bar"
+                        aria-hidden="true"
+                        style={{
+                          "--clarify": `${result.thresholds.clarify * 100}%`,
+                          "--act": `${result.thresholds.act * 100}%`,
+                        }}
+                      >
                         <i style={{ width: `${Math.round(r.confidence * 100)}%` }} />
                       </span>
                       <span className="ax-intent__pct">

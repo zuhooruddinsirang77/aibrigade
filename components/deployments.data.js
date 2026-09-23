@@ -21,14 +21,18 @@
  * and the section about work playing had nothing playing in it.
  *
  * `chapters` is the mechanism that makes this section worth building: the
- * timestamps map the footage onto the five stages the site already claims to
- * run (Discover → Design → Build → Deploy → Scale, see components/data.js
+ * timestamps map the footage onto the four stages the site already claims to
+ * run (Identify → Prove → Measure → Scale, see components/data.js
  * `features`). Playing a reel walks a prospect through the process instead of
  * just showing a product demo. Get the timestamps right per video — they are
  * seconds into that clip, and a wrong one makes the whole device feel broken.
+ *
+ * Each reel used to have a fifth `Design` chapter between Identify and
+ * Prove. The deck has no such step, so it was folded into Prove: Prove now
+ * starts at the old Design timestamp and its caption carries both beats.
  */
 
-export const STAGES = ["Identify", "Design", "Prove", "Measure", "Scale"];
+export const STAGES = ["Identify", "Prove", "Measure", "Scale"];
 
 export const deployments = [
   {
@@ -47,8 +51,7 @@ export const deployments = [
     duration: 48,
     chapters: [
       { t: 0, stage: "Identify", caption: "Mapping two years of settled disputes" },
-      { t: 9, stage: "Design", caption: "Choosing features the risk team can defend" },
-      { t: 19, stage: "Prove", caption: "Streaming scorer, shadow-run against live traffic" },
+      { t: 9, stage: "Prove", caption: "Defensible features, shadow-run against live traffic" },
       { t: 31, stage: "Measure", caption: "Cutover behind a kill switch" },
       { t: 41, stage: "Scale", caption: "Retraining loop on reviewer feedback" },
     ],
@@ -65,8 +68,7 @@ export const deployments = [
     duration: 52,
     chapters: [
       { t: 0, stage: "Identify", caption: "Shadowing clinicians through a full shift" },
-      { t: 11, stage: "Design", caption: "Drafting inside the note, never beside it" },
-      { t: 22, stage: "Prove", caption: "HL7 FHIR write-back with a human approval gate" },
+      { t: 11, stage: "Prove", caption: "Drafting inside the note, FHIR write-back behind a human gate" },
       { t: 35, stage: "Measure", caption: "One department first, then the floor" },
       { t: 45, stage: "Scale", caption: "Specialty-specific templates" },
     ],
@@ -83,8 +85,7 @@ export const deployments = [
     duration: 44,
     chapters: [
       { t: 0, stage: "Identify", caption: "Where the current queue actually stalls" },
-      { t: 8, stage: "Design", caption: "Drawing the line between auto and referred" },
-      { t: 17, stage: "Prove", caption: "Policy engine plus model, versioned together" },
+      { t: 8, stage: "Prove", caption: "The auto/referred line, as policy and model versioned together" },
       { t: 29, stage: "Measure", caption: "Parallel run against human decisions" },
       { t: 38, stage: "Scale", caption: "New products onboarded by config" },
     ],
@@ -101,8 +102,7 @@ export const deployments = [
     duration: 39,
     chapters: [
       { t: 0, stage: "Identify", caption: "Reconciling six incompatible feeds" },
-      { t: 7, stage: "Design", caption: "An alert that answers 'and then what?'" },
-      { t: 15, stage: "Prove", caption: "Middleware and the review interface" },
+      { t: 7, stage: "Prove", caption: "Middleware and alerts that answer 'and then what?'" },
       { t: 26, stage: "Measure", caption: "Running alongside the old process" },
       { t: 34, stage: "Scale", caption: "New venue onboarding in days" },
     ],

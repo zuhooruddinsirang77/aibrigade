@@ -1,0 +1,606 @@
+/* ================================================================
+   AIBrigade — the Featured chapter ("Give us a business problem")
+
+   A light chapter like WhyUs, Features, Services and Reviews, and built
+   from the same parts. Its head is the shared one in compose.css §4 (the
+   `#featured ._3-columns-grid` rules sit in that list) and its section
+   padding is the shared `--rhythm-2` in compose.css §3. What is here is
+   only what is particular to this section:
+
+   1. One adjustment to the shared head.
+   2. The example-brief panel (components/motion/ProblemBrief.jsx), which
+      replaced a stock film with a terminal set into it.
+   3. The five problem kinds, set inline in the deck's sentence.
+
+   Built from what the page already uses: white surfaces on a hairline
+   border, the violet pill the navbar marks the current section with, the
+   five problem tones from compose.css, the coral-to-violet rail.
+
+   Root size note: globals.css scales `rem` with the viewport (13px at
+   1440, ~9.5px at 1024), so small type here carries pixel floors.
+   ================================================================ */
+
+/* ---- 1. The head ----
+   "Give us a business problem." is the longest first line of any chapter
+   head, and at the shared 1.15fr / 0.85fr split it broke as "Give us a /
+   business problem." — three lines where every other head has two. The
+   context line here is one sentence, so the heading column takes the
+   width it needs and the type stays at the shared display size. */
+@media screen and (min-width: 992px) {
+  #featured ._3-columns-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 0.75fr);
+  }
+}
+
+/* ================================================================
+   2. The example-brief panel
+   ================================================================ */
+
+#featured .ax-brief {
+  /* Long enough to read a brief and its assessment — about ninety words —
+     before it moves on. */
+  --dwell: 12s;
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-3);
+  overflow: hidden;
+}
+
+/* ---- the bar: which example, and the clock ---- */
+#featured .ax-brief__bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 14px clamp(16px, 2vw, 28px);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+#featured .ax-brief__bar-label {
+  margin: 0;
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+#featured .ax-brief__tabs {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#featured .ax-brief__tabs::-webkit-scrollbar {
+  display: none;
+}
+#featured .ax-brief__tab {
+  flex: none;
+  padding: 8px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-60);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease),
+    background var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+#featured .ax-brief__tab:hover {
+  color: var(--ink);
+  border-color: rgba(146, 72, 228, 0.35);
+}
+#featured .ax-brief__tab:focus-visible {
+  outline: 2px solid var(--violet-400);
+  outline-offset: 2px;
+}
+/* The navbar's "you are here" pill, exactly (nav.css). */
+#featured .ax-brief__tab[aria-selected="true"] {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--violet-400) 0%, var(--violet-500) 55%, var(--violet-600) 100%);
+  box-shadow: 0 0.35rem 1rem rgba(146, 72, 228, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -0.125rem 0.25rem rgba(0, 0, 0, 0.18);
+}
+
+/* The clock: the page's coral-to-violet rail, run along the foot of the
+   bar. Its `animationend` advances the rotation (see ProblemBrief), so
+   pausing it pauses the rotation. */
+#featured .ax-brief__timer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--grad-rail);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: ax-brief-clock var(--dwell) linear forwards;
+  animation-play-state: paused;
+}
+#featured .ax-brief[data-running="true"] .ax-brief__timer {
+  animation-play-state: running;
+}
+@keyframes ax-brief-clock {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---- the body: the brief, and what comes back ---- */
+#featured .ax-brief__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+}
+
+#featured .ax-brief__label {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+/* Every brief is in the DOM, stacked in one cell; only the active one is
+   visible. The cell is as tall as the tallest brief, so the panel never
+   changes height when the rotation moves on. */
+#featured .ax-brief__stack {
+  display: grid;
+}
+#featured .ax-brief__stack > * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+#featured .ax-brief__stack > [data-active="false"] {
+  visibility: hidden;
+}
+
+/* ---- the client's side ----
+   Tinted, so the two halves read as two parties. The quotation sits
+   centred in the height the assessment gives it, rather than hanging at
+   the top over a well of empty tint. */
+#featured .ax-brief__ask {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: clamp(28px, 3.2vw, 52px);
+  background:
+    radial-gradient(90% 55% at 0% 0%, rgba(146, 72, 228, 0.1) 0%, transparent 70%),
+    var(--surface-sunken);
+  border-right: 1px solid var(--line);
+}
+#featured .ax-brief__ask-stack {
+  margin-block: auto;
+}
+
+#featured .ax-brief__quote {
+  margin: 0;
+}
+#featured .ax-brief__mark {
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 18px;
+  fill: var(--violet-300);
+  opacity: 0.8;
+}
+#featured .ax-brief__quote blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+#featured .ax-brief__quote blockquote p {
+  margin: 0;
+  font-size: clamp(18px, 1.5vw, 24px);
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+#featured .ax-brief__quote figcaption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--ink-60);
+}
+#featured .ax-brief__quote figcaption::before {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background: var(--violet-400);
+}
+
+/* The lede's list of things a client need not arrive with, struck. */
+#featured .ax-brief__not {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+#featured .ax-brief__not .ax-brief__label {
+  margin-bottom: 10px;
+}
+#featured .ax-brief__not ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#featured .ax-brief__not li {
+  padding: 6px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ink-45);
+  text-decoration: line-through;
+  text-decoration-color: rgba(248, 119, 86, 0.7);
+}
+
+/* ---- our side ---- */
+#featured .ax-brief__out {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 3.2vw, 52px);
+}
+
+/* The hand-off between the two halves, sitting on the divider. */
+#featured .ax-brief__seam {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--violet-500);
+  box-shadow: var(--shadow-2);
+  transform: translate(-50%, -50%);
+}
+#featured .ax-brief__seam svg {
+  width: 18px;
+  height: 18px;
+}
+
+#featured .ax-brief__out-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 28px;
+}
+
+/* The verdict, as a pill beside the heading: the deck's own words, on the
+   pale end of the brand gradient. */
+#featured .ax-brief__verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 13px 4px 4px;
+  border: 1px solid rgba(146, 72, 228, 0.2);
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, rgba(146, 72, 228, 0.09) 0%, rgba(248, 119, 86, 0.07) 100%);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--violet-600);
+}
+#featured .ax-brief__check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--violet-400), var(--violet-600));
+  color: #fff;
+}
+#featured .ax-brief__check svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.4;
+}
+
+/* ---- the route ----
+   The deck's five stages as the spine of the assessment: numbered nodes
+   on a rail, each stage's answer under its name. The last station — the
+   pilot, the thing the client can measure — is filled with the brand
+   gradient, as it was when the route was its own strip under this panel. */
+#featured .ax-brief__route {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#featured .ax-brief__stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  column-gap: 18px;
+  padding-bottom: 22px;
+}
+#featured .ax-brief__stage:last-child {
+  padding-bottom: 0;
+}
+/* The rail: one segment from each node down to the next. */
+#featured .ax-brief__stage:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 36px;
+  bottom: 6px;
+  left: 14.5px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--violet-200), color-mix(in srgb, var(--violet-400) 55%, transparent));
+}
+#featured .ax-brief__node {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(146, 72, 228, 0.3);
+  border-radius: 50%;
+  background: var(--surface);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--violet-500);
+}
+#featured .ax-brief__stage[data-end] .ax-brief__node {
+  border-color: transparent;
+  background: var(--grad-brand);
+  box-shadow:
+    0 0 0 4px var(--surface),
+    0 0 0 5px color-mix(in srgb, var(--violet-500) 22%, transparent),
+    0 0.4rem 1.1rem rgba(146, 72, 228, 0.32);
+  color: #fff;
+}
+#featured .ax-brief__stage-body {
+  min-width: 0;
+}
+/* The name sits level with its node; the answer runs under it. */
+#featured .ax-brief__stage-name {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 30px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+#featured .ax-brief__stage[data-end] .ax-brief__stage-name {
+  color: var(--violet-600);
+}
+#featured .ax-brief__text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* The chips on each brief: the shared `.ax-kind` (section 3), a size
+   down to sit in a stage of the route. */
+#featured .ax-brief__kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#featured .ax-brief__kinds .ax-kind {
+  padding: 5px 11px 5px 7px;
+  font-size: 13px;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+/* The agents: steps joined by connectors, the last one always a person.
+   The connector trails each step, the page's rule for every wrapped chain
+   (docs/home-page-copy.md, "Wrapped chains opened on a stray arrow"): a
+   wrapped line ends on the connector and reads as "continues". */
+#featured .ax-brief__flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#featured .ax-brief__flow li {
+  display: inline-flex;
+  align-items: center;
+}
+#featured .ax-brief__flow li:not(:last-child)::after {
+  content: "";
+  width: 16px;
+  height: 1px;
+  margin: 0 4px;
+  background: linear-gradient(90deg, var(--violet-200), var(--violet-400));
+}
+#featured .ax-brief__flow span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--ink);
+  white-space: nowrap;
+}
+#featured .ax-brief__flow li[data-human] span {
+  border-color: rgba(146, 72, 228, 0.3);
+  background: var(--surface-violet);
+  color: var(--violet-600);
+  font-weight: 500;
+}
+#featured .ax-brief__flow svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* The systems it connects to: the client's own, so set plainly —
+   outlined, not tinted — beside the agents, which are ours. */
+#featured .ax-brief__systems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#featured .ax-brief__systems li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--ink-60);
+}
+#featured .ax-brief__systems li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 1.5px;
+  background: var(--ink-45);
+  opacity: 0.55;
+}
+
+/* Each brief arrives rather than swapping: the quotation fades in, and the
+   route's stages follow one after another, as if being worked through.
+   Attached only to the active brief, so it replays each time one becomes
+   active. */
+html.ax-motion:not(.ax-reduced) #featured .ax-brief__quote[data-active="true"],
+html.ax-motion:not(.ax-reduced) #featured .ax-brief__route[data-active="true"] .ax-brief__stage {
+  animation: ax-brief-in 0.55s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 80ms + 60ms);
+}
+@keyframes ax-brief-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+/* ================================================================
+   3. The five kinds, in a sentence
+
+   The second sentence of the deck's paragraph, verbatim, with each of the
+   five problem kinds set as a chip in its own tone and glyph. It opens the
+   chapter's body, so the chips on every example brief below read as the
+   same five things. It replaced the sentence-plus-five-cards pair, which
+   said the same five words twice in a row.
+
+   `.ax-kind` is sized in `em` so it sits in running text at any size; the
+   brief panel sets its own smaller version.
+   ================================================================ */
+#featured .ax-kinds {
+  margin: 0 0 var(--sp-7);
+  max-width: 62ch;
+  font-size: clamp(17px, 1.45vw, 22px);
+  line-height: 1.8;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* The tones are the ones the problem cards carried (compose.css). */
+#featured .ax-kind {
+  --tone: var(--violet-500);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28em;
+  padding: 0.06em 0.5em 0.06em 0.36em;
+  border: 1px solid color-mix(in srgb, var(--tone) 24%, transparent);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--tone) 9%, var(--surface));
+  font-size: 0.8em;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0;
+  color: color-mix(in srgb, var(--tone) 72%, var(--ink));
+  white-space: nowrap;
+  vertical-align: 0.1em;
+}
+#featured .ax-kind[data-tone="teal"] {
+  --tone: #2fd3c0;
+}
+#featured .ax-kind[data-tone="amber"] {
+  --tone: #f0a83c;
+}
+#featured .ax-kind[data-tone="blue"] {
+  --tone: #4d7cf5;
+}
+#featured .ax-kind[data-tone="coral"] {
+  --tone: var(--coral);
+}
+#featured .ax-kind svg {
+  flex: none;
+  width: 1.05em;
+  height: 1.05em;
+}
+
+/* ---- below the desktop breakpoint ----
+   The two halves stack, the brief above what comes back, and the hand-off
+   arrow turns to point down from the divider between them. */
+@media screen and (max-width: 991px) {
+  #featured .ax-brief__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #featured .ax-brief__ask {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  #featured .ax-brief__ask-stack {
+    margin-block: 0;
+  }
+  #featured .ax-brief__seam {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+  #featured .ax-brief__out {
+    padding-top: 40px;
+  }
+}
+
+@media screen and (max-width: 599px) {
+  #featured .ax-brief {
+    border-radius: var(--r-lg);
+  }
+  #featured .ax-brief__bar-label {
+    display: none;
+  }
+  #featured .ax-brief__stage {
+    column-gap: 14px;
+  }
+}

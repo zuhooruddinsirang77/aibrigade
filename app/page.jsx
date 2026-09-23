@@ -9,7 +9,6 @@ import Environments from "@/components/Environments";
 import SectionSeam from "@/components/motion/SectionSeam";
 import Services from "@/components/Services";
 import Features from "@/components/Features";
-import Infrastructure from "@/components/Infrastructure";
 import Reviews from "@/components/Reviews";
 import Cta from "@/components/Cta";
 import Proud from "@/components/Proud";
@@ -22,6 +21,11 @@ export default function Home() {
       <Navbar />
       <div className="main-wrapper">
         <Hero />
+        {/* The capabilities come straight after the hero: the first screen
+            claims "AI that does the work", and the next thing a reader
+            sees is what it has already been taught to do. Then the problem
+            (AI that stops at the answer), then the proof (flagship builds,
+            client cases, the portfolio). */}
         <WhyUs />
         <DecisionPath />
         <Cases />
@@ -30,7 +34,10 @@ export default function Home() {
         <Environments />
         <Services />
         <Features />
-        <Infrastructure />
+        {/* "The part that runs at 3am" (Infrastructure.jsx) was removed: the
+            deck has no control-and-governance slide, and its three points
+            are already on the page — Decide and Operate privately in the
+            capability cards, Human control and Audit in the estate layer. */}
         <Reviews />
         <Featured />
         <Cta />

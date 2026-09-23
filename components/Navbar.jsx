@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { usePopup } from "@/components/PopupContext";
 import Logo from "@/components/Logo";
-import { caseStudies } from "@/components/casestudies.data";
+import { useCases } from "@/components/projects.data";
 
 /**
  * Primary navigation.
@@ -20,10 +21,10 @@ import { caseStudies } from "@/components/casestudies.data";
  *
  * Three things are new, and each answers a real gap:
  *
- *   - **A menu under "use cases".** /icu, /halyk and /uub are real pages
- *     that were reachable only by finding the Cases section and clicking
- *     the right panel. They are in the navigation now, with the project
- *     showcase under them.
+ *   - **A menu under "use cases".** Every product in the showcase, each
+ *     linking to its own page (/use-cases/<id>), with the whole showcase
+ *     under them. This listed the three client case studies (/icu,
+ *     /halyk, /uub) until the use cases replaced them.
  *   - **Anchors that work off the home page.** Every link here pointed at
  *     an id (`#whyus`, `#cases`, `#services`). On a case-study route none
  *     of those ids exist, so `getElementById` returned null and the whole
@@ -31,7 +32,7 @@ import { caseStudies } from "@/components/casestudies.data";
  *     navigation through the page-transition overlay.
  *   - **A drawer with a structure.** Logo and a close control at the top,
  *     the sections numbered the way `Kicker` numbers them everywhere else
- *     on the page, the case studies nested under their parent, the call to
+ *     on the page, the use cases nested under their parent, the call to
  *     action at the foot. Focus is trapped while it is open and returned
  *     to the button that opened it.
  *
@@ -40,19 +41,9 @@ import { caseStudies } from "@/components/casestudies.data";
  * `scroll-margin-top` is written against this bar's height.
  */
 
-const CASES = ["icu", "halyk", "uub"]
-  .map((slug) => caseStudies[slug])
-  .filter(Boolean)
-  .map((c) => ({
-    slug: c.slug,
-    client: c.client,
-    sector: c.sector,
-    title: String(c.title).replace(/\s*\n\s*/g, " "),
-  }));
-
 /* `watch` is the set of sections that light a link up: the page has more
-   sections than the nav has labels, so "use cases" covers the case
-   studies and the project showcase, and "company" covers everything from
+   sections than the nav has labels, so "use cases" covers the proof
+   section and the project showcase, and "company" covers everything from
    the services strip down to the recognition badges. */
 const LINKS = [
   { id: "platform", label: "Capability", target: "#whyus", watch: ["whyus", "featured"] },
@@ -72,8 +63,10 @@ const LINKS = [
   /* A route, not an anchor — `goTo` sends anything that isn't a `#id`
      through the page transition, the same way Contact below does. It sits
      after Deployments because the order is evidence first, then the thing
-     a reader can operate themselves. */
-  { id: "demos", label: "Demos", target: "/demos" },
+     a reader can operate themselves. "AI Lab" rather than "Demos": these
+     are working modules from the systems we build, and "demos" reads as
+     a sales toy to the buyer this bar is written for. */
+  { id: "demos", label: "AI Lab", target: "/demos" },
   /* Was `mailto:contact@aibrigade.ai`. On a machine with no mail client
      registered — most browsers on most desktops now — that link does
      nothing at all when clicked, so the one item in the bar labelled
@@ -114,6 +107,7 @@ const FOCUSABLE =
 
 export default function Navbar() {
   const { startTransition } = usePopup();
+  const pathname = usePathname();
 
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // the phone drawer
@@ -311,7 +305,10 @@ export default function Navbar() {
 
   /* ---- render ---------------------------------------------------------- */
 
-  const isActive = (l) => Boolean(l.watch && active && l.watch.includes(active));
+  /* A route link is lit on its own page; a section link while its section
+     is being read. */
+  const isActive = (l) =>
+    l.target === pathname || Boolean(l.watch && active && l.watch.includes(active));
 
   return (
     <header
@@ -426,20 +423,20 @@ export default function Navbar() {
                            accessibility tree just as completely. */
                         data-open={open ? "true" : "false"}
                       >
-                        <p className="ax-nav__panel-label">Case studies</p>
+                        <p className="ax-nav__panel-label">Use cases</p>
                         <ul className="ax-nav__cases">
-                          {CASES.map((c) => (
-                            <li key={c.slug}>
+                          {useCases.map((u) => (
+                            <li key={u.id}>
                               <a
-                                href={`/${c.slug}`}
+                                href={u.href}
                                 className="ax-nav__case"
-                                onClick={goTo(`/${c.slug}`)}
+                                onClick={goTo(u.href)}
                               >
                                 <span className="ax-nav__case-head">
-                                  <span className="ax-nav__case-client">{c.client}</span>
-                                  <span className="ax-nav__case-sector">{c.sector}</span>
+                                  <span className="ax-nav__case-client">{u.name}</span>
+                                  <span className="ax-nav__case-sector">{u.sector}</span>
                                 </span>
-                                <span className="ax-nav__case-title">{c.title}</span>
+                                <span className="ax-nav__case-title">{u.line}</span>
                               </a>
                             </li>
                           ))}
@@ -560,7 +557,7 @@ export default function Navbar() {
                         className="ax-nav__drawer-toggle"
                         aria-expanded={open}
                         aria-controls={`nav-drawer-${l.id}`}
-                        aria-label={`${open ? "Hide" : "Show"} case studies`}
+                        aria-label={`${open ? "Hide" : "Show"} use cases`}
                         onClick={() => setOpenGroup(open ? null : l.id)}
                       >
                         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -580,11 +577,11 @@ export default function Navbar() {
                       className="ax-nav__drawer-sub"
                       hidden={!open}
                     >
-                      {CASES.map((c) => (
-                        <li key={c.slug}>
-                          <a href={`/${c.slug}`} onClick={goTo(`/${c.slug}`)}>
-                            {c.client}
-                            <small>{c.sector}</small>
+                      {useCases.map((u) => (
+                        <li key={u.id}>
+                          <a href={u.href} onClick={goTo(u.href)}>
+                            {u.name}
+                            <small>{u.sector}</small>
                           </a>
                         </li>
                       ))}

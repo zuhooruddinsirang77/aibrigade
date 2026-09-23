@@ -22,6 +22,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * to be legible. It is presentation, and the page is straight about that:
  * the real server time is reported separately, from the engine, and is the
  * number shown in the trace.
+ *
+ * On `ranInput`: while a new run is in flight the panel keeps showing the
+ * last result, dimmed, instead of blanking to a spinner — a slider drag
+ * that empties the panel on every step reads as a flicker. That only works
+ * if the stale result is drawn against the input that produced it, not
+ * whatever is in the controls now; the document demo's highlights are
+ * character offsets and would land on the wrong text otherwise.
  */
 
 const FLOOR_MS = 420;
@@ -29,6 +36,7 @@ const FLOOR_MS = 420;
 export default function useDemoRun(demo) {
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
+  const [ranInput, setRanInput] = useState(null);
   const [error, setError] = useState("");
 
   // The in-flight request, so a second run supersedes the first instead of
@@ -80,6 +88,7 @@ export default function useDemoRun(demo) {
         }
 
         setResult(data.result);
+        setRanInput(input);
         setStatus("done");
       } catch (err) {
         if (err?.name === "AbortError" || !aliveRef.current) return;
@@ -94,8 +103,9 @@ export default function useDemoRun(demo) {
     abortRef.current?.abort();
     setStatus("idle");
     setResult(null);
+    setRanInput(null);
     setError("");
   }, []);
 
-  return { status, result, error, run, reset, isRunning: status === "running" };
+  return { status, result, ranInput, error, run, reset, isRunning: status === "running" };
 }

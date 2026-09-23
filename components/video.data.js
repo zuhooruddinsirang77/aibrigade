@@ -264,14 +264,16 @@ export const filmFor = {
     "Operate privately": "infrastructure",
   },
 
-  /* Cases — the three media tiles. ICU's card is literally titled "Real-time
-     fraud detection", so it gets the real fraud-detection footage rather
-     than the generic coins/chip clip; Halyk (underwriting) keeps that clip,
-     UUB (clinical) stays on the real lab footage. */
+  /* Cases — the three media tiles, keyed by the product each act now
+     tells (they were three placeholder client case studies). Fraud
+     Detection keeps the real fraud-detection footage; Axon, a banking
+     assistant, takes the coins/chip banking clip; InCall — a voice agent
+     working a call — takes the person at a desk beside an AI assistant,
+     not the lab footage the clinical case had. */
   cases: {
-    icu: "fraudReal",
-    halyk: "fintechGrowth",
-    uub: "geneEditing",
+    "fraud-detection": "fraudReal",
+    axon: "fintechGrowth",
+    incall: "aiPartner",
   },
 
   /* ServiceExplorer — indexed to `services` in components/data.js. The
@@ -327,20 +329,18 @@ export const filmFor = {
     "compliance-monitor": "infrastructure",
   },
 
-  /* Pipeline — the five engagement stages. Order carries meaning here: a
-     room full of people (Identify), a chip coming up (Design), a real
-     agent interface taking shape (Prove), the racks it lands on
-     (Measure), a network under load (Scale). Read top to bottom it is the
-     same arc the page opens and closes on.
+  /* Pipeline — the four engagement stages. Order carries meaning here: a
+     room full of people (Identify), a real agent interface taking shape
+     (Prove), the racks it lands on (Measure), a network under load
+     (Scale). Read top to bottom it is the same arc the page opens and
+     closes on.
 
      Keyed by stage title, read by Pipeline.jsx as `filmFor.stages[s.title]`,
-     so these five strings must match `STAGE_TITLES` in Features.jsx and the
-     `title` fields in data.js exactly. They were renamed from Discover /
-     Build / Deploy and this table has to move with them — a miss here is
-     silent, and the stage simply plays no film. */
+     so these four strings must match `STAGE_TITLES` in Features.jsx and the
+     `title` fields in data.js exactly — a miss here is silent, and the
+     stage simply plays no film. */
   stages: {
     Identify: "operations",
-    Design: "awaken",
     Prove: "agentsInterface",
     Measure: "infrastructure",
     Scale: "logistics",

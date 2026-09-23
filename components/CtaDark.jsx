@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePopup } from "@/components/PopupContext";
 import MaskHeading from "@/components/motion/MaskHeading";
 import Magnetic from "@/components/motion/Magnetic";
+import Reveal from "@/components/motion/Reveal";
+import Kicker from "@/components/motion/Kicker";
 import AmbientVideo from "@/components/motion/AmbientVideo";
 import DepthField from "@/components/motion/DepthField";
 import Curtain from "@/components/motion/Curtain";
-
-const CDN = "https://cdn.prod.website-files.com/64147b2316f5ef0922b44617";
 
 /* Where the work usually is. Seven functions rather than the six sectors
    the hero opens on: by the time a reader reaches the bottom of the page
@@ -30,17 +30,14 @@ export default function CtaDark() {
     /* The closing frame widens, the same way the two dark scenes before
        it opened. See Curtain. */
     <Curtain id="ctadark" className="section_cta_dark" style={{ position: "relative", isolation: "isolate" }}>
-      {/* Same feedforward-network motif as the hero, in its light-on-dark
-          variant — the closing beat of the page echoes the opening one
-          instead of the "AI" visual only ever showing up once. Centred and
-          larger since this section has no phone gallery competing for the
-          same space. */}
       {/* The page opened on real footage of a person working with an AI
           agent; it closes the same way — a person at a laptop, a small
           holographic assistant beside them — rather than on an abstract
           circuit clip. The closing question is about that person's work,
           so it lands next to a picture of them doing it rather than next to
-          a trace of light with no one in the frame. */}
+          a trace of light with no one in the frame. The copy sits on the
+          left under a directional scrim (film.css), which leaves the
+          assistant on the right of the frame in full view. */}
       <AmbientVideo film="aiPartner" className="ax-cta__film" />
       {/* The page opens on a film with a volume of light suspended in
           front of it and closes the same way, at half strength — the
@@ -52,63 +49,76 @@ export default function CtaDark() {
       <div className="padding-global">
         <div className="container-large">
           <div className="padding-section-cta_dark">
-            <div className="container-large">
-              <div className="cta_dark_component">
-                <h2 className="heading-style-h4 text-color-white _4 max-width-large big heading-40pt-ipad_pro">
-                  <MaskHeading text="What work should AI be doing in your business?" />
-                </h2>
+            <div className="cta_dark_component ax-close">
+              <Kicker id="ctadark" tone="invert" label="The next step" />
 
-                {/* Seven places to look, for a reader who agrees with the
-                    question and cannot immediately answer it. Not links —
-                    there is nowhere on this site they would each go, and a
-                    chip that looks clickable and isn't is worse than a
-                    label. They are there to make the question answerable
-                    in the ten seconds before the button. */}
+              {/* Set in the hero's own register — two lines, the second
+                  in the hero's lavender-to-violet — so the question at
+                  the foot of the page reads as the answer to the claim at
+                  the top of it, not as a Webflow heading dropped in. */}
+              <h2 className="ax-close__title">
+                <MaskHeading text={"What work should AI be\n*doing in your business?*"} />
+              </h2>
+
+              <Reveal variant="rise" delay={0.15}>
+                <p className="ax-close__ask">
+                  Bring us one problem. We&rsquo;ll show you what AI can actually do with it.
+                </p>
+              </Reveal>
+
+              {/* Seven places to look, for a reader who agrees with the
+                  question and cannot immediately answer it. Not links —
+                  there is nowhere on this site they would each go, and a
+                  chip that looks clickable and isn't is worse than a
+                  label. They are there to make the question answerable
+                  in the ten seconds before the button. */}
+              <Reveal variant="rise" delay={0.25} className="ax-close__areas-block">
+                <p className="ax-close__areas-label">Common starting points</p>
                 <ul className="ax-close__areas">
                   {AREAS.map((a) => (
                     <li key={a}>{a}</li>
                   ))}
                 </ul>
+              </Reveal>
 
-                <p className="ax-close__ask">
-                  Bring us one problem. We&rsquo;ll show you what AI can actually do with it.
-                </p>
-
+              {/* The hero's own button: the same action must not change
+                  shape between the first screen and the last. */}
+              <Reveal variant="rise" delay={0.35} className="ax-close__actions">
                 <Magnetic>
-                <Link
-                  href="/contact"
-                  className="link fill width w-inline-block"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    startTransition("/contact");
-                  }}
-                >
-                  <div className="link_fill_text_wrapper">
-                    <div className="body20 text-weight-medium _20">bring us one problem</div>
-                    <div className="button_line_box">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`${CDN}/641c7d69b358b24cc0dac8fe_Vector%20(6).svg`}
-                        alt=""
-                        className="button_line_arrow arrow"
+                  <Link
+                    href="/contact"
+                    className="ax-hero__cta"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      startTransition("/contact");
+                    }}
+                  >
+                    Bring us one problem
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="M5 12h13M13 6l6 6-6 6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       />
-                    </div>
-                  </div>
-                </Link>
+                    </svg>
+                  </Link>
                 </Magnetic>
+              </Reveal>
 
-                {/* The last line, and the same four words the page opens
-                    on. Set small and tracked out under the button rather
-                    than as a second heading: at heading size it would
-                    compete with the question above it and read as the page
-                    restating its claim after asking for something, which
-                    is the wrong order. At this size it is a sign-off — the
-                    reader has just been asked to bring one problem, and
-                    this is what happens to it. */}
-                <p className="ax-close__stamp" aria-hidden="true">
-                  AI that does the work.
-                </p>
-              </div>
+              {/* The last line, and the same four words the page opens
+                  on. Set small and tracked out under a hairline rather
+                  than as a second heading: at heading size it would
+                  compete with the question above it and read as the page
+                  restating its claim after asking for something, which
+                  is the wrong order. At this size it is a sign-off — the
+                  reader has just been asked to bring one problem, and
+                  this is what happens to it. */}
+              <p className="ax-close__stamp" aria-hidden="true">
+                AI that does the work.
+              </p>
             </div>
           </div>
         </div>

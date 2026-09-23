@@ -28,7 +28,7 @@ import AmbientVideo from "@/components/motion/AmbientVideo";
  */
 
 /**
- * `note` is where the proof goes, and the wording of it is load-bearing.
+ * `proof.kind` is where the proof is qualified, and the wording is load-bearing.
  * "Proof built" means a named product of ours already does this. "Transferable
  * proof" means the capability is built and shipping, but in an adjacent
  * sector — no client in this one has taken delivery yet. The two are not
@@ -43,60 +43,89 @@ import AmbientVideo from "@/components/motion/AmbientVideo";
  * with nowhere to land when this panel carried only `short` as its title —
  * "AI in Fintech" is a label, not a claim, and the claim is the thing the
  * slide was written for. `short` stays as the eyebrow: it is the tab's own
- * name and the panel has to say which tab you opened.
+ * name and the panel has to say which tab you opened. It uses the deck's
+ * sector names ("Healthtech", not "AI in Healthcare") so the tabs match the
+ * sector row in the hero.
+ *
+ * `builds` are name + one line, and render as a grid of agent tiles rather
+ * than a bullet list of "Name — description" strings: the deck sets each
+ * agent as its own card, and a reader scans for the agent's name first.
+ * `proof` is split the same way — `kind` is the "Proof built" /
+ * "Transferable proof" distinction above, `items` are the named products,
+ * and `caveat` holds the one qualifier that is not a product.
+ *
+ * `accent` is the deck's colour for each sector (teal, green, amber, blue),
+ * using hexes the site already uses elsewhere (compose.css, console.css).
  */
 const DETAIL = {
   0: {
     headline: "Imagine your bank with a digital workforce.",
-    short: "AI in Fintech",
+    short: "Fintech",
+    accent: "#2fd3c0",
     builds: [
-      "Customer agent — supported service and banking requests, conversationally",
-      "Fraud agent — scores suspicious activity and creates explainable intervention context",
-      "Collections agent — contacts customers, captures outcomes, escalates exceptions",
-      "Operations agent — disputes, reconciliation and exception queues",
-      "Knowledge agent — governed access to policies, SOPs and institutional knowledge",
-      "Employee copilot — assists regulated teams without sending sensitive data to public AI",
+      { name: "Customer agent", text: "Handles supported service and banking requests conversationally." },
+      { name: "Fraud agent", text: "Scores suspicious activity and creates explainable intervention context." },
+      { name: "Collections agent", text: "Contacts customers, captures outcomes and escalates exceptions." },
+      { name: "Operations agent", text: "Works disputes, reconciliation and exception queues." },
+      { name: "Knowledge agent", text: "Governed access to policies, SOPs and institutional knowledge." },
+      { name: "Employee copilot", text: "Assists regulated teams without sending sensitive data to public AI." },
     ],
-    note: "Proof built: AXON · LIVE fintech fraud detection · AI outbound voice engagement · private enterprise LLM.",
+    proof: {
+      kind: "Proof built",
+      items: ["AXON", "LIVE Fintech Fraud Detection", "AI Outbound Voice Engagement", "Private Enterprise LLM"],
+    },
   },
   1: {
     headline: "Imagine administrative work moving before staff have to chase it.",
-    short: "AI in Healthcare",
+    short: "Healthtech",
+    accent: "#4ade80",
     builds: [
-      "Patient access agent — scheduling, navigation, FAQs and service requests",
-      "RCM agent — eligibility, AR follow-up, billing and denial workflow",
-      "Patient financial agent — multilingual billing support and proactive follow-up",
-      "Knowledge agent — SOP, policy and operational knowledge grounded in approved sources",
-      "Supply agent — voice-driven stock for pharmacy and clinical supplies",
-      "Workforce copilot — summaries, document assistance and workflow guidance for staff",
+      { name: "Patient access agent", text: "Scheduling, navigation, FAQs and service requests." },
+      { name: "RCM agent", text: "Eligibility, AR follow-up, billing and denial workflow assistance." },
+      { name: "Patient financial agent", text: "Multilingual billing support and proactive follow-up." },
+      { name: "Knowledge agent", text: "SOP, policy and operational knowledge grounded in approved sources." },
+      { name: "Supply agent", text: "Voice-driven stock and availability for pharmacy and clinical supplies." },
+      { name: "Workforce copilot", text: "Summaries, document assistance and workflow guidance for staff." },
     ],
-    note: "Transferable proof: voice AI · outbound voice · private RAG/LLM · voice inventory.",
+    proof: {
+      kind: "Transferable proof",
+      items: ["Voice AI", "Outbound Voice", "Private RAG/LLM", "Voice Inventory"],
+    },
   },
   2: {
     headline: "Imagine every frontline team having an AI operator beside them.",
     short: "Retail & Customer Ops",
+    accent: "#f0a83c",
     builds: [
-      "Inventory agent — hands-free stock, location, movement and exceptions",
-      "Store ops agent — tasks, SOPs and operational issue escalation",
-      "Customer service agent — supported requests across voice and digital",
-      "Outbound agent — reminders, campaigns, qualification and follow-up",
-      "Agent assist — retrieves knowledge, summarizes calls, suggests next actions",
-      "Analytics agent — surfaces operational exceptions through natural-language interaction",
+      { name: "Inventory agent", text: "Hands-free stock, location, movement and exception visibility." },
+      { name: "Store ops agent", text: "Guides tasks, SOPs and operational issue escalation." },
+      { name: "Customer service agent", text: "Resolves supported requests across voice and digital channels." },
+      { name: "Outbound agent", text: "Reminders, campaigns, qualification and follow-up." },
+      { name: "Agent assist", text: "Retrieves knowledge, summarizes conversations and suggests next actions." },
+      { name: "Analytics agent", text: "Surfaces operational exceptions through natural-language interaction." },
     ],
-    note: "Proof built: AI voice retail inventory manager · AXON · AXON 2.0 · AI outbound voice engagement.",
+    proof: {
+      kind: "Proof built",
+      items: ["AI Voice Retail Inventory Manager", "AXON", "AXON 2.0", "AI Outbound Voice Engagement"],
+    },
   },
   3: {
     headline: "Imagine field and operations teams with governed AI at the point of work.",
     short: "Industrial & Energy",
+    accent: "#4d7cf5",
     builds: [
-      "Maintenance agent — manuals, history and SOPs for troubleshooting",
-      "Field voice copilot — hands-free procedures, work instructions and knowledge access",
-      "Spares agent — inventory and availability across parts stores and warehouses",
-      "Work order agent — creates, enriches, prioritizes and updates maintenance workflows",
-      "Asset knowledge agent — searches technical documentation and maintenance records",
-      "Exception agent — classifies operational, meter, billing and process exceptions",
+      { name: "Maintenance agent", text: "Uses manuals, history and SOPs to support troubleshooting." },
+      { name: "Field voice copilot", text: "Hands-free procedures, work instructions and knowledge access." },
+      { name: "Spares agent", text: "Inventory and availability across parts stores and warehouses." },
+      { name: "Work order agent", text: "Creates, enriches, prioritizes and updates maintenance workflows." },
+      { name: "Asset knowledge agent", text: "Searches technical documentation and maintenance records." },
+      { name: "Exception agent", text: "Classifies operational, meter, billing or process exceptions." },
     ],
-    note: "Transferable proof: private enterprise LLM/RAG · voice inventory · AXON voice stack · workflow orchestration. Integration depends on the client's OT/SCADA architecture and permitted interfaces.",
+    proof: {
+      kind: "Transferable proof",
+      items: ["Private Enterprise LLM/RAG", "Voice Inventory", "AXON voice stack", "Workflow orchestration"],
+      caveat: "Integration depends on the client's OT/SCADA architecture and permitted interfaces.",
+    },
   },
 };
 
@@ -191,6 +220,9 @@ export default function ServiceExplorer() {
               <span className="ax-svc__tab-full">
                 {s.title.split("—")[1]?.trim() || s.title}
               </span>
+              <span className="ax-svc__tab-meta">
+                {DETAIL[i].builds.length} agents &middot; {DETAIL[i].proof.kind}
+              </span>
             </span>
             <span className="ax-svc__tab-mark" aria-hidden="true">
               <svg viewBox="0 0 24 24">
@@ -206,6 +238,7 @@ export default function ServiceExplorer() {
         id="svc-panel"
         role="tabpanel"
         aria-labelledby={`svc-tab-${active}`}
+        style={{ "--svc-accent": detail.accent }}
       >
         <div className="ax-svc__stage" aria-hidden="true">
           {mounted.map((f) => (
@@ -234,10 +267,23 @@ export default function ServiceExplorer() {
             <h3 className="ax-svc__panel-title">{detail.headline}</h3>
             <ul className="ax-svc__builds">
               {detail.builds.map((b) => (
-                <li key={b}>{b}</li>
+                <li className="ax-svc__agent" key={b.name}>
+                  <h4 className="ax-svc__agent-name">{b.name}</h4>
+                  <p className="ax-svc__agent-text">{b.text}</p>
+                </li>
               ))}
             </ul>
-            <p className="ax-svc__note">{detail.note}</p>
+            <div className="ax-svc__proof">
+              <p className="ax-svc__proof-kind">{detail.proof.kind}</p>
+              <ul className="ax-svc__proof-items">
+                {detail.proof.items.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+              {detail.proof.caveat ? (
+                <p className="ax-svc__proof-caveat">*{detail.proof.caveat}</p>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

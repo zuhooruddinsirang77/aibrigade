@@ -5,7 +5,10 @@ import "./system.css";
 import "./globals.css";
 import "./motion.css";
 import "./projects.css";
-import "./casestudy.css";
+/* usecase.css — /use-cases/<id>. Took over from casestudy.css with the
+   client case studies. Every selector is new (`.ax-uc*`), and it sits
+   after projects.css because the demo band reuses the showcase player. */
+import "./usecase.css";
 import "./path.css";
 import "./sysv.css";
 import "./svc.css";
@@ -59,6 +62,11 @@ import "./demos.css";
    fields that make iOS zoom on focus, and label sizes, several of which
    are set by compose.css and hero.css above. */
 import "./touch.css";
+/* featured.css — the Featured chapter: its example-brief panel and the
+   lead-in to the problem cards, at every width. It replaced rules for the
+   old card in film.css, motion.css, refine.css and touch.css, so it loads
+   after all four. Every selector in it is scoped by `#featured`. */
+import "./featured.css";
 import Script from "next/script";
 import { PopupProvider } from "@/components/PopupContext";
 import Preloader from "@/components/Preloader";

@@ -5,17 +5,16 @@ import Kicker from "@/components/motion/Kicker";
 import GemCore from "@/components/motion/GemCore";
 
 /**
- * The five engagement stages are a sequence; the sixth entry in `features`
- * is a closing claim that happened to have been the sixth tile in the same
- * 3x2 grid. Splitting them lets the sequence be drawn as one (see
- * Pipeline.jsx) and lets the closing claim sit where a closing claim
- * belongs.
+ * The four engagement stages are a sequence; the last entry in `features`
+ * is a closing claim, not a stage. Splitting them lets the sequence be
+ * drawn as one (see Pipeline.jsx) and lets the closing claim sit where a
+ * closing claim belongs.
  *
- * Matched by string against `features` in data.js, and the same five names
- * key every chapter in deployments.data.js — change one list and all three
- * have to move.
+ * Matched by string against `features` in data.js, and the same four names
+ * key every chapter in deployments.data.js and `filmFor.stages` in
+ * video.data.js — change one list and all of them have to move.
  */
-const STAGE_TITLES = ["Identify", "Design", "Prove", "Measure", "Scale"];
+const STAGE_TITLES = ["Identify", "Prove", "Measure", "Scale"];
 
 export default function Features() {
   const stages = features.filter((f) => STAGE_TITLES.includes(f.title));

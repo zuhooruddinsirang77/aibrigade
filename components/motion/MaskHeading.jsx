@@ -19,7 +19,30 @@ import { loadGsap, prefersReducedMotion } from "@/components/motion/gsapLoader";
  *   <h2 className="gradient-background heading-gradient-60pt-ipad-pro">
  *     <MaskHeading text={"Prominent\nCases"} />
  *   </h2>
+ *
+ * Words wrapped in asterisks — `"AI that does\n*the work.*"` — get
+ * `.ax-mask__word--accent`, so a heading can carry its emphasis without
+ * giving up the per-word reveal. The asterisks are not rendered.
  */
+
+/* Split one line into words, marking the ones inside `*…*`. */
+function parseLine(line) {
+  let accent = false;
+  return line
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((raw) => {
+      let word = raw;
+      const opens = word.startsWith("*");
+      if (opens) word = word.slice(1);
+      const closes = word.endsWith("*");
+      if (closes) word = word.slice(0, -1);
+      if (opens) accent = true;
+      const out = { word, accent };
+      if (closes) accent = false;
+      return out;
+    });
+}
 export default function MaskHeading({ text, delay = 0, start = "top 85%" }) {
   const ref = useRef(null);
 
@@ -81,8 +104,11 @@ export default function MaskHeading({ text, delay = 0, start = "top 85%" }) {
     <span className="ax-mask" ref={ref}>
       {lines.map((line, li) => (
         <span key={li}>
-          {line.split(/\s+/).filter(Boolean).map((word, wi) => (
-            <span className="ax-mask__word" key={`${li}-${wi}`}>
+          {parseLine(line).map(({ word, accent }, wi) => (
+            <span
+              className={accent ? "ax-mask__word ax-mask__word--accent" : "ax-mask__word"}
+              key={`${li}-${wi}`}
+            >
               <span>
                 {word}
                 {"\u00A0"}

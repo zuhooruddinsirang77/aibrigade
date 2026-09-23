@@ -10,7 +10,7 @@ import Reveal from "@/components/motion/Reveal";
 import Kicker from "@/components/motion/Kicker";
 
 /**
- * `role` is one string — "Chief Risk Officer, Meridian Capital" — and the
+ * `role` is one string — "CEO, Curiosity Fintech, LLC" — and the
  * two halves of it do different jobs. The title says how much this
  * person's opinion is worth; the company says whose opinion it is. The
  * selector list on the right of the stage is a list of *organisations* a

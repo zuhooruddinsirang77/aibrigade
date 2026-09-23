@@ -11,10 +11,15 @@ import KnowledgeAssistantDemo from "@/components/demos/KnowledgeAssistantDemo";
  * append an entry here. Nothing in app/demos/page.jsx changes; it renders
  * whatever this array holds, in this order.
  *
- * `capability` maps each demo to the capability it evidences, in the same
+ * `stages` maps each demo to the capabilities it evidences, in the same
  * vocabulary the rest of the site uses (LISTEN / UNDERSTAND / REASON /
- * DECIDE / ACT), so a reader can see which part of the stack they are
- * looking at rather than four unrelated toys.
+ * DECIDE / ACT — see `STAGES` below), so a reader can see which part of
+ * the stack they are looking at rather than four unrelated toys. The
+ * hero's module map and each section's spec card both draw from it.
+ *
+ * `short` is the name the sticky lab rail prints, where four full titles
+ * would not fit on a phone. `engine` names the method in a few words; the
+ * full account of it is `honesty`.
  *
  * ON `honesty`: every demo prints this line under its own description. The
  * site's existing copy is careful never to claim more than it can show
@@ -30,8 +35,10 @@ export const demos = [
   {
     id: "fraud-decision",
     title: "Real-time fraud decisioning",
+    short: "Fraud decisioning",
     category: "Decision intelligence",
-    capability: "REASON → DECIDE",
+    stages: ["reason", "decide"],
+    engine: "Transparent scorecard + policy set",
     summary:
       "Score a card transaction as it happens, then act on the score under a policy a risk team controls.",
     description:
@@ -44,8 +51,10 @@ export const demos = [
   {
     id: "document-extraction",
     title: "Document intelligence",
+    short: "Document intelligence",
     category: "Understanding",
-    capability: "UNDERSTAND",
+    stages: ["understand"],
+    engine: "Pattern extraction + classifier",
     summary:
       "Turn an unstructured document into a structured record, with the source span behind every field.",
     description:
@@ -58,8 +67,10 @@ export const demos = [
   {
     id: "intent-router",
     title: "Agent intent routing",
+    short: "Intent routing",
     category: "Conversational AI",
-    capability: "LISTEN → UNDERSTAND → ACT",
+    stages: ["listen", "understand", "act"],
+    engine: "Weighted classifier + routing policy",
     summary:
       "Work out what a customer wants, then decide whether to act on it, ask about it, or hand it to a person.",
     description:
@@ -72,8 +83,10 @@ export const demos = [
   {
     id: "knowledge-assistant",
     title: "Private knowledge assistant",
+    short: "Knowledge assistant",
     category: "Retrieval",
-    capability: "UNDERSTAND → REASON",
+    stages: ["understand", "reason"],
+    engine: "BM25 retrieval + groundedness gate",
     summary:
       "Answer from a private corpus with citations — and refuse when the corpus does not cover the question.",
     description:
@@ -86,3 +99,13 @@ export const demos = [
 ];
 
 export const categories = [...new Set(demos.map((d) => d.category))];
+
+/* The five capabilities, in pipeline order. Ids are what `stages` above
+   holds; labels are what the page prints. */
+export const STAGES = [
+  { id: "listen", label: "Listen" },
+  { id: "understand", label: "Understand" },
+  { id: "reason", label: "Reason" },
+  { id: "decide", label: "Decide" },
+  { id: "act", label: "Act" },
+];

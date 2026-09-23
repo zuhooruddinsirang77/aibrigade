@@ -356,154 +356,383 @@
 
 /* ---------- the estate ----------
    The diagram under the four tabs: systems owned, the layer across them,
-   the people it reaches. Dark band, so this reuses the same hairline
-   vocabulary as `.ax-env__tags` rather than inventing a second one. The
-   layer band is the only filled element, because it is the only thing in
-   the diagram that is ours. */
+   the people it reaches — drawn as one framed reference architecture.
+
+   It used to be three loose rows laid straight over the footage: pale
+   frosted cells that let each frame of the film through at a different
+   brightness, a purple bar, and a row of bare labels. Over a moving
+   picture that read as a stack of unrelated buttons. Now it is one panel
+   with a single dark surface, numbered tiers down the left, and hairline
+   connectors carrying the eye from each system into the layer and from
+   the layer out to each audience.
+
+   Colour rule: the layer is the only violet thing in the diagram, because
+   it is the only thing in it that is ours. Systems and people stay neutral.
+
+   Layout is driven by the panel's own width (container queries), not the
+   viewport, so it holds wherever the panel ends up. */
 .ax-estate {
-  /* `.ax-env__inner` already puts --sp-9 between its children and the
-     panel above reserves height for its longest tab, so the old --sp-9
-     here stacked into roughly 200px of dead band. */
-  margin-top: var(--sp-6);
-  padding-top: var(--sp-8);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.ax-estate__label {
-  margin: 0 0 1rem;
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-}
-
-.ax-estate__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
-  gap: 0.6rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.ax-estate__cell {
-  display: grid;
-  place-items: center;
-  min-height: 3.5rem;
-  padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--r-md);
-  background: rgba(255, 255, 255, 0.03);
-  text-align: center;
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.78);
-}
-
-/* The one filled element. `--grad-violet` is the same wash the brand
-   blocks elsewhere on the page use, held at low opacity so the estate
-   above and the audiences below stay legible against it. */
-/* The one filled element, and the only thing in the diagram that is ours.
-   It carries a downward cue at each end so the three bands read as a
-   stack that flows — estate above, layer across, people below — rather
-   than as three unrelated rows that happen to be near each other. */
-.ax-estate__layer {
+  container: estate / inline-size;
+  --estate-gap: 2rem;
   position: relative;
-  margin: 2.25rem 0;
-  padding: 1.75rem 1.5rem;
-  border: 1px solid rgba(155, 125, 240, 0.55);
-  border-radius: var(--r-lg);
-  background: rgba(124, 77, 232, 0.14);
-  text-align: center;
-}
-.ax-estate__layer::before,
-.ax-estate__layer::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  width: 1px;
-  height: 1.35rem;
-  background: linear-gradient(
-    to bottom,
-    rgba(155, 125, 240, 0),
-    rgba(155, 125, 240, 0.6)
-  );
-}
-.ax-estate__layer::before {
-  top: calc(-1.35rem - 1px);
-}
-.ax-estate__layer::after {
-  bottom: calc(-1.35rem - 1px);
-  transform: scaleY(-1);
-}
-.ax-estate__layer-name {
-  margin: 0;
-  font-size: clamp(1rem, 1.9vw, 1.25rem);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.35;
-  color: #fff;
-}
-.ax-estate__layer-parts {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.45rem 0;
-  margin: 0.9rem 0 0;
-  padding: 0;
-  list-style: none;
+  flex-direction: column;
+  gap: var(--estate-gap);
+  /* `.ax-env__inner` already puts --sp-9 above this. */
+  margin-top: 0;
+  padding: var(--sp-6) 2.25rem;
+  border: 1px solid var(--line-invert);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(60% 80% at 50% 0%, rgba(103, 44, 169, 0.16) 0%, rgba(103, 44, 169, 0) 70%),
+    linear-gradient(180deg, rgba(10, 12, 20, 0.8) 0%, rgba(7, 9, 14, 0.88) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
+  backdrop-filter: blur(22px) saturate(1.15);
+  box-shadow:
+    var(--shadow-invert),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-.ax-estate__layer-parts li {
+
+/* ---- tiers ---- */
+.ax-estate__tier {
+  display: grid;
+  gap: 1rem;
+}
+.ax-estate__tier-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.ax-estate__tier-no {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
-  color: var(--violet-200, #b79cf0);
+  color: var(--violet-300);
 }
-/* Trailing, not leading — a wrapped line must not open on a dot that
-   separates it from nothing. Same reasoning as the chain arrows in
-   path.css. */
-.ax-estate__layer-parts li:not(:last-child)::after {
-  content: "•";
-  margin: 0 0.75rem;
-  color: rgba(255, 255, 255, 0.25);
+.ax-estate__tier-name {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
 }
 
+/* ---- tier 01: systems ---- */
+.ax-estate__grid,
+.ax-estate__layer-parts,
 .ax-estate__audience {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
+.ax-estate__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.ax-estate__cell,
 .ax-estate__audience li {
-  padding: 0.65rem 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  border: 1px solid var(--line-invert);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.9);
+  transition:
+    border-color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease);
+}
+.ax-estate__cell:hover,
+.ax-estate__audience li:hover {
+  border-color: var(--line-invert-strong);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.ax-estate__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 5.5rem;
+  padding: 1rem 0.625rem;
   text-align: center;
+}
+.ax-estate__cell-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.ax-estate__icon {
+  display: inline-flex;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgba(255, 255, 255, 0.62);
+  transition: color var(--dur-2) var(--ease);
+}
+.ax-estate__icon svg {
+  width: 100%;
+  height: 100%;
+}
+.ax-estate__cell:hover .ax-estate__icon,
+.ax-estate__audience li:hover .ax-estate__icon {
+  color: var(--violet-200);
+}
+
+/* Positioned by hand: the Webflow base already lifts `sup`, and adding
+   `vertical-align: super` on top of that floated it clear of the word. */
+.ax-estate__mark {
+  position: relative;
+  top: -0.35em;
+  margin-left: 0.1em;
+  font-size: 0.95em;
+  font-weight: 700;
+  line-height: 0;
+  vertical-align: baseline;
+  color: var(--coral);
+}
+
+/* ---- tier 02: the layer ----
+   The one filled element. A brand-gradient hairline (coral into violet,
+   the same pair as `--grad-brand`) on an opaque deep-violet body, so the
+   border gradient never shows through the fill. */
+.ax-estate__layer {
+  position: relative;
+  padding: 1.5rem 1.5rem 1.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(90% 130% at 0% 0%, rgba(146, 72, 228, 0.34) 0%, rgba(146, 72, 228, 0) 60%) padding-box,
+    linear-gradient(135deg, #25104b 0%, #180b32 100%) padding-box,
+    linear-gradient(100deg, rgba(248, 119, 86, 0.75) 0%, rgba(146, 72, 228, 0.85) 42%, rgba(199, 155, 245, 0.3) 100%) border-box;
+  box-shadow:
+    0 1.5rem 3rem rgba(28, 10, 56, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.ax-estate__layer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+}
+.ax-estate__layer-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgba(199, 155, 245, 0.4);
+  border-radius: var(--r-sm);
+  background: var(--grad-violet);
+  color: #fff;
+}
+.ax-estate__layer-mark svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.ax-estate__layer-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+  font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.ax-estate__layer-name span {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--violet-300);
+}
+
+.ax-estate__layer-parts {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+.ax-estate__layer-parts li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid rgba(199, 155, 245, 0.2);
+  border-radius: var(--r-sm);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--violet-100);
+}
+.ax-estate__layer-parts li::before {
+  content: "";
+  flex: none;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--violet-300);
+  box-shadow: 0 0 0.5rem rgba(199, 155, 245, 0.8);
+}
+
+/* ---- tier 03: people ---- */
+.ax-estate__audience {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+.ax-estate__audience li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.9rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.8);
+}
+.ax-estate__audience .ax-estate__icon {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .ax-estate__foot {
-  margin: var(--sp-6) 0 0;
-  text-align: center;
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-invert);
   font-size: 0.75rem;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.45);
+}
+.ax-estate__foot .ax-estate__mark {
+  margin: 0 0.3em 0 0;
+}
+
+/* ---- connectors ----
+   Where the panel is too narrow for the tiers to line up, the stack is
+   joined by one centred stub above and below the layer. Once all eight
+   systems sit in one row (below), each system gets its own line down into
+   the layer and each audience its own line out of it. */
+.ax-estate__layer::before,
+.ax-estate__layer::after,
+.ax-estate__cell::after,
+.ax-estate__audience li::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: var(--estate-gap);
+  pointer-events: none;
+  display: none;
+}
+.ax-estate__layer::before,
+.ax-estate__cell::after {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(199, 155, 245, 0.6));
+}
+.ax-estate__layer::after,
+.ax-estate__audience li::before {
+  background: linear-gradient(to bottom, rgba(199, 155, 245, 0.6), rgba(255, 255, 255, 0.16));
+}
+.ax-estate__layer::before {
+  bottom: calc(100% + 1px);
+}
+.ax-estate__layer::after {
+  top: calc(100% + 1px);
+}
+.ax-estate__cell::after {
+  top: calc(100% + 1px);
+}
+.ax-estate__audience li::before {
+  bottom: calc(100% + 1px);
+}
+
+/* ---- widths ---- */
+@container estate (min-width: 36rem) {
+  .ax-estate__grid,
+  .ax-estate__layer-parts,
+  .ax-estate__audience {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Tier labels move into their own column on the left, and the stack is
+   joined through the centre of the content column. */
+@container estate (min-width: 56rem) {
+  .ax-estate__tier {
+    grid-template-columns: 10.5rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+  }
+  .ax-estate__tier-head {
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .ax-estate__foot {
+    padding-left: 13rem;
+  }
+  .ax-estate__layer::before,
+  .ax-estate__layer::after {
+    display: block;
+  }
+}
+
+/* Full width: eight systems over eight capabilities over four audiences,
+   each system and each audience wired to the layer. */
+@container estate (min-width: 80rem) {
+  .ax-estate__grid,
+  .ax-estate__layer-parts {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+  .ax-estate__layer::before,
+  .ax-estate__layer::after {
+    display: none;
+  }
+  .ax-estate__cell::after,
+  .ax-estate__audience li::before {
+    display: block;
+  }
+}
+
+/* A pulse travels each wire, system → layer → people, on a stagger.
+   Decorative and slow; off entirely under reduced motion. */
+html.ax-motion:not(.ax-reduced) .ax-estate__cell::after,
+html.ax-motion:not(.ax-reduced) .ax-estate__audience li::before {
+  background:
+    linear-gradient(to bottom, rgba(226, 203, 248, 0), rgba(226, 203, 248, 0.95) 50%, rgba(226, 203, 248, 0)) 0 -120% / 100% 45% no-repeat,
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.16), rgba(199, 155, 245, 0.6));
+  animation: ax-estate-flow 3.2s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * 0.3s);
+}
+html.ax-motion:not(.ax-reduced) .ax-estate__audience li::before {
+  background:
+    linear-gradient(to bottom, rgba(226, 203, 248, 0), rgba(226, 203, 248, 0.95) 50%, rgba(226, 203, 248, 0)) 0 -120% / 100% 45% no-repeat,
+    linear-gradient(to bottom, rgba(199, 155, 245, 0.6), rgba(255, 255, 255, 0.16));
+  animation-delay: calc(1.6s + var(--i, 0) * 0.3s);
+}
+@keyframes ax-estate-flow {
+  0% { background-position: 0 -120%, 0 0; }
+  60%, 100% { background-position: 0 220%, 0 0; }
 }
 
 @media (max-width: 767px) {
-  /* Two across rather than four squeezed, and the parts row left-aligns
-     with everything else on a phone instead of centring alone. */
-  .ax-estate__audience {
-    grid-template-columns: repeat(2, 1fr);
+  .ax-estate {
+    --estate-gap: 1.75rem;
+    padding: var(--sp-5) 1.125rem;
+    border-radius: var(--r-lg);
   }
-  .ax-estate__layer-parts {
-    justify-content: flex-start;
-  }
-  .ax-estate__foot {
-    text-align: left;
+  .ax-estate__layer {
+    padding: 1.25rem 1rem 1.375rem;
   }
 }
 
@@ -728,6 +957,10 @@ html.ax-motion:not(.ax-reduced) .ax-infra__status-dot {
   font-size: 1.25rem;
   line-height: 1.3;
   font-weight: 600;
+  /* Webflow's h3 carries a fixed -2px of tracking, sized for its display
+     headings. At 1.25rem that is -0.125em and the word spaces vanish —
+     "Everyaction,reconstructable". */
+  letter-spacing: -0.01em;
   color: #fff;
 }
 .ax-infra__item-d {
@@ -1044,29 +1277,12 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
 
 /* ---- Featured ----
 
-   Layered explicitly rather than with a negative z-index, and that is not
-   a preference — the negative version did not paint. `.featured_component`
-   is a rounded violet card (`background-color: var(--violet)`,
-   `position: relative`, `z-index: 0`, `overflow: hidden`), and although a
-   negative-index child of a stacking context is supposed to paint above
-   that context's own background, here it did not: the clip was confirmed
-   mounted, playing, `opacity: 1`, sized exactly to the card — and the
-   section still rendered as a flat purple slab.
-
-   So the film covers the card outright and the real content is lifted
-   above it. That needs no assumption about negative layers, and it
-   degrades correctly: if the clip never loads, the violet card is what
-   remains. The WhyUs cards below use the same pattern. */
-.ax-featured__film {
-  z-index: 0;
-  border-radius: 0.625rem; /* `.featured_component` in the Webflow sheet */
-}
-#featured .featured_component > h3,
-#featured .featured_component > p,
-#featured .featured_component > .ax-featured-terminal {
-  position: relative;
-  z-index: 1;
-}
+   No film any more: the chapter shows an example-brief panel instead
+   (components/motion/ProblemBrief.jsx, app/featured.css). The layering
+   lesson it taught stays with the WhyUs cards below, which still use it:
+   a Webflow card at `z-index: 0` painted over a negative-index film child,
+   so the film covers the card at 0 and the content is lifted to 1. The
+   README has the full account. */
 
 /* ---- Inside the system ----
    `.ax-path` is `isolation: isolate`, so -1 is scoped and safe. This
@@ -1110,76 +1326,201 @@ html.ax-motion:not(.ax-reduced) .ax-hero__lede {
 
 /* ---- Closing CTA ----
    `.section_cta_dark` sets `isolation: isolate` inline, so -2 is reliable
-   and puts the film under the network canvas at -1. */
+   and puts the film under the light field at -1. */
 .section_cta_dark .ax-cta__film {
   z-index: -2;
 }
 
-/* ---- the closing question's own answer sheet ----
-   Seven functional areas and the ask, between the heading and the
-   button. Chips, not links: nothing on this site is a page per function,
-   and something that looks clickable and isn't is worse than a label —
-   hence no hover state and no pointer. The stack below orders them
-   heading → areas → ask → button, which is the order the question is
-   actually answered in. */
+/* The scrim. The clip is bright — a lit face in the middle of the frame,
+   a glowing assistant on the right — and with nothing between it and the
+   copy the question sat across the man's face and the chips across the
+   robot. Directional, like the hero's: near-ink under the copy column on
+   the left, thinning out to the right so the assistant stays the
+   brightest thing in the frame. The violet pool in the lower-left corner
+   is the `.link.fill` gradient's deep stop, so the band closes on the
+   brand colour rather than on neutral black. Same z-index as the film and
+   later in tree order, so it paints over it and under the light field. */
+.section_cta_dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 75% at 0% 100%, rgba(63, 22, 110, 0.55) 0%, transparent 70%),
+    linear-gradient(
+      90deg,
+      rgba(5, 7, 10, 0.92) 0%,
+      rgba(5, 7, 10, 0.82) 30%,
+      rgba(5, 7, 10, 0.5) 55%,
+      rgba(5, 7, 10, 0.16) 78%,
+      rgba(5, 7, 10, 0.28) 100%
+    ),
+    linear-gradient(180deg, rgba(5, 7, 10, 0.4) 0%, transparent 28%, transparent 68%, rgba(5, 7, 10, 0.6) 100%);
+}
+
+/* More air than Webflow's 4.125rem: this is the last thing on the page
+   before the footer, and a closing question needs the room a closing
+   question gets, and enough underneath that the sign-off never sits on
+   the band's lower edge. */
+.section_cta_dark .padding-section-cta_dark {
+  padding-top: clamp(5.5rem, 13vh, 9rem);
+  padding-bottom: clamp(4rem, 9vh, 6rem);
+}
+
+/* One column on the left, stacked: kicker → question → ask → starting
+   points → button → sign-off. Webflow lays `.cta_dark_component` out as a
+   space-between row (and, at tablet width, a column with a 13.75rem gap),
+   which stranded the button in the middle of the frame. The column is
+   capped so the copy stays on the dark side of the scrim — wide enough
+   for the question's first line to hold at full size (at 46rem, "be"
+   dropped onto a line of its own), while the chips keep a narrower
+   measure of their own below. */
+.section_cta_dark .ax-close {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  max-width: 54rem;
+  padding-right: 0;
+}
+
+.section_cta_dark .ax-close .ax-kicker {
+  align-self: stretch;
+  margin: 0 0 1.75rem;
+}
+
+/* The hero's register, one step down: same weight, same tight tracking,
+   same two-line shape, at roughly three quarters of the hero's size so
+   the first screen keeps the larger claim. */
+.section_cta_dark .ax-close__title {
+  margin: 0;
+  max-width: none;
+  font-size: clamp(2.5rem, 3.8vw, 4rem);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: #fff;
+}
+/* The hero's accent, exactly — see `.ax-hero__title` in hero.css. */
+.section_cta_dark .ax-close__title .ax-mask__word--accent > span {
+  background: linear-gradient(100deg, #eadbfd 0%, #c79bf5 45%, #9f5cf0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.section_cta_dark .ax-close__ask {
+  margin: 1.5rem 0 0;
+  max-width: 42rem;
+  font-size: clamp(1.0625rem, 1.25vw, 1.25rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+/* ---- the starting points ----
+   Chips, not links: nothing on this site is a page per function, and
+   something that looks clickable and isn't is worse than a label — hence
+   no hover state and no pointer. Sentence case with a violet pip rather
+   than seven uppercase slabs: in capitals, at full white, the row was
+   louder than the question it was there to help answer. */
+.section_cta_dark .ax-close__areas-block {
+  max-width: 46rem;
+  margin-top: 2.25rem;
+}
+.section_cta_dark .ax-close__areas-label {
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet-300);
+}
 .section_cta_dark .ax-close__areas {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin: var(--sp-6) 0 0;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 .section_cta_dark .ax-close__areas li {
-  padding: 0.5rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.04);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.section_cta_dark .ax-close__ask {
-  margin: var(--sp-6) 0 var(--sp-5);
-  max-width: 44ch;
-  font-size: clamp(1.0625rem, 2vw, 1.375rem);
-  line-height: 1.45;
-  color: #fff;
-}
-
-/* The sign-off under the button — the page's own title, returned at the
-   end. Deliberately the quietest type in the section: it is a rhyme with
-   the hero, and a rhyme that shouts is just a repetition. `aria-hidden`
-   in the markup for the same reason — a screen reader has already had
-   this sentence, as the h1. */
-.section_cta_dark .ax-close__stamp {
-  margin: var(--sp-2) 0 0;
-  /* 0.75rem tracked out to 0.22em came out at ~10px of uppercase over a
-     moving picture, which is below the size this treatment survives — it
-     was legible on the dark half of the frame and gone on the light half.
-     Up one step, with the tracking eased off to match. */
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  color: rgba(255, 255, 255, 0.88);
+}
+.section_cta_dark .ax-close__areas li::before {
+  content: "";
+  flex: none;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--violet-300);
+  box-shadow: 0 0 0.5rem rgba(199, 155, 245, 0.7);
+}
+
+/* `.ax-hero__cta` itself is styled above and reused as it is. */
+.section_cta_dark .ax-close__actions {
+  margin-top: 2.5rem;
+}
+
+/* The sign-off — the page's own title, returned at the end. Deliberately
+   the quietest type in the section: it is a rhyme with the hero, and a
+   rhyme that shouts is just a repetition. `aria-hidden` in the markup for
+   the same reason — a screen reader has already had this sentence, as
+   the h1. It sits on the same hairline the hero's sector row does, which
+   closes the column the way that row closes the first screen. */
+.section_cta_dark .ax-close__stamp {
+  align-self: stretch;
+  margin: 3.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.62);
-  text-shadow: 0 1px 12px rgba(5, 7, 10, 0.55);
+  color: rgba(255, 255, 255, 0.5);
 }
 
-/* Webflow lays `.cta_dark_component`'s two children (the heading, the
-   button) out with `justify-content: space-between` — fine for a row
-   with content filling both ends, but this row only has those two items,
-   so all the container's leftover width became dead space between them.
-   The button ended up stranded near the middle of the frame, answering
-   to nothing beside it, instead of reading as the one thing this sentence
-   is asking you to do. Stacking them instead, tight against each other,
-   is the grouping every other CTA on this page already uses (see
-   `.ax-hero__actions` right under the hero's own heading). */
-.section_cta_dark .cta_dark_component {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 2rem;
+/* Phones: the copy takes the whole width of the frame, so the scrim stops
+   being directional and simply covers it; the button goes full width, as
+   the hero's does at this size. */
+@media (max-width: 767px) {
+  .section_cta_dark::after {
+    background:
+      radial-gradient(ellipse 90% 60% at 0% 100%, rgba(63, 22, 110, 0.5) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(5, 7, 10, 0.8) 0%, rgba(5, 7, 10, 0.72) 50%, rgba(5, 7, 10, 0.88) 100%);
+  }
+  .section_cta_dark .ax-close__title {
+    font-size: clamp(2.125rem, 9.5vw, 2.75rem);
+    letter-spacing: -0.03em;
+  }
+  .section_cta_dark .ax-close__ask {
+    font-size: 1rem;
+  }
+  .section_cta_dark .ax-close__areas li {
+    padding: 0.45rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  .section_cta_dark .ax-close__actions {
+    align-self: stretch;
+    margin-top: 2rem;
+  }
+  .section_cta_dark .ax-close__stamp {
+    margin-top: 2.5rem;
+  }
 }
 
 /* ---- WhyUs capability cards ----
